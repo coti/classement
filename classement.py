@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.6
 
 """ Outil de recuperation du classement.
  " (c) Camille Coti, 2013
