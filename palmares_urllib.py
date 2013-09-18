@@ -1,5 +1,13 @@
 #!/usr/bin/python
 
+
+""" Outil de recuperation du classement.
+ " (c) Camille Coti, 2013
+ " Todo : 
+ " Meilleure gestion des erreurs
+"""
+
+
 import urllib
 import urllib2
 import httplib
@@ -11,9 +19,6 @@ from keepalive import HTTPHandler
 
 from classement import calculClassement
 
-""" Todo : 
- " Meilleure gestion des erreurs
-"""
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
 def buildOpener():

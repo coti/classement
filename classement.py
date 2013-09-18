@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-"""
+""" Outil de recuperation du classement.
+ " (c) Camille Coti, 2013
  " TODO:
  " - Prise en compte des WO
  " - Prise en compte des formats courts

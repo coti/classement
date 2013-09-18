@@ -1,5 +1,7 @@
 # Outil de récupération du classement de ses adversaires.
 
+(c) Camille Coti, 2013
+
 ## Système de calcul
 
 Le système classement de tennis mis en place par la Fédération française de tennis calcule votre nouveau classement en fonction du classement de vos adversaires non pas au moment où vous les avez battus, mais de leur calssement futur. Un 30 qui monte 15/3 comptera comme un 15/3 dans votre bilan. 
