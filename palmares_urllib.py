@@ -212,7 +212,7 @@ def recupClassement():
     password = raw_input("Mot de passe : " )
     LICENCE = int( raw_input( "Numero de licence : " ) )
 
-    profondeur = int( raw_input( "Profindeur :" ) )
+    profondeur = int( raw_input( "Profondeur : " ) )
 
     # On s'identifie et on obtient ses prores infos
     cj, op = buildOpener()
