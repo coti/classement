@@ -38,7 +38,14 @@ $ ./palmares.py
 
 Python 2.6 peut être téléchargé ici : http://www.python.org/ftp/python/2.6/python-2.6.msi
 
-Cliquez simplement sur palmares.py.
+* lancer l'invite de commandes
+* remonter dans le dossier C: grâce à la ligne de commande cd ".."
+* aller dans le dossier d'installation python, par exemple
+ ``` cd "Python34" ```
+si Python est installé dans C://Python34)
+* entrer la ligne de commande 
+```python.exe palmares.py```
+(après avoir mis tous les fichiers .py dans ce même répertoire)
 
 ### Exécution
 
