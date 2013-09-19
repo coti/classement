@@ -28,7 +28,7 @@ J'ai apporté une légère modification à la bibliothèque keepalive : j'ai simpleme
 
 Dans un terminal, taper :
 
-$ ./palmares_urllib.py
+$ ./palmares.py
 
 L'outil demande de saisie ses identifiants sur l'espace du licencié, le numéro de licence du joueur concerné et la profondeur de la recherche. Le dernier classement calculé affiché correspnd au classement calculé pour le joueur demandé. 
 
