@@ -26,9 +26,19 @@ J'ai apporté une légère modification à la bibliothèque keepalive : j'ai simpleme
 
 ## Utilisation
 
+### Sous Unix (Mac OS, Lunix)
+
 Dans un terminal, taper :
 
 $ ./palmares.py
+
+### Sous Windows
+
+Python 2.6 peut être téléchargé ici : http://www.python.org/ftp/python/2.6/python-2.6.msi
+
+Cliquez simplement sur palmares.py.
+
+### Exécution
 
 L'outil demande de saisie ses identifiants sur l'espace du licencié, le numéro de licence du joueur concerné et la profondeur de la recherche. Le dernier classement calculé affiché correspnd au classement calculé pour le joueur demandé. 
 
