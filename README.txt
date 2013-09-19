@@ -60,7 +60,4 @@ Il est pour le moment :
 * verbeux et peu esthétique
 
 ## TODO list:
-* prise en compte de la pénalisation pour 5 WO et au-delà de 3 WO
-* quand des numérotés entrent en compte, l'outil plante
-* prise en compte de la bonif de championnat
 * écrire une GUI

@@ -3,11 +3,8 @@
 """ Outil de recuperation du classement.
  " (c) Camille Coti, 2013
  " TODO:
- " - Prise en compte des WO
  " - Prise en compte des formats courts
- " - bonif absence de defaites significatives
  " - Joli formattage de sortie
- " - Bonif championnat
   """
 
 classementNumerique = { "S"  : -1,
@@ -35,7 +32,7 @@ classementNumerique = { "S"  : -1,
                         "-4/6" : 21,
                         "-15" : 22,
                         "-30" : 23,
-                        "Promotion" : 24,
+                        "Promo" : 24,
                         "1S" : 25}
 
 points = { -3 : 15,
@@ -69,7 +66,7 @@ maintienF = { "NC" : 0,
               "-4/6" : 750,
               "-15" : 800,
               "-30" : 850,
-              "Promotion" : 950,
+              "Promo" : 950,
               "1S" : 5000}
 
 maintienH = { "NC" : 0,
@@ -96,7 +93,7 @@ maintienH = { "NC" : 0,
               "-4/6" : 850,
               "-15" : 950,
               "-30" : 1000,
-              "Promotion" : 1100,
+              "Promo" : 1100,
               "1S" : 5000}
 
 victoiresF = { "NC" : 6,
@@ -123,7 +120,7 @@ victoiresF = { "NC" : 6,
                "-4/6" : 16,
                "-15" : 17,
                "-30" : 17,
-               "Promotion" : 19,
+               "Promo" : 19,
                "1S" : 19}
 
 victoiresH = { "NC" : 6,
@@ -150,7 +147,7 @@ victoiresH = { "NC" : 6,
                "-4/6" : 17,
                "-15" : 19,
                "-30" : 20,
-               "Promotion" : 22,
+               "Promo" : 22,
                "1S" : 22}
 
 serie = { "NC" : 4,
@@ -177,7 +174,7 @@ serie = { "NC" : 4,
           "-4/6" : -2,
           "-15" : -2,
           "-30" : -2,
-          "Promotion" : -2,
+          "Promo" : -2,
           "1S" : 1}
 
 # calcule le V - E - 2I - 5G
@@ -231,6 +228,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     nb = victoires[ myClassement ]
     v = VE2I5G( myClassement, myVictoires, myDefaites )
     
+    add = 0
     if( 4 == serie[ myClassement ] ): 
         if( v < 0 ) :
             add = 0
@@ -413,7 +411,7 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
         return None
 
     grosse = plusGrosseVictoire( myVictoires )
-    if grosse == "Promotion" or grosse == "1S":
+    if grosse == "Promo" or grosse == "1S":
         return "1S"
     else:
         for( k, v ) in classementNumerique.iteritems():
@@ -444,25 +442,30 @@ def classementPropose1erTour( myVictoires ):
     else:
         return plusGrosseVictoirePlusN( myVictoires, 1 )
 
-# Conversion des numerotes en "Promotion" ou "1S"
-def normalisation( tab, sexe ):
+# Normalise un classement
+def normalisation( classement, sexe ):
+    o = classement
+    if 'N' == classement[0] and 'C' != classement[1] :
+        # on est sur un numerote
+        s = classement[1:]
+        n = int( s )
+        if 'H' == sexe:
+            if n <= 30:
+                o = "1S"
+            else:
+                o = "Promo"
+        else:
+            if n <= 20:
+                o = "1S"
+            else:
+                o = "Promo"
+    return o
+
+# Conversion des numerotes en "Promo" ou "1S"
+def normalisationTab( tab, sexe ):
     tabSortie = []
     for c in tab:
-        o = c
-        if 'N' == c[0] and 'C' != c[1] :
-            # on est sur un numerote
-            s = c[1:]
-            n = int( s )
-            if 'H' == sexe:
-                if n <= 30:
-                    o = "1S"
-                else:
-                    o = "Promotion"
-            else:
-                if n <= 20:
-                    o = "1S"
-                else:
-                    o = "Promotion"
+        o = normalisation( c, sexe )
         tabSortie.append( o )
     return tabSortie
 
@@ -513,8 +516,10 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisatio
         else:
             return echelonInferieur( myClassement )
 
-    myVictoires = normalisation( myVictoires, mySexe )
-    myDefaites = normalisation( myDefaites, mySexe )
+    myVictoires = normalisationTab( myVictoires, mySexe )
+    myDefaites = normalisationTab( myDefaites, mySexe )
+
+    myClassement = normalisation( myClassement, mySexe )
 
     classementPropose = classementPropose1erTour( myVictoires )
     borneInf = echelonInferieur( myClassement ) # on ne peut pas descendre plus d'un echelon en-dessous
@@ -547,7 +552,7 @@ def test():
     testSexe = "H"
 
     print "Victoires :", testVic
-    testVic = normalisation( testVic, testSexe )
+    testVic = normalisationTab( testVic, testSexe )
     print "Apres normalisation :", testVic
     
 
