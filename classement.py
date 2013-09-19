@@ -5,6 +5,7 @@
  " TODO:
  " - Prise en compte des WO
  " - Prise en compte des formats courts
+ " - bonif absence de defaites significatives
  " - Joli formattage de sortie
  " - Bonif championnat
   """
@@ -435,6 +436,14 @@ def normalisation( tab, sexe ):
         tabSortie.append( o )
     return tabSortie
 
+# Compter le nombre de wo
+def nbWO( tab ):
+    n = 0
+    for t in tab:
+        if tab[3]:
+            n = n + 1
+    return n
+
 # Calcul du classement
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
 
@@ -459,6 +468,10 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
         ok = maintienOK( classementPropose, mySexe, pt )
         if( True != ok ):
             classementPropose = echelonInferieur( classementPropose )
+
+    # penalite WO ?
+    if nbWO( myDefaites ) >= 5:
+        classementPropose = echelonInferieur( classementPropose )
 
     print "Classement de sortie : ", classementPropose, " - classement d\' origine : ", myClassement
     return classementPropose

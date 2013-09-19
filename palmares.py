@@ -175,8 +175,21 @@ def extractInfo( ligne ):
         clmt = match.group(1)
     else:
         clmt = ''
+        
+    # wo ?
+    r_class = r'<td class="wo" >(.*?)</td>'
+    match = re.search( r_class, ligne )
+    w = False
+    if match:
+        wo = match.group(1)
+        if 'o' == wo or 'O' == wo:
+            print "WO ", nom, wo
+            w = True
+    else:
+        clmt = ''
 
-    return nom, idu, clmt
+
+    return nom, idu, clmt, w
 
 # Calcule le classement d'un joueur
 def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
