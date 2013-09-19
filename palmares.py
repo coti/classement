@@ -229,6 +229,18 @@ def recupClassement( login, password, LICENCE, profondeur ):
 
     print "nouveau classement: ", new_cl
 
+# Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale
+def trimNumLicence( s ) :
+    i = -1
+    try:
+        i = int( s )
+    except:
+        try:
+            i = int( s[:-1] )
+        except:
+            print "Probleme avec le numero de licence"
+    return i
+
 def main():
 
     import sys
@@ -236,13 +248,29 @@ def main():
     if len(sys.argv) < 5:
         login = raw_input( "Login : " )
         password = raw_input("Mot de passe : " )
-        licence = int( raw_input( "Numero de licence : " ) )
-        profondeur = int( raw_input( "Profondeur : " ) )
+        licence = trimNumLicence( raw_input( "Numero de licence : " ) )
+        if -1 == licence:
+            print "Erreur fatale -- Fin de l\'execution"
+            return -1
+        try:
+            profondeur = int( raw_input( "Profondeur : " ) )
+        except:
+            print "Erreur de saisie de la profondeur."
+            print "Erreur fatale -- Fin de l\'execution"
+            return -1
     else:
         login      = sys.argv[1]
         password   = sys.argv[2]
-        licence    = int( sys.argv[3] )
-        profondeur = int( sys.argv[4] )
+        licence = trimNumLicence( sys.argv[3] )
+        if -1 == licence:
+            print "Erreur fatale -- Fin de l\'execution"
+            return -1
+        try:
+            profondeur = int( sys.argv[4])
+        except:
+            print "Erreur de saisie de la profondeur."
+            print "Erreur fatale -- Fin de l\'execution"
+            return -1
 
     recupClassement( login, password, licence, profondeur )
 
