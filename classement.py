@@ -225,7 +225,6 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     else:
         victoires = victoiresF
 
-    print "victoires : ", victoires
     print "mon classement: ", myClassement
     nb = victoires[ myClassement ]
     v = VE2I5G( myClassement, myVictoires, myDefaites )
@@ -450,8 +449,9 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
     myDefaites = normalisation( myDefaites, mySexe )
 
     classementPropose = classementPropose1erTour( myVictoires )
+    borneInf = echelonInferieur( myClassement ) # on ne peut pas descendre plus d'un echelon en-dessous
 
-    while( ( False == ok ) and ( "NC" != classementPropose ) ):
+    while( ( False == ok ) and ( "NC" != classementPropose ) and ( classementPropose != borneInf ) ):
 
         print "Classement propose : ", classementPropose
 
@@ -460,7 +460,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
         if( True != ok ):
             classementPropose = echelonInferieur( classementPropose )
 
-    print "Classement de sortie : ", classementPropose
+    print "Classement de sortie : ", classementPropose, " - classement d\' origine : ", myClassement
     return classementPropose
 
 # TODO : if( ( serie[classement] ) == 2 or serie[classement] ) == -2 ) and VE2I5G < -100 ):
