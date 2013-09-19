@@ -178,18 +178,34 @@ def extractInfo( ligne ):
         clmt = ''
         
     # wo ?
-    r_class = r'<td class="wo" >(.*?)</td>'
-    match = re.search( r_class, ligne )
+    r_wo = r'<td class="wo" >(.*?)</td>'
+    match = re.search( r_wo, ligne )
     w = False
     if match:
         wo = match.group(1)
         if 'o' == wo or 'O' == wo:
             print "WO ", nom, wo
             w = True
-    else:
-        clmt = ''
 
-    return nom, idu, clmt, w
+    # championnat ?
+    r_type = r'<td class="typeHomol"\s*>\s*(.*?)\s*</td>'
+    match = re.search( r_type, ligne )
+    champ = False
+    if match:
+        c = match.group(1)
+        if 'C' == c or 'c' == c:
+            print "Victoire en championnat indiv contre ", nom, c
+            champ = True
+
+    return nom, idu, clmt, w, champ
+
+# Retourne le nombre de victoires en championnat individuel
+def nbVictoiresChamp( tab ):
+    nb = 0
+    for t in tab:
+        if t[4]:
+            nb = nb + 1
+    return nb
 
 # Calcule le classement d'un joueur
 def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
@@ -211,6 +227,9 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     # absence de def significative possible ssi au moins 5 victoires hors wo
     nb = nbWO( V )
     bonifAbsenceDefaites = ( ( len( V ) - nb ) >= 5 )
+    # nb de victoires en championnat indiv
+    champ = nbVictoiresChamp( V )
+    print champ, " victoires en championnat individuel"
 
     if profondeur == 0:
         for _v in V:
@@ -232,7 +251,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
             
 
     # calcul du classement a jour
-    cl = calculClassement( myV, myD, sexe,  classement, penalisation, bonifAbsenceDefaites )
+    cl = calculClassement( myV, myD, sexe,  classement, penalisation, bonifAbsenceDefaites, champ )
     print "Nouveau classement de ", nom, " : ", cl
 
     return cl

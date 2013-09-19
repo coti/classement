@@ -315,7 +315,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
 
 
 # Calcule les points a un classement donne
-def calculPoints( myClassement, sexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible ):
+def calculPoints( myClassement, sexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible, nbVicChampIndiv ):
     nbV = nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites )
     sortedVictoires = sortVictoires( myVictoires )
     victoiresComptant = sortedVictoires[:nbV]
@@ -346,6 +346,15 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, bonifAbsenceDefai
         print "bonif absence de defaite significative: ", bonif
 
     nbPoints = nbPoints + bonif
+
+    if nbVicChampIndiv > 3:
+        nbVicChampIndiv = 3
+    bonif = nbVicChampIndiv * 15
+
+    nbPoints = nbPoints + bonif
+    if bonif != 0:
+        print "bonif championnat indiv: ", bonif
+
 
     return nbPoints
 
@@ -495,7 +504,7 @@ def absenceDef( defaites, classement ):
     return True
 
 # Calcul du classement
-def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO, bonifAbsenceDefaitesPossible ):
+def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO, bonifAbsenceDefaitesPossible, nbVicChampIndiv ):
 
     ok = False
     if 0 == len( myVictoires ):
@@ -514,7 +523,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisatio
 
         print "Classement propose : ", classementPropose
 
-        pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible )
+        pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
         if( True != ok ):
             classementPropose = echelonInferieur( classementPropose )
@@ -558,7 +567,7 @@ def test():
     print "Defaites triees:"
     print sortVictoires( testDef )
 
-    pt = calculPoints( testCl, testSexe, testVic, testDef )
+    pt = calculPoints( testCl, testSexe, testVic, testDef, True )
     print "Points: ", pt, " - maintien: ", maintienOK( testCl, testSexe, pt )
 
     print "Plus gros classement battu: ", plusGrosseVictoire( testVic )
@@ -569,7 +578,7 @@ def test():
 
     print " - * - * - * - * - * - * - * - * - * -"
 
-    calculClassement( testVic, testDef, testSexe, testCl )
+    calculClassement( testVic, testDef, testSexe, testCl, True, 2 )
 
 
 
