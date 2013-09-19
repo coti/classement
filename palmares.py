@@ -17,7 +17,7 @@ import re
 from gaecookie import GAECookieProcessor
 from keepalive import HTTPHandler
 
-from classement import calculClassement
+from classement import calculClassement, penaliteWO, nbWO
 
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
@@ -79,7 +79,7 @@ def getIdentifiant( opener, numLicence ):
     line = rep.read()
 
     # on parse et on recupere le nom
-    r_nom = r'<td class="r_nom">(.*)</td>'
+    r_nom = r'<td class="r_nom">\s*(.*?)\s*</td>'
     match = re.search( r_nom, line )
     if match:
         nom = match.group(1)
@@ -87,7 +87,7 @@ def getIdentifiant( opener, numLicence ):
         nom = ''
 
     # on recupere le sexe
-    r_sexe = r'<td class="r_sexe">(.*)</td>'
+    r_sexe = r'<td class="r_sexe">\s*(.*?)\s*</td>'
     match = re.search( r_sexe, line )
     if match:
         sexe = match.group(1)
@@ -95,7 +95,7 @@ def getIdentifiant( opener, numLicence ):
         sexe = ''
 
     # on recupere l'id interne
-    r_id = r'<a href="javascript:classement\((.*)\);">'
+    r_id = r'<a href="javascript:classement\((.*?)\);">'
     match = re.search( r_id, line )
     if match:
         idu = match.group(1)
@@ -103,10 +103,11 @@ def getIdentifiant( opener, numLicence ):
         idu = ''
 
     # et on recupere le classement
-    r_class = r'<a href="javascript:classement\([0-9]+\);">\s*(.*)\s*</a>'
+    r_class = r'<a href="javascript:classement\([0-9]+\);">\s*(.*?)\s*</a>'
     match = re.search( r_class, line )
     if match:
         cl = match.group(1)
+        print "classement: ", cl
     else:
         cl = ''
 
@@ -153,7 +154,7 @@ def getPalma( annee, id, opener ):
 def extractInfo( ligne ):
 
     # id du joueur
-    r_id = r'<a href="javascript:changerDePersonne\((.*)\);">'
+    r_id = r'<a href="javascript:changerDePersonne\((.*?)\);">'
     match = re.search( r_id, ligne )
     if match:
         idu = match.group(1)
@@ -188,7 +189,6 @@ def extractInfo( ligne ):
     else:
         clmt = ''
 
-
     return nom, idu, clmt, w
 
 # Calcule le classement d'un joueur
@@ -198,6 +198,14 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     myD = []
     print "profondeur : ", profondeur
     print "calcul du classement de ", nom
+
+    # application de la penalite pour WO ?
+    if nbWO >= 3:
+        penaliteWO( D )
+    if nbWO >= 5:
+        penalisation = True
+    else:
+        penalisation = False
 
     if profondeur == 0:
         for _v in V:
@@ -219,7 +227,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
             
 
     # calcul du classement a jour
-    cl = calculClassement( myV, myD, sexe,  classement )
+    cl = calculClassement( myV, myD, sexe,  classement, penalisation )
     print "Nouveau classement de ", nom, " : ", cl
 
     return cl

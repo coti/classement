@@ -444,8 +444,27 @@ def nbWO( tab ):
             n = n + 1
     return n
 
+# Insertion de la penalite wo : a partir de 3, tout wo compte comme une defaite significative
+def penaliteWO( defaites ):
+    _def = []
+    w = 0
+    for d in defaites:
+        if d[3] == True:
+            w = w + 1
+            if w >= 3:
+                o = ( d[0], d[1], "NC", d[3] )
+                # on insere une defaite a NC pour que ca compte comme une def significative
+                print "Defaite significative ajoutee contre ", o[0]
+            else:
+                o = d
+        else:
+            o = d
+        _def.append( o )
+
+    return defaites
+
 # Calcul du classement
-def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
+def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO ):
 
     ok = False
     if 0 == len( myVictoires ):
@@ -470,7 +489,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
             classementPropose = echelonInferieur( classementPropose )
 
     # penalite WO ?
-    if nbWO( myDefaites ) >= 5:
+    if penalisationWO:
         classementPropose = echelonInferieur( classementPropose )
 
     print "Classement de sortie : ", classementPropose, " - classement d\' origine : ", myClassement
