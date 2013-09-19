@@ -123,7 +123,7 @@ def getPalma( annee, id, opener ):
     line = rep.read()
 
     # Separation victoires/defaites
-    
+
     r_limite = r'<th colspan="11" class="titre">(.*?)<th colspan="11" class="titre">(.*?)</tbody>'
     results = re.findall( r_limite, line, re.S|re.M )[0]
     victoires = results[0]
@@ -211,14 +211,8 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     return cl
 
-def recupClassement():
+def recupClassement( login, password, LICENCE, profondeur ):
     
-    login = raw_input( "Login : " )
-    password = raw_input("Mot de passe : " )
-    LICENCE = int( raw_input( "Numero de licence : " ) )
-
-    profondeur = int( raw_input( "Profondeur : " ) )
-
     # On s'identifie et on obtient ses prores infos
     cj, op = buildOpener()
     authentification( login, password, op, cj )
@@ -236,7 +230,21 @@ def recupClassement():
     print "nouveau classement: ", new_cl
 
 def main():
-    recupClassement()
+
+    import sys
+
+    if len(sys.argv) < 5:
+        login = raw_input( "Login : " )
+        password = raw_input("Mot de passe : " )
+        licence = int( raw_input( "Numero de licence : " ) )
+        profondeur = int( raw_input( "Profondeur : " ) )
+    else:
+        login      = sys.argv[1]
+        password   = sys.argv[2]
+        licence    = sys.argv[3]
+        profondeur = sys.argv[4]
+
+    recupClassement( login, password, licence, profondeur )
 
 
 

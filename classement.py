@@ -33,7 +33,8 @@ classementNumerique = { "NC" : 0,
                         "-4/6" : 21,
                         "-15" : 22,
                         "-30" : 23,
-                        "Promotion" : 24 }
+                        "Promotion" : 24,
+                        "1S" : 25}
 
 points = { -3 : 15,
            -2 : 20,
@@ -66,7 +67,8 @@ maintienF = { "NC" : 0,
               "-4/6" : 750,
               "-15" : 800,
               "-30" : 850,
-              "Promotion" : 950 }
+              "Promotion" : 950,
+              "1S" : 5000}
 
 maintienH = { "NC" : 0,
               "40" : 6,
@@ -92,7 +94,8 @@ maintienH = { "NC" : 0,
               "-4/6" : 850,
               "-15" : 950,
               "-30" : 1000,
-              "Promotion" : 1100 }
+              "Promotion" : 1100,
+              "1S" : 5000}
 
 victoiresF = { "NC" : 6,
                "40" : 6,
@@ -118,7 +121,8 @@ victoiresF = { "NC" : 6,
                "-4/6" : 16,
                "-15" : 17,
                "-30" : 17,
-               "Promotion" : 19 }
+               "Promotion" : 19,
+               "1S" : 19}
 
 victoiresH = { "NC" : 6,
                "40" : 6,
@@ -144,7 +148,8 @@ victoiresH = { "NC" : 6,
                "-4/6" : 17,
                "-15" : 19,
                "-30" : 20,
-               "Promotion" : 22 }
+               "Promotion" : 22,
+               "1S" : 22}
 
 serie = { "NC" : 4,
           "40" : 4,
@@ -170,7 +175,8 @@ serie = { "NC" : 4,
           "-4/6" : -2,
           "-15" : -2,
           "-30" : -2,
-          "Promotion" : -2 }
+          "Promotion" : -2,
+          "1S" : 1}
 
 # calcule le V - E - 2I - 5G
 # TODO = prendre en compte les WO
@@ -219,6 +225,8 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     else:
         victoires = victoiresF
 
+    print "victoires : ", victoires
+    print "mon classement: ", myClassement
     nb = victoires[ myClassement ]
     v = VE2I5G( myClassement, myVictoires, myDefaites )
     
@@ -300,6 +308,8 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
             add = 6
         elif( v >= 45 ):
             add = 7
+    else: # 1S et promo
+        add = 0
     return nb + add
 
 
@@ -373,8 +383,8 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
         return None
 
     grosse = plusGrosseVictoire( myVictoires )
-    if( len( classementNumerique.keys() ) < classementNumerique[ grosse ] + E ):
-        return "Promotion"
+    if grosse == "Promotion" or grosse == "1S":
+        return "1S"
     else:
         for( k, v ) in classementNumerique.iteritems():
             if( k == grosse ):
@@ -404,6 +414,28 @@ def classementPropose1erTour( myVictoires ):
     else:
         return plusGrosseVictoirePlusN( myVictoires, 1 )
 
+# Conversion des numerotes en "Promotion" ou "1S"
+def normalisation( tab, sexe ):
+    tabSortie = []
+    for c in tab:
+        o = c
+        if 'N' == c[0] and 'C' != c[1] :
+            # on est sur un numerote
+            s = c[1:]
+            n = int( s )
+            if 'H' == sexe:
+                if n <= 30:
+                    o = "1S"
+                else:
+                    o = "Promotion"
+            else:
+                if n <= 20:
+                    o = "1S"
+                else:
+                    o = "Promotion"
+        tabSortie.append( o )
+    return tabSortie
+
 # Calcul du classement
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
 
@@ -413,6 +445,9 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
             return 'NC'
         else:
             return echelonInferieur( myClassement )
+
+    myVictoires = normalisation( myVictoires, mySexe )
+    myDefaites = normalisation( myDefaites, mySexe )
 
     classementPropose = classementPropose1erTour( myVictoires )
 
@@ -435,9 +470,14 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement ):
 
 def test():
     testDef = [ "30/2", "30/1", "NC", "15/2", "30/3", "30/4", "30/5", "30/3" ]
-    testVic = [ "30", "30", "NC", "15/5", "15/4", "30/1", "30/3", "30/5" ]
+    testVic = [ "30", "30", "NC", "15/5", "15/4", "30/1", "30/3", "30/5", "N2", "N42", "N3" ]
     testCl = "30/2"
     testSexe = "H"
+
+    print "Victoires :", testVic
+    testVic = normalisation( testVic, testSexe )
+    print "Apres normalisation :", testVic
+    
 
     print "En etant", testCl
 
