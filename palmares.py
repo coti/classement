@@ -241,8 +241,8 @@ def main():
     else:
         login      = sys.argv[1]
         password   = sys.argv[2]
-        licence    = sys.argv[3]
-        profondeur = sys.argv[4]
+        licence    = int( sys.argv[3] )
+        profondeur = int( sys.argv[4] )
 
     recupClassement( login, password, licence, profondeur )
 
