@@ -200,12 +200,17 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     print "calcul du classement de ", nom
 
     # application de la penalite pour WO ?
-    if nbWO >= 3:
+    nb = nbWO( D )
+    if nb >= 3:
         penaliteWO( D )
-    if nbWO >= 5:
+    if nb >= 5:
         penalisation = True
     else:
         penalisation = False
+
+    # absence de def significative possible ssi au moins 5 victoires hors wo
+    nb = nbWO( V )
+    bonifAbsenceDefaites = ( ( len( V ) - nb ) >= 5 )
 
     if profondeur == 0:
         for _v in V:
@@ -227,7 +232,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
             
 
     # calcul du classement a jour
-    cl = calculClassement( myV, myD, sexe,  classement, penalisation )
+    cl = calculClassement( myV, myD, sexe,  classement, penalisation, bonifAbsenceDefaites )
     print "Nouveau classement de ", nom, " : ", cl
 
     return cl

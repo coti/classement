@@ -10,7 +10,8 @@
  " - Bonif championnat
   """
 
-classementNumerique = { "NC" : 0,
+classementNumerique = { "S"  : -1,
+                        "NC" : 0,
                         "40" : 1,
                         "30/5" : 2,
                         "30/4" : 3,
@@ -314,7 +315,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
 
 
 # Calcule les points a un classement donne
-def calculPoints( myClassement, sexe, myVictoires, myDefaites ):
+def calculPoints( myClassement, sexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible ):
     nbV = nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites )
     sortedVictoires = sortVictoires( myVictoires )
     victoiresComptant = sortedVictoires[:nbV]
@@ -325,6 +326,26 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites ):
 
     for v in victoiresComptant:
         nbPoints = nbPoints + pointsVictoire( myClassement, v )
+
+    # Bonifs
+
+    bonif = 0
+
+    if True == bonifAbsenceDefaitesPossible:
+        global serie
+        if serie[ myClassement ] == 2:
+            if True == absenceDef( myDefaites, myClassement ):
+                bonif =150
+        if serie[ myClassement ] == 3:
+            if True == absenceDef( myDefaites, myClassement ):
+                bonif = 100
+        if myClassement == '30/2' or myClassement == '30/1' :
+            if True == absenceDef( myDefaites, myClassement ):
+                bonif = 50
+    if bonif != 0:
+        print "bonif absence de defaite significative: ", bonif
+
+    nbPoints = nbPoints + bonif
 
     return nbPoints
 
@@ -440,7 +461,7 @@ def normalisation( tab, sexe ):
 def nbWO( tab ):
     n = 0
     for t in tab:
-        if tab[3]:
+        if t[3]:
             n = n + 1
     return n
 
@@ -452,8 +473,8 @@ def penaliteWO( defaites ):
         if d[3] == True:
             w = w + 1
             if w >= 3:
-                o = ( d[0], d[1], "NC", d[3] )
-                # on insere une defaite a NC pour que ca compte comme une def significative
+                o = ( d[0], d[1], "S", d[3] )
+                # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
                 print "Defaite significative ajoutee contre ", o[0]
             else:
                 o = d
@@ -463,8 +484,18 @@ def penaliteWO( defaites ):
 
     return defaites
 
+# Absence de defaite significative ?
+def absenceDef( defaites, classement ):
+    global classementNumerique
+
+    for d in defaites:
+        if 'S' != d: # on exclu les wo
+            if( classementNumerique[ d ] < ( classementNumerique[ classement ] ) ):
+                return False
+    return True
+
 # Calcul du classement
-def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO ):
+def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO, bonifAbsenceDefaitesPossible ):
 
     ok = False
     if 0 == len( myVictoires ):
@@ -483,7 +514,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisatio
 
         print "Classement propose : ", classementPropose
 
-        pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites )
+        pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible )
         ok = maintienOK( classementPropose, mySexe, pt )
         if( True != ok ):
             classementPropose = echelonInferieur( classementPropose )
