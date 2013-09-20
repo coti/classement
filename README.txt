@@ -26,6 +26,12 @@ J'ai apporté une légère modification à la bibliothèque keepalive : j'ai simpleme
 
 ## Utilisation
 
+### Interface graphique
+
+Double-cliquer sur le fichier interface.py.
+
+Attention, l'interface est pleine de bugs.
+
 ### Sous Unix (Mac OS, Lunix)
 
 Dans un terminal, taper :
@@ -55,9 +61,8 @@ Il est nécessaire d'être connecté à Internet pendant toute l'opération.
 
 Il est pour le moment :
 * seulement en version alpha
-* incomplet (voir TODO list)
-* uniquement en ligne de commande
 * verbeux et peu esthétique
 
 ## TODO list:
-* écrire une GUI
+* améliorer la GUI
+* prise en compte des formats courts

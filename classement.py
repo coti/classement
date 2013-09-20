@@ -7,6 +7,7 @@
  " - Joli formattage de sortie
   """
 
+
 classementNumerique = { "S"  : -1,
                         "NC" : 0,
                         "40" : 1,
