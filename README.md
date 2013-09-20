@@ -26,12 +26,6 @@ J'ai apporté une légère modification à la bibliothèque keepalive : j'ai simpleme
 
 ## Utilisation
 
-### Interface graphique
-
-Double-cliquer sur le fichier interface.py.
-
-Attention, l'interface est pleine de bugs.
-
 ### Sous Unix (Mac OS, Lunix)
 
 Dans un terminal, taper :
@@ -55,9 +49,15 @@ si Python est installé dans C://Python34)
 
 ### Exécution
 
-L'outil demande de saisie ses identifiants sur l'espace du licencié, le numéro de licence du joueur concerné et la profondeur de la recherche. Le dernier classement calculé affiché correspnd au classement calculé pour le joueur demandé. 
+L'outil demande de saisir ses identifiants sur l'espace du licencié, le numéro de licence du joueur concerné et la profondeur de la recherche. Le dernier classement calculé affiché correspnd au classement calculé pour le joueur demandé. 
 
 Il est nécessaire d'être connecté à Internet pendant toute l'opération.
+
+### Interface graphique
+
+Exécuter le fichier interface.py. Remplir les champs demandés et cliquer sur le bouton. La sortie s'affichera dans la grosse boite blanche en-dessous.
+
+Attention, l'interface est pleine de bugs.
 
 ## Limitations
 
@@ -67,4 +67,5 @@ Il est pour le moment :
 
 ## TODO list:
 * améliorer la GUI
+* corriger les bugs de la GUI
 * prise en compte des formats courts
