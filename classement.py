@@ -445,6 +445,8 @@ def classementPropose1erTour( myVictoires ):
 
 # Normalise un classement
 def normalisation( classement, sexe ):
+    if len( classement ) < 2:
+        return classement
     o = classement
     if 'N' == classement[0] and 'C' != classement[1] :
         # on est sur un numerote

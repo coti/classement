@@ -274,7 +274,7 @@ def recupClassement( login, password, LICENCE, profondeur ):
 
     print "nouveau classement: ", new_cl
 
-# Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale
+# Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
 def trimNumLicence( s ) :
     i = -1
     try:
@@ -284,7 +284,11 @@ def trimNumLicence( s ) :
             i = int( s[:-1] )
         except:
             print "Probleme avec le numero de licence"
-    return i
+    l = str( i )
+    if len( l ) < 7:
+        for k in range( 0, 7 - len( l ) ):
+            l = '0'+l
+    return l
 
 def main():
 
