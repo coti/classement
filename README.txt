@@ -30,7 +30,7 @@ J'ai apporté une légère modification à la bibliothèque keepalive : j'ai simpleme
 
 Dans un terminal, taper :
 
-$ ./palmares.py
+./palmares.py
 
 ### Sous Windows
 
