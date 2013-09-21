@@ -462,6 +462,9 @@ def normalisation( classement, sexe ):
                 o = "1S"
             else:
                 o = "Promo"
+    else:
+        if "PROMO" == classement or "promo" == classement :
+            o = "Promo"
     return o
 
 # Conversion des numerotes en "Promo" ou "1S"
