@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.6
+#!/usr/bin/env python
 
 
 """ Outil de recuperation du classement.
@@ -339,5 +339,9 @@ def main():
 
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" :
+    import sys
+    if sys.version_info[0] != 2:
+        print "Erreur -- Fonctionne avec Python 2.x"
+        exit -1
     main()
