@@ -231,42 +231,56 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     bonifAbsenceDefaites = ( ( len( V ) - nb ) >= 5 )
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp( V )
-    print champ, " victoires en championnat individuel"
+    print champ, " victoire(s) en championnat individuel"
 
     if profondeur == 0:
         for _v in V:
-            myV.append( _v[2] )
-            palmaV.append( ( _v[0], _v[2], _v[2] ) )
+            myV.append( ( _v[2], _v[3] ) )
+            palmaV.append( ( _v[0], _v[2], _v[2], _v[3] ) )
         for _d in D:
-            myD.append( _d[2] )
-            palmaD.append( ( _d[0], _d[2], _d[2] ) )
+            myD.append( ( _d[2], _d[3] ) )
+            palmaD.append( ( _d[0], _d[2], _d[2], _d[3] ) )
     else:
         profondeur = profondeur - 1
 
         # calcul du futur classement de mes victoires
         for _v in V:
             nc = classementJoueur( opener, _v[1], _v[0], _v[2], sexe, profondeur )
-            myV.append( nc )
-            palmaV.append( ( _v[0], _v[2], nc ) )
+            myV.append( ( nc, _v[3] ) )
+            palmaV.append( ( _v[0], _v[2], nc, _v[3] ) )
 
         # calcul du futur classement de mes defaites
         for _d in D:
             nc = classementJoueur( opener, _d[1], _d[0], _d[2], sexe, profondeur )
-            myD.append( nc )
-            palmaD.append( ( _d[0], _d[2], nc ) )
+            myD.append( ( nc, _d[3] ) )
+            palmaD.append( ( _d[0], _d[2], nc, _d[3] ) )
 
 
     # calcul du classement a jour
     cl = calculClassement( myV, myD, sexe,  classement, penalisation, bonifAbsenceDefaites, champ )
     print "Nouveau classement de ", nom, " : ", cl
     print "Palmares de ", nom, " :"
-    print "[Nom] [Ancien classement] [Nouveau classement]"
+    print "[Nom] [Ancien classement] [Nouveau classement] [WO]"
     print " === VICTOIRES ==="
-    for _v in palmaV:
-        print "\t".join( _v )
+    if len( palmaV ) == 0:
+        print "Aucune"
+    else:
+        for _v in palmaV:
+            if True == _v[3] :
+                o = ( _v[0],_v[1], _v[2], "WO" ) 
+            else:
+                o = ( _v[0],_v[1], _v[2] ) 
+                print "\t".join( o )
     print " === DEFAITES ==="
-    for _d in palmaD:
-        print "\t".join( _d )
+    if len( palmaD ) == 0:
+        print "Aucune"
+    else:
+        for _d in palmaD:
+            if True == _d[3] :
+                o = ( _d[0],_d[1], _d[2], "WO" ) 
+            else:
+                o = ( _d[0],_d[1], _d[2] ) 
+                print "\t".join( o )
 
     return cl
 

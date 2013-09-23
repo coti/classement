@@ -179,7 +179,6 @@ serie = { "NC" : 4,
           "1S" : 1}
 
 # calcule le V - E - 2I - 5G
-# TODO = prendre en compte les WO
 def VE2I5G( classement, victoires, defaites ):
     v = len( victoires )
     e = nbInf( classement, defaites, 0 )
@@ -194,10 +193,10 @@ def nbInf( myClassement, defaites, E ):
     nb = 0
     for i in defaites:
         if( E >= 0 ) :
-            if( classementNumerique[ i ] == ( classementNumerique[ myClassement ] - E ) ):
+            if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
                 nb = nb+1
         else:
-            if( classementNumerique[ i ] < ( classementNumerique[ myClassement ] - 2 ) ):
+            if( classementNumerique[ i[0] ] < ( classementNumerique[ myClassement ] - 2 ) ):
                 nb = nb+1
 
     return nb
@@ -317,7 +316,8 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
 def calculPoints( myClassement, sexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible, nbVicChampIndiv ):
     nbV = nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites )
     sortedVictoires = sortVictoires( myVictoires )
-    victoiresComptant = sortedVictoires[:nbV]
+    victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
+#    victoiresComptant = sortedVictoires[:nbV]
 
     print "Victoires prises en compte : ", victoiresComptant
 
@@ -369,15 +369,15 @@ def sortVictoires( myVictoires ):
     sortedVictoires = []
 
     for v in myVictoires:
-        pairVictoires.append( ( v, classementNumerique[ v ] ) )
-        dicVictoires[ v ] = classementNumerique[ v ]
+        pairVictoires.append( ( v[0], classementNumerique[ v[0] ], v[1] ) )
+        dicVictoires[ v[0] ] = classementNumerique[ v[0] ]
 
     sortedValues = sorted( dicVictoires.values(), reverse=True ) 
 
     for s in sortedValues:
-        for k, v in pairVictoires:
+        for k, v, w in pairVictoires:
             if( v == s ):
-                sortedVictoires.append( k )
+                sortedVictoires.append( ( k, w ) )
 
     return sortedVictoires
 
@@ -402,7 +402,9 @@ def plusGrosseVictoire( myVictoires ):
     if 0 == len( myVictoires ):
         return None
     sorted = sortVictoires( myVictoires )
-    return sorted[0]
+    for v in sorted:
+        if v[1] != True:
+            return v[0]
 
 # Plus gros classement battu + E echelons
 def plusGrosseVictoirePlusN( myVictoires, E ):
@@ -412,7 +414,7 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
         return None
 
     grosse = plusGrosseVictoire( myVictoires )
-    if grosse == "Promo" or grosse == "1S":
+    if grosse[0] == "Promo" or grosse[0] == "1S":
         return "1S"
     else:
         for( k, v ) in classementNumerique.iteritems():
@@ -444,9 +446,10 @@ def classementPropose1erTour( myVictoires ):
         return plusGrosseVictoirePlusN( myVictoires, 1 )
 
 # Normalise un classement
-def normalisation( classement, sexe ):
+def normalisation( cl, sexe ):
+    classement = cl[0]
     if len( classement ) < 2:
-        return classement
+        return cl
     o = classement
     if 'N' == classement[0] and 'C' != classement[1] :
         # on est sur un numerote
@@ -465,7 +468,7 @@ def normalisation( classement, sexe ):
     else:
         if "PROMO" == classement or "promo" == classement :
             o = "Promo"
-    return o
+    return o, cl[1]
 
 # Conversion des numerotes en "Promo" ou "1S"
 def normalisationTab( tab, sexe ):
@@ -507,10 +510,19 @@ def absenceDef( defaites, classement ):
     global classementNumerique
 
     for d in defaites:
-        if 'S' != d: # on exclu les wo
-            if( classementNumerique[ d ] <= ( classementNumerique[ classement ] ) ):
+#        if 'S' != d: # on exclu les wo
+        if d[1] == False:
+            if( classementNumerique[ d[0] ] <= ( classementNumerique[ classement ] ) ):
                 return False
     return True
+
+# Victoires comptant : on supprime les wo
+def victoiresQuiComptent( vic, nb ):
+    tab = []
+    for v in vic:
+        if False == v[1] :
+            tab.append( v[0] )
+    return tab[:nb]
 
 # Calcul du classement
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO, bonifAbsenceDefaitesPossible, nbVicChampIndiv ):
