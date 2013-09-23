@@ -212,6 +212,8 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     V, D = getPalma( 2013, id, opener )
     myV = []
     myD = []
+    palmaV = []
+    palmaD = []
     print "profondeur : ", profondeur
     print "calcul du classement de ", nom
 
@@ -234,8 +236,10 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     if profondeur == 0:
         for _v in V:
             myV.append( _v[2] )
+            palmaV.append( ( _v[0], _v[2], _v[2] ) )
         for _d in D:
             myD.append( _d[2] )
+            palmaD.append( ( _d[0], _d[2], _d[2] ) )
     else:
         profondeur = profondeur - 1
 
@@ -243,16 +247,26 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
         for _v in V:
             nc = classementJoueur( opener, _v[1], _v[0], _v[2], sexe, profondeur )
             myV.append( nc )
+            palmaV.append( ( _v[0], _v[2], nc ) )
 
         # calcul du futur classement de mes defaites
         for _d in D:
             nc = classementJoueur( opener, _d[1], _d[0], _d[2], sexe, profondeur )
             myD.append( nc )
-            
+            palmaD.append( ( _d[0], _d[2], nc ) )
+
 
     # calcul du classement a jour
     cl = calculClassement( myV, myD, sexe,  classement, penalisation, bonifAbsenceDefaites, champ )
     print "Nouveau classement de ", nom, " : ", cl
+    print "Palmares de ", nom, " :"
+    print "[Nom] [Ancien classement] [Nouveau classement]"
+    print " === VICTOIRES ==="
+    for _v in palmaV:
+        print "\t".join( _v )
+    print " === DEFAITES ==="
+    for _d in palmaD:
+        print "\t".join( _d )
 
     return cl
 
