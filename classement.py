@@ -528,7 +528,8 @@ def victoiresQuiComptent( vic, nb ):
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO, bonifAbsenceDefaitesPossible, nbVicChampIndiv ):
 
     ok = False
-    if 0 == len( myVictoires ):
+    if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
+
         if( 'NC' == myClassement ):
             return 'NC'
         else:
