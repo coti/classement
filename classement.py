@@ -508,7 +508,7 @@ def absenceDef( defaites, classement ):
 
     for d in defaites:
         if 'S' != d: # on exclu les wo
-            if( classementNumerique[ d ] < ( classementNumerique[ classement ] ) ):
+            if( classementNumerique[ d ] <= ( classementNumerique[ classement ] ) ):
                 return False
     return True
 
