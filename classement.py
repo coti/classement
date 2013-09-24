@@ -224,9 +224,10 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     else:
         victoires = victoiresF
 
-    print "mon classement: ", myClassement
     nb = victoires[ myClassement ]
     v = VE2I5G( myClassement, myVictoires, myDefaites )
+
+    print "V - E - 2I - 5G : ", v
     
     add = 0
     if( 4 == serie[ myClassement ] ): 
