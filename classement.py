@@ -314,7 +314,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
 
 
 # Calcule les points a un classement donne
-def calculPoints( myClassement, sexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible, nbVicChampIndiv ):
+def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv ):
     nbV = nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites )
     sortedVictoires = sortVictoires( myVictoires )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
@@ -328,6 +328,9 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, bonifAbsenceDefai
         nbPoints = nbPoints + pointsVictoire( myClassement, v )
 
     # Bonifs
+
+    nb = nbWO( myVictoires )
+    bonifAbsenceDefaitesPossible = ( ( len( myVictoires ) - nb ) >= 5 )
 
     bonif = 0
 
@@ -485,13 +488,16 @@ def normalisationTab( tab, sexe ):
     for c in tab:
         o = normalisation( c, sexe )
         tabSortie.append( o )
+    # Insertion de la penalite wo
+    if nbWO( tab ) >= 3:
+        penaliteWO( tab )
     return tabSortie
 
 # Compter le nombre de wo
 def nbWO( tab ):
     n = 0
     for t in tab:
-        if t[3]:
+        if t[1]:
             n = n + 1
     return n
 
@@ -500,12 +506,12 @@ def penaliteWO( defaites ):
     _def = []
     w = 0
     for d in defaites:
-        if d[3] == True:
+        if d[1] == True:
             w = w + 1
             if w >= 3:
-                o = ( d[0], d[1], "S", d[3] )
+                o = ( 'S', d[1] )
                 # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
-                print "Defaite significative ajoutee contre ", o[0]
+                print "Defaite significative ajoutee"
             else:
                 o = d
         else:
@@ -534,7 +540,7 @@ def victoiresQuiComptent( vic, nb ):
     return tab[:nb]
 
 # Calcul du classement
-def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisationWO, bonifAbsenceDefaitesPossible, nbVicChampIndiv ):
+def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv ):
 
     ok = False
     if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
@@ -556,13 +562,13 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisatio
 
         print "Classement propose : ", classementPropose
 
-        pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, bonifAbsenceDefaitesPossible, nbVicChampIndiv )
+        pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
         if( True != ok ):
             classementPropose = echelonInferieur( classementPropose )
 
     # penalite WO ?
-    if penalisationWO:
+    if nbWO( myDefaites ) >= 5:
         classementPropose = echelonInferieur( classementPropose )
 
     print "Classement de sortie : ", classementPropose, " - classement d\' origine : ", myClassement
