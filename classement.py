@@ -436,14 +436,20 @@ def echelonInferieur( myClassement ):
             return k_
 
 # Classement propose au premier tour
-def classementPropose1erTour( myVictoires ):
+def classementPropose1erTour( myVictoires, myClassement ):
     global serie
+    global classementNumerique
 
     grosse = plusGrosseVictoire( myVictoires )    
     if( 4 == serie[ grosse ] ): 
-        return plusGrosseVictoirePlusN( myVictoires, 2 )
+        plus = plusGrosseVictoirePlusN( myVictoires, 2 )
     else:
-        return plusGrosseVictoirePlusN( myVictoires, 1 )
+        plus = plusGrosseVictoirePlusN( myVictoires, 1 )
+
+    if classementNumerique[ plus ] >  classementNumerique[ myClassement ]:
+        return plus
+    else:
+        return myClassement
 
 # Normalise un classement
 def normalisation( cl, sexe ):
@@ -540,10 +546,10 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, penalisatio
 
     myClassement = normalisation( myClassement, mySexe )
 
-    classementPropose = classementPropose1erTour( myVictoires )
+    classementPropose = classementPropose1erTour( myVictoires, myClassement )
     borneInf = echelonInferieur( myClassement ) # on ne peut pas descendre plus d'un echelon en-dessous
 
-    while( ( False == ok ) and ( "NC" != classementPropose ) and ( classementPropose != borneInf ) ):
+    while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
 
         print "Classement propose : ", classementPropose
 
