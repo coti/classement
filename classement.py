@@ -392,6 +392,8 @@ def maintienOK( myClassement, mySexe, myPoints ):
     else:
         maintien = maintienF
 
+    print "Points acquis : ", myPoints, " - points necessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ]
+
     if( maintien[ myClassement ] > myPoints ):
         return False
     else:
