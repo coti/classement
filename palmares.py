@@ -256,6 +256,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
         for _v in palmaV:
             if True == _v[3] :
                 o = ( _v[0],_v[1], _v[2], "WO" ) 
+                print "\t".join( o )
             else:
                 o = ( _v[0],_v[1], _v[2] ) 
                 print "\t".join( o )
