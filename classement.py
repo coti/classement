@@ -196,7 +196,7 @@ def nbInf( myClassement, defaites, E ):
             if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
                 nb = nb+1
         else:
-            if( classementNumerique[ i[0] ] < ( classementNumerique[ myClassement ] - 2 ) ):
+            if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
                 nb = nb+1
 
     return nb
