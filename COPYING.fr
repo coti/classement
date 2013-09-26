@@ -22,3 +22,14 @@ Vous devez avoir reçu une copie de la Licence Publique Générale Limitée GNU
 et de la licence CeCILL-C en même temps que ce programme ; si ce n'est pas le
 cas, écrivez à la Free Software Foundation, Inc., 59 Temple Place, Suite 330, 
 Boston, MA 02111-1307, États-Unis.
+
+
+Le module keepalive fait à l'origine partie du logiciel urlgrapper.
+Il a été écrit par Michael D. Stenner and Ryan Tomayko.
+Il est distribué selon les termes de la Licence Publique Générale 
+Limitée GNU.
+La modification effectuée dans le module keepalive inclus dans le présent
+logiciel a été effectuée par Camille Coti.
+
+Le module gaecookie a été écrit par Min Xiang.
+Il est distribué selon les termes de la licence MIT.
