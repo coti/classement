@@ -67,3 +67,30 @@ Il est pour le moment :
 * améliorer la GUI
 * corriger les bugs de la GUI
 * prise en compte des formats courts
+
+## Copyright
+
+Classement est un programme informatique servant à estimer son futur
+classement de tennis d'après la FFT en estimant récursivement le futur
+classement de ses adversaires.
+
+Ce logiciel est un logiciel Libre distribué sous deux licences, la licence 
+CeCILL-C correspondant au droit européen, et la Licence Publique Générale 
+Limitée GNU. Ce programme est libre, vous pouvez le redistribuer et/ou le 
+modifier selon les termes de la licence CeCILL-C comme distribuée par le CEA,
+le CRNS et l'INRIA à l'URL suivante <http://www.cecill.info> ou de la Licence 
+Publique Générale Limitée GNU publiée par la Free Software Foundation 
+(version 2 ou bien toute autre version ultérieure choisie par vous).
+
+Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE,
+ni explicite ni implicite, y compris les garanties de commercialisation ou 
+d'adaptation dans un but spécifique. Reportez-vous à la Licence Publique 
+Générale Limitée GNU ou à la licence CeCILL-C pour plus de détails.
+
+Vous devez avoir reçu une copie de la Licence Publique Générale Limitée GNU 
+et de la licence CeCILL-C en même temps que ce programme ; si ce n'est pas le
+cas, écrivez à la Free Software Foundation, Inc., 59 Temple Place, Suite 330, 
+Boston, MA 02111-1307, États-Unis.
+
+Si vous êtes en train de lire ceci, c'est que vous avez eu connaissance des 
+licences CeCILL-C et LGPL et que vous en avez accepté les conditions.

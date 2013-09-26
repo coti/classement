@@ -76,11 +76,27 @@ Il est pour le moment :
 
 ## Copyright
 
-This program is free software distributed under the terms of two licenses, the CeCILL-C license that fits European law, and the GNU Lesser General Public License. You can use, modify and/ or redistribute the software under the terms of the CeCILL-C license as circulated by CEA, CNRS and INRIA at the following URL http://www.cecill.info or under the terms of the GNU LGPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Classement est un programme informatique servant à estimer son futur
+classement de tennis d'après la FFT en estimant récursivement le futur
+classement de ses adversaires.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+Ce logiciel est un logiciel Libre distribué sous deux licences, la licence 
+CeCILL-C correspondant au droit européen, et la Licence Publique Générale 
+Limitée GNU. Ce programme est libre, vous pouvez le redistribuer et/ou le 
+modifier selon les termes de la licence CeCILL-C comme distribuée par le CEA,
+le CRNS et l'INRIA à l'URL suivante <http://www.cecill.info> ou de la Licence 
+Publique Générale Limitée GNU publiée par la Free Software Foundation 
+(version 2 ou bien toute autre version ultérieure choisie par vous).
 
-You should have received a copy of the GNU Lesser General Public License along with this program. If not, see http://www.gnu.org/licenses/.
+Ce programme est distribué car potentiellement utile, mais SANS AUCUNE GARANTIE,
+ni explicite ni implicite, y compris les garanties de commercialisation ou 
+d'adaptation dans un but spécifique. Reportez-vous à la Licence Publique 
+Générale Limitée GNU ou à la licence CeCILL-C pour plus de détails.
 
-The fact that you are presently reading this means that you have had knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+Vous devez avoir reçu une copie de la Licence Publique Générale Limitée GNU 
+et de la licence CeCILL-C en même temps que ce programme ; si ce n'est pas le
+cas, écrivez à la Free Software Foundation, Inc., 59 Temple Place, Suite 330, 
+Boston, MA 02111-1307, États-Unis.
 
+Si vous êtes en train de lire ceci, c'est que vous avez eu connaissance des 
+licences CeCILL-C et LGPL et que vous en avez accepté les conditions.
