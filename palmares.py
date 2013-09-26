@@ -37,7 +37,20 @@ def buildOpener():
     policy = cookielib.DefaultCookiePolicy( rfc2965=True )
     cj = cookielib.CookieJar( policy )
     keepalive_handler = HTTPHandler()
-    opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
+    try:
+        opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
+    except urllib2.URLError as e:
+        print "URL error:", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except urllib2.HTTPError as e:
+        print "HTTP error code ", e.code, " : ", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except:
+        import sys
+        print "Autre exception : ", sys.exc_type, sys.exc_value
+        exit( -1 )
 
     t_headers = []
     for k, v in headers.items():
@@ -52,9 +65,23 @@ def authentification( login, password, opener, cj ):
     page      = "/espacelic/connexion.do"
     payload   = { 'dispatch' : 'identifier', 'login' : login, 'motDePasse' : password }
     data      = urllib.urlencode( payload )
+    timeout   = 60
 
     # On ouvre la page d'authentification
-    rep = opener.open( server+page, data )
+    try:
+        rep = opener.open( server+page, data, timeout )
+    except urllib2.URLError as e:
+        print "URL error:", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except socket.timeout as e:
+        print "Timeout -- connexion impossible au serveur de la FFT"
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except:
+        import sys
+        print "Autre exception : ", sys.exc_type, sys.exc_value
+        exit( -1 )
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
     cookietab = []
@@ -72,11 +99,29 @@ def getIdentifiant( opener, numLicence ):
 
     server    = "http://www.espacelic.applipub-fft.fr"
     page      = "/espacelic/private/recherchelic.do"
-    payload = { 'dispatch' : 'rechercher', 'numeroLicence' : numLicence }
-    data = urllib.urlencode( payload )
+    payload   = { 'dispatch' : 'rechercher', 'numeroLicence' : numLicence }
+    data      = urllib.urlencode( payload )
+    timeout   = 60
 
-    rep = opener.open( server+page, data ) 
-    line = rep.read()
+    try:
+        rep = opener.open( server+page, data, timeout ) 
+        line = rep.read()
+    except urllib2.URLError as e:
+        print "URL error:", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except urllib2.HTTPError as e:
+        print "HTTP error code ", e.code, " : ", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except socket.timeout as e:
+        print "Timeout -- connexion impossible au serveur de la FFT"
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except:
+        import sys
+        print "Autre exception : ", sys.exc_type, sys.exc_value
+        exit( -1 )
 
     # on parse et on recupere le nom
     r_nom = r'<td class="r_nom">\s*(.*?)\s*</td>'
@@ -120,8 +165,25 @@ def getPalma( annee, id, opener ):
     payload = { 'identifiant' : id, 'millesime' : annee }
     data = urllib.urlencode( payload )
 
-    rep = opener.open( server+page, data ) 
-    line = rep.read()
+    try:
+        rep = opener.open( server+page, data ) 
+        line = rep.read()
+    except urllib2.URLError as e:
+        print "URL error:", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except urllib2.HTTPError as e:
+        print "HTTP error code ", e.code, " : ", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except socket.timeout as e:
+        print "Timeout -- connexion impossible au serveur de la FFT"
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        exit( -1 )
+    except:
+        import sys
+        print "Autre exception : ", sys.exc_type, sys.exc_value
+        exit( -1 )
 
     # Separation victoires/defaites
 
@@ -290,6 +352,7 @@ def recupClassement( login, password, LICENCE, profondeur ):
     new_cl = classementJoueur( op, id, nom, cl, sexe, profondeur )
 
     print "nouveau classement: ", new_cl
+    return
 
 # Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
 def trimNumLicence( s ) :
