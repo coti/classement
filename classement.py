@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
 """ Outil de recuperation du classement.
- " (c) Camille Coti, 2013
+ "
+ " :copyright: Copyright 2013, see AUTHORS 
+ "             Copyright 2013, voir AUTHORS
+ " :licence: CeCILL-C or LGPL, see COPYING for details.
+ "           CeCILL-C ou LGPL, voir COPYING pour plus de details.
+ "
+ "
  " TODO:
  " - Prise en compte des formats courts
  " - Joli formattage de sortie
