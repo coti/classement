@@ -46,8 +46,13 @@ def buildOpener():
     try:
         opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
     except urllib2.URLError as e:
-        print "URL error:", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print "URL error"
+        if hasattr(e, 'reason'):
+            print 'Serveur inaccessible.'
+            print 'Raison : ', e.reason
+        elif hasattr(e, 'code'):
+            print 'Le serveur n\'a pas pu repondre a la requete.'
+            print 'Code d\'erreur : ', e.code
         exit( -1 )
     except urllib2.HTTPError as e:
         print "HTTP error code ", e.code, " : ", e.reason
@@ -113,8 +118,13 @@ def getIdentifiant( opener, numLicence ):
         rep = opener.open( server+page, data, timeout ) 
         line = rep.read()
     except urllib2.URLError as e:
-        print "URL error:", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print "URL error"
+        if hasattr(e, 'reason'):
+            print 'Serveur inaccessible.'
+            print 'Raison : ', e.reason
+        elif hasattr(e, 'code'):
+            print 'Le serveur n\'a pas pu repondre a la requete.'
+            print 'Code d\'erreur : ', e.code
         exit( -1 )
     except urllib2.HTTPError as e:
         print "HTTP error code ", e.code, " : ", e.reason
