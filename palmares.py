@@ -2,8 +2,8 @@
 
 """ Outil de recuperation du classement.
  "
- " :copyright: Copyright 2013, see AUTHORS 
- "             Copyright 2013, voir AUTHORS
+ " :copyright: Copyright 2013-2014, see AUTHORS 
+ "             Copyright 2013-2014, voir AUTHORS
  " :licence: CeCILL-C or LGPL, see COPYING for details.
  "           CeCILL-C ou LGPL, voir COPYING pour plus de details.
  "
@@ -25,6 +25,7 @@ from keepalive import HTTPHandler
 
 from classement import calculClassement, penaliteWO, nbWO
 
+server    = "https://edl.app.fft.fr"
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
 def buildOpener():
@@ -33,7 +34,7 @@ def buildOpener():
                  'User-Agent' : 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/4.0.3 Safari/531.9',
                 'Cache-Control' : 'max-age=0',
                 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Origin' : 'http://www.espacelic.applipub-fft.fr',
+                'Origin' : 'https://edl.app.fft.fr',
                 'Content-Type' : 'application/x-www-form-urlencoded',
                 'Referer' : 'http://www.espacelic.applipub-fft.fr/espacelic/connexion.do?url=http://ww2.fft.fr/action/espace_licencies/default.asp',
                 'Accept-Encoding' : 'gzip,deflate,sdch',
@@ -72,7 +73,7 @@ def buildOpener():
 
 # S'authentifie aupres du serveur
 def authentification( login, password, opener, cj ):
-    server    = "http://www.espacelic.applipub-fft.fr"
+    global server
     page      = "/espacelic/connexion.do"
     payload   = { 'dispatch' : 'identifier', 'login' : login, 'motDePasse' : password }
     data      = urllib.urlencode( payload )
@@ -108,7 +109,7 @@ def authentification( login, password, opener, cj ):
 # Retourne l'identifiant interne d'un licencie
 def getIdentifiant( opener, numLicence ):
 
-    server    = "http://www.espacelic.applipub-fft.fr"
+    global server
     page      = "/espacelic/private/recherchelic.do"
     payload   = { 'dispatch' : 'rechercher', 'numeroLicence' : numLicence }
     data      = urllib.urlencode( payload )
@@ -176,7 +177,7 @@ def getIdentifiant( opener, numLicence ):
 
 # Obtenir le palma d'un joueur d'identifiant donne
 def getPalma( annee, id, opener ):
-    server    = "http://www.espacelic.applipub-fft.fr"
+    global server
     page      = "/espacelic/private/palmares.do"
     payload = { 'identifiant' : id, 'millesime' : annee }
     data = urllib.urlencode( payload )
