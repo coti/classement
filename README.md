@@ -1,6 +1,6 @@
 # Outil de récupération du classement de ses adversaires.
 
-(c) Camille Coti, 2013
+(c) Camille Coti, 2013-2014
 
 ## Système de calcul
 
