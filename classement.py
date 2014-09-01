@@ -552,10 +552,25 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
 
         if( 'NC' == myClassement ):
-            return 'NC'
+            if 0 != len( myDefaites ):
+                print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
+                return '40'
+            else:
+                print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
+                return 'NC'
         else:
-            return echelonInferieur( myClassement )
-
+            cl = echelonInferieur( myClassement )
+            if 'NC' == cl:
+                if 0 != len( myDefaites ):
+                    print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
+                    return '40'
+                else:
+                    print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
+                    return 'NC'
+            else:
+                print " ==> Classement de sortie : ", cl, " - classement d\'origine : ", myClassement
+                return cl
+                
     myVictoires = normalisationTab( myVictoires, mySexe )
     myDefaites = normalisationTab( myDefaites, mySexe )
 
@@ -578,7 +593,13 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
         classementPropose = echelonInferieur( classementPropose )
 
     print " ==> Classement de sortie : ", classementPropose, " - classement d\'origine : ", myClassement
-    return classementPropose
+    if 'NC' == classementPropose:
+        if 0 != ( len( myDefaites ) + len( myVictoires ) ):
+            return '40'
+        else:
+            return 'NC'
+    else:
+        return classementPropose
 
 # TODO : if( ( serie[classement] ) == 2 or serie[classement] ) == -2 ) and VE2I5G < -100 ):
 #    classement = classement - 1
@@ -593,8 +614,8 @@ def test():
     testCl = "30/2"
     """
 
-    file_vic = './martin_victoires.txt'
-    file_def = './martin_defaites.txt'
+    file_vic = './test_victoires.txt'
+    file_def = './test_defaites.txt'
 
     testVic = []
     testDef = []
@@ -666,12 +687,11 @@ def test():
     print " === DEFAITES === "
     for m in testDef:
         print m
-
     """
 
-    champ = 1
+    champ = 0
     testSexe = "H"
-    classement = "15/3"
+    classement = "NC"
 
     """
     print "Victoires :", testVic
