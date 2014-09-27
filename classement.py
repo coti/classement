@@ -488,6 +488,14 @@ def normalisation( cl, sexe ):
             o = "Promo"
     return o, cl[1]
 
+# determine si le joueur est numerote
+def estNumerote( classement ):
+    if 'N' == classement[0] and 'C' != classement[1] :
+        return True
+    else:
+        return False
+
+
 # Conversion des numerotes en "Promo" ou "1S"
 def normalisationTab( tab, sexe ):
     tabSortie = []
@@ -549,6 +557,12 @@ def victoiresQuiComptent( vic, nb ):
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv ):
 
     ok = False
+
+    if estNumerote( myClassement ):
+        print "Cas particulier : le joueur est numerote. On le calcule au meme classement."
+        print " ==> Classement de sortie : ", myClassement, " - classement d\'origine : ", myClassement
+        return myClassement
+
     if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
 
         if( 'NC' == myClassement ):
@@ -691,7 +705,7 @@ def test():
 
     champ = 0
     testSexe = "H"
-    classement = "NC"
+    classement = "N60"
 
     """
     print "Victoires :", testVic
