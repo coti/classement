@@ -1,6 +1,6 @@
 # Outil de récupération du classement de ses adversaires.
 
-(c) Camille Coti, 2013
+(c) Camille Coti, 2013-2014
 
 ## Système de calcul
 
@@ -39,11 +39,16 @@ Python 2.6 peut être téléchargé ici : http://www.python.org/ftp/python/2.6/pytho
 * lancer l'invite de commandes
 * remonter dans le dossier C: grâce à la ligne de commande cd ".."
 * aller dans le dossier d'installation python, par exemple
-    cd "Python34" 
-si Python est installé dans C://Python34)
+    cd "Python26" 
+si Python est installé dans C://Python26)
 * entrer la ligne de commande 
     python.exe palmares.py
 (après avoir mis tous les fichiers .py dans ce même répertoire)
+
+Autre façon de faire :
+* faire un clic droit sur le fichier palmares.py
+* sélectionner "ouvrir avec"
+* choisir le terminal dans le dossier applications/utilitaires
 
 ### Exécution
 

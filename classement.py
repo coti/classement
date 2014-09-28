@@ -3,7 +3,7 @@
 """ Outil de recuperation du classement.
  "
  " :copyright: Copyright 2013-2014, see AUTHORS 
- "             Copyright 2013-14, voir AUTHORS
+ "             Copyright 2013-2014, voir AUTHORS
  " :licence: CeCILL-C or LGPL, see COPYING for details.
  "           CeCILL-C ou LGPL, voir COPYING pour plus de details.
  "
@@ -50,11 +50,11 @@ points = { -3 : 15,
             2 : 120 }
 
 maintienF = { "NC" : 0,
-              "40" : 6,
-              "30/5" : 50,
-              "30/4" : 100,
-              "30/3" : 150,
-              "30/2" : 190,
+              "40" : 0,
+              "30/5" : 6,
+              "30/4" : 70,
+              "30/3" : 120,
+              "30/2" : 170,
               "30/1" : 210,
               "30" : 260,
               "15/5" : 290,
@@ -73,15 +73,15 @@ maintienF = { "NC" : 0,
               "-4/6" : 750,
               "-15" : 800,
               "-30" : 850,
-              "Promo" : 950,
+              "Promo" : 910,
               "1S" : 5000}
 
 maintienH = { "NC" : 0,
-              "40" : 6,
-              "30/5" : 50,
-              "30/4" : 100,
-              "30/3" : 150,
-              "30/2" : 190,
+              "40" : 0,
+              "30/5" : 6,
+              "30/4" : 70,
+              "30/3" : 120,
+              "30/2" : 170,
               "30/1" : 210,
               "30" : 280,
               "15/5" : 300,
@@ -269,7 +269,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     elif( 2 == serie[ myClassement ] ): 
         if( v < -41 ) :
             add = -3
-        elif( v >= -40 and v <= 31 ):
+        elif( v >= -40 and v <= -31 ):
             add = -2
         elif( v >= -30 and v <= -21 ):
             add = -1
@@ -326,7 +326,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
 #    victoiresComptant = sortedVictoires[:nbV]
 
-    print "Victoires prises en compte : ", victoiresComptant
+    print "Victoires prises en compte (", nbV,") : ", victoiresComptant
 
     nbPoints = 0
 
@@ -352,7 +352,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
             if True == absenceDef( myDefaites, myClassement ):
                 bonif = 50
     if bonif != 0:
-        print "bonif absence de defaite significative: ", bonif
+        print "Bonif absence de defaite significative: ", bonif
 
     nbPoints = nbPoints + bonif
 
@@ -362,7 +362,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
 
     nbPoints = nbPoints + bonif
     if bonif != 0:
-        print "bonif championnat indiv: ", bonif
+        print "Bonif championnat indiv: ", bonif
 
 
     return nbPoints
@@ -488,6 +488,14 @@ def normalisation( cl, sexe ):
             o = "Promo"
     return o, cl[1]
 
+# determine si le joueur est numerote
+def estNumerote( classement ):
+    if 'N' == classement[0] and 'C' != classement[1] :
+        return True
+    else:
+        return False
+
+
 # Conversion des numerotes en "Promo" ou "1S"
 def normalisationTab( tab, sexe ):
     tabSortie = []
@@ -517,7 +525,7 @@ def penaliteWO( defaites ):
             if w >= 3:
                 o = ( 'S', d[1] )
                 # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
-                print "Defaite significative ajoutee"
+                print "Defaite significative ajoutee (wo)"
             else:
                 o = d
         else:
@@ -549,13 +557,34 @@ def victoiresQuiComptent( vic, nb ):
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv ):
 
     ok = False
+
+    if estNumerote( myClassement ):
+        print "Cas particulier : le joueur est numerote. On le calcule au meme classement."
+        print " ==> Classement de sortie : ", myClassement, " - classement d\'origine : ", myClassement
+        return myClassement
+
     if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
 
         if( 'NC' == myClassement ):
-            return 'NC'
+            if 0 != len( myDefaites ):
+                print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
+                return '40'
+            else:
+                print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
+                return 'NC'
         else:
-            return echelonInferieur( myClassement )
-
+            cl = echelonInferieur( myClassement )
+            if 'NC' == cl:
+                if 0 != len( myDefaites ):
+                    print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
+                    return '40'
+                else:
+                    print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
+                    return 'NC'
+            else:
+                print " ==> Classement de sortie : ", cl, " - classement d\'origine : ", myClassement
+                return cl
+                
     myVictoires = normalisationTab( myVictoires, mySexe )
     myDefaites = normalisationTab( myDefaites, mySexe )
 
@@ -566,7 +595,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
 
-        print "Classement propose : ", classementPropose
+        print " ==> Classement propose : ", classementPropose
 
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
@@ -577,8 +606,14 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     if nbWO( myDefaites ) >= 5:
         classementPropose = echelonInferieur( classementPropose )
 
-    print "Classement de sortie : ", classementPropose, " - classement d\' origine : ", myClassement
-    return classementPropose
+    print " ==> Classement de sortie : ", classementPropose, " - classement d\'origine : ", myClassement
+    if 'NC' == classementPropose:
+        if 0 != ( len( myDefaites ) + len( myVictoires ) ):
+            return '40'
+        else:
+            return 'NC'
+    else:
+        return classementPropose
 
 # TODO : if( ( serie[classement] ) == 2 or serie[classement] ) == -2 ) and VE2I5G < -100 ):
 #    classement = classement - 1
@@ -586,11 +621,93 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
 
 def test():
+
+    """
     testDef = [ "30/2", "30/1", "NC", "15/2", "30/3", "30/4", "30/5", "30/3" ]
     testVic = [ "30", "30", "NC", "15/5", "15/4", "30/1", "30/3", "30/5", "N2", "N42", "N3" ]
     testCl = "30/2"
-    testSexe = "H"
+    """
 
+    file_vic = './test_victoires.txt'
+    file_def = './test_defaites.txt'
+
+    testVic = []
+    testDef = []
+
+    testVic_n = []
+    testDef_n = []
+
+    try:
+        fd_v = open( file_vic, 'r' )
+        fd_d = open( file_def, 'r' )
+    except:
+        import sys
+        print "Erreur ouverture", sys.exc_type, sys.exc_value
+
+
+    try:
+        lines = fd_v.readlines( )
+        for l in lines:
+            if l != "\n" : # si la ligne n'est pas vide
+                s = l.split( '\t' )
+                if 3 == len(s):
+                    wo = False
+                else:
+                    wo = True
+
+                n = [] # retirer les \n
+                for st in s[1], s[2]:
+                    if "\n" == st[-1:]:
+                        st =  st[:-1]
+                    n.append( st )
+                    
+                testVic.append( [ n[0], wo ] )
+                testVic_n.append( [ n[1], wo ] )
+            
+        fd_v.close()
+
+        lines = fd_d.readlines( )
+        for l in lines:
+            if l != "\n" : # si la ligne n'est pas vide
+                s = l.split( '\t' )
+                if 3 == len(s):
+                    wo = False
+                else:
+                    wo = True
+                    
+                n = [] # retirer les \n
+                for st in s[1], s[2]:
+                    if "\n" == st[-1:]:
+                        st =  st[:-1]
+                    n.append( st )
+
+                testDef.append( [ n[0], wo ] )
+                testDef_n.append( [ n[1], wo ] )
+        fd_d.close()
+                
+    except:    
+
+        import sys
+        print "Erreur lecture", sys.exc_type, sys.exc_value
+            
+        fd_v.close()
+        fd_d.close()
+
+    """
+    print "Palma de Martin :"
+    print " === VICTOIRES === "
+    for m in testVic:
+        print m
+    print " === DEFAITES === "
+    for m in testDef:
+        print m
+    """
+
+    champ = 0
+    testSexe = "H"
+    classement = "N60"
+
+    """
     print "Victoires :", testVic
     testVic = normalisationTab( testVic, testSexe )
     print "Apres normalisation :", testVic
@@ -623,7 +740,9 @@ def test():
 
     print " - * - * - * - * - * - * - * - * - * -"
 
-    calculClassement( testVic, testDef, testSexe, testCl, True, 2 )
+    """
+
+    calculClassement( testVic_n, testDef_n, testSexe, classement, champ )
 
 
 
