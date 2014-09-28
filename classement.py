@@ -469,7 +469,7 @@ def normalisation( cl, sexe ):
     if len( classement ) < 2:
         return cl
     o = classement
-    if 'N' == classement[0] and 'C' != classement[1] :
+    if estNumerote( classement ):
         # on est sur un numerote
         s = classement[1:]
         n = int( s )
@@ -490,11 +490,10 @@ def normalisation( cl, sexe ):
 
 # determine si le joueur est numerote
 def estNumerote( classement ):
-    if 'N' == classement[0] and 'C' != classement[1] :
+    if ( 'T' == classement[0] ) or ( 'N' == classement[0] and 'C' != classement[1] ):
         return True
     else:
         return False
-
 
 # Conversion des numerotes en "Promo" ou "1S"
 def normalisationTab( tab, sexe ):
@@ -705,7 +704,7 @@ def test():
 
     champ = 0
     testSexe = "H"
-    classement = "N60"
+    classement = "15"
 
     """
     print "Victoires :", testVic
