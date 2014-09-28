@@ -605,6 +605,13 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     if nbWO( myDefaites ) >= 5:
         classementPropose = echelonInferieur( classementPropose )
 
+    # penalite mauvais V - E - 2I - 5G ?
+    if 2 == serie[ classementPropose ]:
+        v = VE2I5G( classementPropose, myVictoires, myDefaites )
+        if v <= -100:
+            print "Joueur en 2eme serie, V-E-2I-5G inferieur ou egal a 100 (" + str( v ) + ") : penalite et descente d'un classement"
+            classementPropose = echelonInferieur( classementPropose )
+
     print " ==> Classement de sortie : ", classementPropose, " - classement d\'origine : ", myClassement
     if 'NC' == classementPropose:
         if 0 != ( len( myDefaites ) + len( myVictoires ) ):
