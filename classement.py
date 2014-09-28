@@ -426,7 +426,7 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
         return None
 
     grosse = plusGrosseVictoire( myVictoires )
-    if grosse[0] == "Promo" or grosse == "1S":
+    if grosse == "Promo" or grosse == "1S":
         return "1S"
     else:
         for( k, v ) in classementNumerique.iteritems():
