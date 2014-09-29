@@ -296,6 +296,12 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     print "profondeur : ", profondeur
     print "calcul du classement de ", nom
 
+    # en cas de classement qui contient l'annee,
+    # e.g. 'NC (2014)' -> garder uniquement la 1ere partie
+    c = classement.split( )
+    if len( c ) > 1:
+        classement = c[0]
+
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp( V )
     print champ, " victoire(s) en championnat individuel"
