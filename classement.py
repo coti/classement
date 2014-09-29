@@ -466,6 +466,10 @@ def classementPropose1erTour( myVictoires, myClassement ):
 # Normalise un classement
 def normalisation( cl, sexe ):
     classement = cl[0]
+    c = classement.split( ) # certains classements ont des precisions, e.g. 'NC (2014)' -> garder uniquement la 1ere partie
+    if len( c ) > 1:
+        classement = c[0]
+        cl[0] = c[0]
     if len( classement ) < 2:
         return cl
     o = classement
