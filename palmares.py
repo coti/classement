@@ -19,6 +19,7 @@ import urllib2
 import httplib
 import cookielib
 import re
+import socket
 
 from gaecookie import GAECookieProcessor
 from keepalive import HTTPHandler
@@ -419,7 +420,7 @@ def main():
             return -1
 
     recupClassement( login, password, licence, profondeur )
-
+    return
 
 
 if __name__ == "__main__" :
