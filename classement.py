@@ -184,6 +184,11 @@ serie = { "NC" : 4,
           "Promo" : -2,
           "1S" : 1}
 
+# affiche le classement calcule d'un joueur
+def afficheClassement( origine, calcul, harmonise ):
+    print " ==> Classement de sortie : ", calcul, " - Harmonise : " , harmonise, " -  classement d\'origine : ", origine
+    return
+
 # calcule le V - E - 2I - 5G
 def VE2I5G( classement, victoires, defaites ):
     v = len( victoires )
@@ -559,30 +564,30 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     if estNumerote( myClassement ):
         print "Cas particulier : le joueur est numerote. On le calcule au meme classement."
-        print " ==> Classement de sortie : ", myClassement, " - classement d\'origine : ", myClassement
-        return myClassement
+        afficheClassement( myClassement, myClassement, myClassement )
+        return ( myClassement, myClassement )
 
     if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
 
         if( 'NC' == myClassement ):
             if 0 != len( myDefaites ):
-                print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
-                return '40'
+                afficheClassement( myClassement, '40', '40' )
+                return ( '40', '40' )
             else:
-                print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
-                return 'NC'
+                afficheClassement( myClassement, '40', '40' )
+                return ( 'NC', 'NC' )
         else:
             cl = echelonInferieur( myClassement )
             if 'NC' == cl:
                 if 0 != len( myDefaites ):
-                    print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
-                    return '40'
+                    afficheClassement( myClassement, '40', '40' )
+                    return ( '40', '40' )
                 else:
-                    print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
-                    return 'NC'
+                    afficheClassement( myClassement, '40', '40' )
+                    return ( 'NC', 'NC' )
             else:
-                print " ==> Classement de sortie : ", cl, " - classement d\'origine : ", myClassement
-                return cl
+                afficheClassement( myClassement, cl, cl )
+                return ( cl, cl )
                 
     myVictoires = normalisationTab( myVictoires, mySexe )
     myDefaites = normalisationTab( myDefaites, mySexe )
@@ -601,25 +606,30 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
         if( True != ok ):
             classementPropose = echelonInferieur( classementPropose )
 
+    # harmonisation du classement
+    classementHarmonise = classementPropose
+
     # penalite WO ?
     if nbWO( myDefaites ) >= 5:
-        classementPropose = echelonInferieur( classementPropose )
+        print "Penalite car trop de WO (", nbWO( myDefaites ), " > 5 )"
+        classementHarmonise = echelonInferieur( classementPropose )
 
     # penalite mauvais V - E - 2I - 5G ?
-    if 2 == serie[ classementPropose ]:
-        v = VE2I5G( classementPropose, myVictoires, myDefaites )
+    if 2 == serie[ classementHarmonise ]:
+        v = VE2I5G( classementHarmonise, myVictoires, myDefaites )
         if v <= -100:
             print "Joueur en 2eme serie, V-E-2I-5G inferieur ou egal a 100 (" + str( v ) + ") : penalite et descente d'un classement"
-            classementPropose = echelonInferieur( classementPropose )
+            classementHarmonise = echelonInferieur( classementHarmonise )
 
-    print " ==> Classement de sortie : ", classementPropose, " - classement d\'origine : ", myClassement
     if 'NC' == classementPropose:
         if 0 != ( len( myDefaites ) + len( myVictoires ) ):
-            return '40'
+            classementPropose = classementHarmonise = '40'
         else:
-            return 'NC'
-    else:
-        return classementPropose
+            classementPropose = classementHarmonise = 'NC'
+
+    afficheClassement( myClassement, classementPropose, classementHarmonise )
+
+    return ( classementPropose, classementHarmonise )
 
 def test():
 
