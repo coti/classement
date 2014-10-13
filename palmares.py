@@ -312,20 +312,20 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
         # calcul du futur classement de mes victoires
         for _v in V:
-            nc = classementJoueur( opener, _v[1], _v[0], _v[2], sexe, profondeur )
+            nc,harm = classementJoueur( opener, _v[1], _v[0], _v[2], sexe, profondeur )
             myV.append( ( nc, _v[3] ) )
             palmaV.append( ( _v[0], _v[2], nc, _v[3] ) )
 
         # calcul du futur classement de mes defaites
         for _d in D:
-            nc = classementJoueur( opener, _d[1], _d[0], _d[2], sexe, profondeur )
+            nc,harm = classementJoueur( opener, _d[1], _d[0], _d[2], sexe, profondeur )
             myD.append( ( nc, _d[3] ) )
             palmaD.append( ( _d[0], _d[2], nc, _d[3] ) )
 
 
     # calcul du classement a jour
-    cl = calculClassement( myV, myD, sexe,  classement, champ )
-    print "Nouveau classement de ", nom, " : ", cl
+    cl,harm = calculClassement( myV, myD, sexe,  classement, champ )
+    print "Nouveau classement de ", nom, " : ", cl, "(calcul)", harm, "(harmonisation)"
     print "Palmares de ", nom, " :"
     print "[Nom] [Ancien classement] [Nouveau classement] [WO]"
     print " === VICTOIRES ==="
@@ -350,7 +350,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
                 o = ( _d[0],_d[1], _d[2] ) 
                 print "\t".join( o )
 
-    return cl
+    return ( cl, harm )
 
 def recupClassement( login, password, LICENCE, profondeur ):
     
@@ -366,9 +366,9 @@ def recupClassement( login, password, LICENCE, profondeur ):
 
     # recuperation de son propre palma, et recursivement de celui des autres
 
-    new_cl = classementJoueur( op, id, nom, cl, sexe, profondeur )
+    new_cl, harm = classementJoueur( op, id, nom, cl, sexe, profondeur )
 
-    print "nouveau classement: ", new_cl
+    print "nouveau classement: ", harm, " (apres harmonisation) - ", new_cl, " (calcule)"
     return
 
 # Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
