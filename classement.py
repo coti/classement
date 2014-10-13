@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 """ Outil de recuperation du classement.
  "
@@ -184,9 +186,9 @@ serie = { "NC" : 4,
           "Promo" : -2,
           "1S" : 1}
 
-# affiche le classement calcule d'un joueur
+# affiche le classement calculé d'un joueur
 def afficheClassement( origine, calcul, harmonise ):
-    print " ==> Classement de sortie : ", calcul, " - Harmonise : " , harmonise, " -  classement d\'origine : ", origine
+    print " ==> Classement de sortie : ", calcul, " - Harmonisé : " , harmonise, " -  classement d\'origine : ", origine
     return
 
 # calcule le V - E - 2I - 5G
@@ -407,7 +409,7 @@ def maintienOK( myClassement, mySexe, myPoints ):
     else:
         maintien = maintienF
 
-    print "Points acquis : ", myPoints, " - points necessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ]
+    print "Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ]
 
     if( maintien[ myClassement ] > myPoints ):
         return False
@@ -493,7 +495,7 @@ def normalisation( cl, sexe ):
             o = "Promo"
     return o, cl[1]
 
-# determine si le joueur est numerote
+# determine si le joueur est numéroté
 def estNumerote( classement ):
     if ( 'T' == classement[0] ) or ( 'N' == classement[0] and 'C' != classement[1] ):
         return True
@@ -529,7 +531,7 @@ def penaliteWO( defaites ):
             if w >= 3:
                 o = ( 'S', d[1] )
                 # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
-                print "Defaite significative ajoutee (wo)"
+                print "Defaite significative ajoutée (wo)"
             else:
                 o = d
         else:
@@ -563,7 +565,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     ok = False
 
     if estNumerote( myClassement ):
-        print "Cas particulier : le joueur est numerote. On le calcule au meme classement."
+        print "Cas particulier : le joueur est numéroté. On le calcule au meme classement."
         afficheClassement( myClassement, myClassement, myClassement )
         return ( myClassement, myClassement )
 
@@ -599,7 +601,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
 
-        print " ==> Classement propose : ", classementPropose
+        print " ==> Classement proposé : ", classementPropose
 
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
@@ -618,7 +620,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     if 2 == serie[ classementHarmonise ]:
         v = VE2I5G( classementHarmonise, myVictoires, myDefaites )
         if v <= -100:
-            print "Joueur en 2eme serie, V-E-2I-5G inferieur ou egal a 100 (" + str( v ) + ") : penalite et descente d'un classement"
+            print "Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 (" + str( v ) + ") : pénalité et descente d'un classement"
             classementHarmonise = echelonInferieur( classementHarmonise )
 
     if 'NC' == classementPropose:

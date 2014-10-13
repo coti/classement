@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """ Outil de recuperation du classement.
  "
@@ -188,15 +189,15 @@ def getPalma( annee, id, opener ):
         line = rep.read()
     except urllib2.URLError as e:
         print "URL error:", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
     except urllib2.HTTPError as e:
         print "HTTP error code ", e.code, " : ", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
     except socket.timeout as e:
         print "Timeout -- connexion impossible au serveur de la FFT"
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
     except:
         import sys
@@ -327,7 +328,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     # calcul du classement a jour
     cl,harm = calculClassement( myV, myD, sexe,  classement, champ )
     print "Nouveau classement de ", nom, " : ", cl, "(calcul)", harm, "(harmonisation)"
-    print "Palmares de ", nom, " :"
+    print "Palmarès de ", nom, " :"
     print "[Nom] [Ancien classement] [Nouveau classement] [WO]"
     print " === VICTOIRES ==="
     if len( palmaV ) == 0:
@@ -340,7 +341,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
             else:
                 o = ( _v[0],_v[1], _v[2] ) 
                 print "\t".join( o )
-    print " === DEFAITES ==="
+    print " === DÉFAITES ==="
     if len( palmaD ) == 0:
         print "Aucune"
     else:
@@ -381,7 +382,7 @@ def trimNumLicence( s ) :
         try:
             i = int( s[:-1] )
         except:
-            print "Probleme avec le numero de licence"
+            print "Problème avec le numero de licence"
     l = str( i )
     if len( l ) < 7:
         for k in range( 0, 7 - len( l ) ):
