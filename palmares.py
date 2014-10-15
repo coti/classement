@@ -56,6 +56,8 @@ def buildOpener():
         elif hasattr(e, 'code'):
             print 'Le serveur n\'a pas pu répondre à la requete.'
             print 'Code d\'erreur : ', e.code
+            if e.code == 403:
+                print 'Le serveur vous a refusé l\'accès'
         exit( -1 )
     except urllib2.HTTPError as e:
         print "HTTP error code ", e.code, " : ", e.reason
