@@ -54,12 +54,12 @@ def buildOpener():
             print 'Serveur inaccessible.'
             print 'Raison : ', e.reason
         elif hasattr(e, 'code'):
-            print 'Le serveur n\'a pas pu repondre a la requete.'
+            print 'Le serveur n\'a pas pu répondre à la requete.'
             print 'Code d\'erreur : ', e.code
         exit( -1 )
     except urllib2.HTTPError as e:
         print "HTTP error code ", e.code, " : ", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
     except:
         import sys
@@ -370,7 +370,7 @@ def recupClassement( login, password, LICENCE, profondeur ):
 
     new_cl, harm = classementJoueur( op, id, nom, cl, sexe, profondeur )
 
-    print "nouveau classement: ", harm, " (apres harmonisation) - ", new_cl, " (calcule)"
+    print "nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)"
     return
 
 # Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
