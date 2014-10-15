@@ -54,7 +54,7 @@ def buildOpener():
         if hasattr(e, 'reason'):
             print 'Serveur inaccessible.'
             print 'Raison : ', e.reason
-        elif hasattr(e, 'code'):
+        if hasattr(e, 'code'):
             print 'Le serveur n\'a pas pu répondre à la requete.'
             print 'Code d\'erreur : ', e.code
             if e.code == 403:
@@ -91,7 +91,17 @@ def authentification( login, password, opener, cj ):
         rep = opener.open( server+page, data, timeout )
     except urllib2.URLError as e:
         print "URL error:", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print "Verifiez votre connexion, ou l\'état du serveur de la FFT"
+        if hasattr(e, 'reason'):
+            print 'Serveur inaccessible.'
+            print 'Raison : ', e.reason
+        if hasattr(e, 'code'):
+            print 'Le serveur n\'a pas pu répondre à la requete.'
+            print 'Code d\'erreur : ', e.code
+            if e.code == 403:
+                print 'Le serveur vous a refusé l\'accès'
+            if e.code == 404:
+                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
         exit( -1 )
     except socket.timeout as e:
         print "Timeout -- connexion impossible au serveur de la FFT"
@@ -130,9 +140,13 @@ def getIdentifiant( opener, numLicence ):
         if hasattr(e, 'reason'):
             print 'Serveur inaccessible.'
             print 'Raison : ', e.reason
-        elif hasattr(e, 'code'):
+        if hasattr(e, 'code'):
             print 'Le serveur n\'a pas pu repondre a la requete.'
             print 'Code d\'erreur : ', e.code
+            if e.code == 403:
+                print 'Le serveur vous a refusé l\'accès'
+            if e.code == 404:
+                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
         exit( -1 )
     except urllib2.HTTPError as e:
         print "HTTP error code ", e.code, " : ", e.reason
