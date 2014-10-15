@@ -31,14 +31,15 @@ server    = "https://edl.app.fft.fr"
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
 def buildOpener():
+    global server
     headers = {  "Connection" : "Keep-alive",
                  #'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36',
                  'User-Agent' : 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/4.0.3 Safari/531.9',
                 'Cache-Control' : 'max-age=0',
                 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Origin' : 'https://edl.app.fft.fr',
+                'Origin' : server,
                 'Content-Type' : 'application/x-www-form-urlencoded',
-                'Referer' : 'http://www.espacelic.applipub-fft.fr/espacelic/connexion.do?url=http://ww2.fft.fr/action/espace_licencies/default.asp',
+                'Referer' : server,
                 'Accept-Encoding' : 'gzip,deflate,sdch',
                 'Accept-Language' : 'fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4'
                 }
@@ -58,6 +59,8 @@ def buildOpener():
             print 'Code d\'erreur : ', e.code
             if e.code == 403:
                 print 'Le serveur vous a refusé l\'accès'
+            if e.code == 404:
+                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
         exit( -1 )
     except urllib2.HTTPError as e:
         print "HTTP error code ", e.code, " : ", e.reason
