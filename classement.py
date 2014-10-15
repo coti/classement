@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 """ Outil de recuperation du classement.
  "
@@ -183,6 +185,11 @@ serie = { "NC" : 4,
           "-30" : -2,
           "Promo" : -2,
           "1S" : 1}
+
+# affiche le classement calculé d'un joueur
+def afficheClassement( origine, calcul, harmonise ):
+    print " ==> Classement de sortie : ", calcul, " - Harmonisé : " , harmonise, " -  classement d\'origine : ", origine
+    return
 
 # calcule le V - E - 2I - 5G
 def VE2I5G( classement, victoires, defaites ):
@@ -402,7 +409,7 @@ def maintienOK( myClassement, mySexe, myPoints ):
     else:
         maintien = maintienF
 
-    print "Points acquis : ", myPoints, " - points necessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ]
+    print "Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ]
 
     if( maintien[ myClassement ] > myPoints ):
         return False
@@ -492,7 +499,7 @@ def normalisation( cl, sexe ):
             o = "Promo"
     return o, cl[1]
 
-# determine si le joueur est numerote
+# determine si le joueur est numéroté
 def estNumerote( classement ):
     if ( 'T' == classement[0] ) or ( 'N' == classement[0] and 'C' != classement[1] ):
         return True
@@ -528,7 +535,7 @@ def penaliteWO( defaites ):
             if w >= 3:
                 o = ( 'S', d[1] )
                 # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
-                print "Defaite significative ajoutee (wo)"
+                print "Defaite significative ajoutée (wo)"
             else:
                 o = d
         else:
@@ -562,31 +569,31 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     ok = False
 
     if estNumerote( myClassement ):
-        print "Cas particulier : le joueur est numerote. On le calcule au meme classement."
-        print " ==> Classement de sortie : ", myClassement, " - classement d\'origine : ", myClassement
-        return myClassement
+        print "Cas particulier : le joueur est numéroté. On le calcule au meme classement."
+        afficheClassement( myClassement, myClassement, myClassement )
+        return ( myClassement, myClassement )
 
     if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
 
         if( 'NC' == myClassement ):
             if 0 != len( myDefaites ):
-                print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
-                return '40'
+                afficheClassement( myClassement, '40', '40' )
+                return ( '40', '40' )
             else:
-                print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
-                return 'NC'
+                afficheClassement( myClassement, '40', '40' )
+                return ( 'NC', 'NC' )
         else:
             cl = echelonInferieur( myClassement )
             if 'NC' == cl:
                 if 0 != len( myDefaites ):
-                    print " ==> Classement de sortie : ", '40', " - classement d\'origine : ", myClassement
-                    return '40'
+                    afficheClassement( myClassement, '40', '40' )
+                    return ( '40', '40' )
                 else:
-                    print " ==> Classement de sortie : ", 'NC', " - classement d\'origine : ", myClassement
-                    return 'NC'
+                    afficheClassement( myClassement, '40', '40' )
+                    return ( 'NC', 'NC' )
             else:
-                print " ==> Classement de sortie : ", cl, " - classement d\'origine : ", myClassement
-                return cl
+                afficheClassement( myClassement, cl, cl )
+                return ( cl, cl )
                 
     myVictoires = normalisationTab( myVictoires, mySexe )
     myDefaites = normalisationTab( myDefaites, mySexe )
@@ -598,32 +605,37 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
 
-        print " ==> Classement propose : ", classementPropose
+        print " ==> Classement proposé : ", classementPropose
 
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
         if( True != ok ):
             classementPropose = echelonInferieur( classementPropose )
 
+    # harmonisation du classement
+    classementHarmonise = classementPropose
+
     # penalite WO ?
     if nbWO( myDefaites ) >= 5:
-        classementPropose = echelonInferieur( classementPropose )
+        print "Penalite car trop de WO (", nbWO( myDefaites ), " > 5 )"
+        classementHarmonise = echelonInferieur( classementPropose )
 
     # penalite mauvais V - E - 2I - 5G ?
-    if 2 == serie[ classementPropose ]:
-        v = VE2I5G( classementPropose, myVictoires, myDefaites )
+    if 2 == serie[ classementHarmonise ]:
+        v = VE2I5G( classementHarmonise, myVictoires, myDefaites )
         if v <= -100:
-            print "Joueur en 2eme serie, V-E-2I-5G inferieur ou egal a 100 (" + str( v ) + ") : penalite et descente d'un classement"
-            classementPropose = echelonInferieur( classementPropose )
+            print "Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 (" + str( v ) + ") : pénalité et descente d'un classement"
+            classementHarmonise = echelonInferieur( classementHarmonise )
 
-    print " ==> Classement de sortie : ", classementPropose, " - classement d\'origine : ", myClassement
     if 'NC' == classementPropose:
         if 0 != ( len( myDefaites ) + len( myVictoires ) ):
-            return '40'
+            classementPropose = classementHarmonise = '40'
         else:
-            return 'NC'
-    else:
-        return classementPropose
+            classementPropose = classementHarmonise = 'NC'
+
+    afficheClassement( myClassement, classementPropose, classementHarmonise )
+
+    return ( classementPropose, classementHarmonise )
 
 def test():
 
