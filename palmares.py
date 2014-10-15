@@ -27,7 +27,7 @@ from keepalive import HTTPHandler
 
 from classement import calculClassement, penaliteWO, nbWO
 
-server    = "https://edl.app.fft.fr"
+server    = "http://edl.app.fft.fr"
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
 def buildOpener():
@@ -39,7 +39,7 @@ def buildOpener():
                 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Origin' : server,
                 'Content-Type' : 'application/x-www-form-urlencoded',
-                'Referer' : server,
+                'Referer' : server + 'espaceclic/connection.do',
                 'Accept-Encoding' : 'gzip,deflate,sdch',
                 'Accept-Language' : 'fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4'
                 }
