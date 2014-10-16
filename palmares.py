@@ -309,7 +309,7 @@ def nbVictoiresChamp( tab ):
 
 # Calcule le classement d'un joueur
 def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
-    V, D = getPalma( 2014, id, opener )
+    V, D = getPalma( 2015, id, opener )
     myV = []
     myD = []
     palmaV = []
