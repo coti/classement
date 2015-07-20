@@ -60,7 +60,7 @@
 <ul>
 <li>récupération du palmarès d'un joueur</li>
 <li>calcul du futur classement de ses adversaires ; pour ce faire, récupération de leurs palmarès</li>
-<li>et ainsi de suite, récursivement jusqu'à une profondeur donnée
+<li>et ainsi de suite, récursivement jusqu'à une profondeur donnée.
 Plus la récursion utilisée par le calcul est profonde, plus le résultat sera fiable. </li>
 </ul>
 
@@ -73,7 +73,7 @@ Plus la récursion utilisée par le calcul est profonde, plus le résultat sera 
 <li>profondeur 4 : on racupère 1 palmarès de 20 joueurs puis 20 palmarès de 20 joueurs puis 20x20x20 palmarès de 20 joueurs puis 20x20x20x20 palmarès de 20 joueurs, soit 1 + 20x20 + 20x20x20 + 20x20x20x20 = 168401 palmarès à récupérer !</li>
 </ul>
 
-<p>Cela implique par conséquent un grand nombre de requêtes HTTPS sur le serveur de la FFT. Chaque requête pendant du temps (dépendant de la charge du serveur et de votre connexion, mais généralement 1 à quelques secondes), le calcul global devient rapidement très long. En considérant l'exemple précédent, un temps de calcul local nul et des requêtes prenant chacune 1 seconde, on obtient environ 46h45 pour un calcul à profondeur 4 !</p>
+<p>Cela implique par conséquent un grand nombre de requêtes HTTPS sur le serveur de la FFT. Chaque requête prenant du temps (dépendant de la charge du serveur et de votre connexion, mais généralement 1 à quelques secondes), le calcul global devient rapidement très long. En considérant l'exemple précédent, un temps de calcul local nul et des requêtes prenant chacune 1 seconde, on obtient environ 46h45 pour un calcul à profondeur 4 !</p>
 
 <h1>
 <a id="mode-demploi" class="anchor" href="#mode-demploi" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode d'emploi</h1>
