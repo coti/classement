@@ -51,9 +51,9 @@
 <h1>
 <a id="calcul-du-classement-fft" class="anchor" href="#calcul-du-classement-fft" aria-hidden="true"><span class="octicon octicon-link"></span></a>Calcul du classement FFT.</h1>
 
-<p>Le classement de tennis de la FFT se fait en tenant compte du /futur/ classement de vos adversaires. Par exemple, si vous battez un 15/3 qui monte 1/51, il comptera dans le calcul comme 15/1. Mais comment savoir qu'il va monter 15/1 ? En regardant son palmares. Et ainsi de suite.</p>
+<p>Le classement de tennis de la FFT se fait en tenant compte du /futur/ classement de vos adversaires. Par exemple, si vous battez un 15/3 qui monte 15/1, il comptera dans le calcul comme 15/1. Mais comment savoir qu'il va monter 15/1 ? En regardant son palmares. Et ainsi de suite.</p>
 
-<p>Pour faire ce calcul, la FFT fait plusieurs passes (30 à 35 d'après ce que j'ai entendu). La première passe se fait avec les classements d'origine, la deuxième en prenant les classements calculs par la première passe, et ainsi de suite. Au bout d'un certain nombre de passes, les oscillations sont détectées et bloquées.</p>
+<p>Pour faire ce calcul, la FFT fait plusieurs passes (30 à 35 d'après ce que j'ai entendu). La première passe se fait avec les classements d'origine, la deuxième en prenant les classements calculés par la première passe, et ainsi de suite. Au bout d'un certain nombre de passes, les oscillations sont détectées et bloquées.</p>
 
 <p>Cependant, de notre petit point de vue de licencié, comment calculer notre futur classement, étant donné que nous n'avons pas à notre disposition l'intégralité des rencontres jouées ? Il est possible de faire une /estimation/ de ce calcul comme suit :</p>
 
