@@ -19,8 +19,8 @@
     </section>
 
     <section class="main-content">
-      <h3>
-<a id="calcul-du-classement-fft" class="anchor" href="#calcul-du-classement-fft" aria-hidden="true"><span class="octicon octicon-link"></span></a>Calcul du classement FFT.</h3>
+      <h2>
+<a id="calcul-du-classement-fft" class="anchor" href="#calcul-du-classement-fft" aria-hidden="true"><span class="octicon octicon-link"></span></a>Calcul du classement FFT.</h2>
 
 <p>Le classement de tennis de la FFT se fait en tenant compte du /futur/ classement de vos adversaires. Par exemple, si vous battez un 15/3 qui monte 1/51, il comptera dans le calcul comme 15/1. Mais comment savoir qu'il va monter 15/1 ? En regardant son palmares. Et ainsi de suite.</p>
 
@@ -46,23 +46,111 @@ Plus la récursion utilisée par le calcul est profonde, plus le résultat sera 
 
 <p>Cela implique par conséquent un grand nombre de requêtes HTTPS sur le serveur de la FFT. Chaque requête pendant du temps (dépendant de la charge du serveur et de votre connexion, mais généralement 1 à quelques secondes), le calcul global devient rapidement très long. En considérant l'exemple précédent, un temps de calcul local nul et des requêtes prenant chacune 1 seconde, on obtient environ 46h45 pour un calcul à profondeur 4 !</p>
 
-<h3>
-<a id="mode-demploi" class="anchor" href="#mode-demploi" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode d'emploi</h3>
+<h2>
+<a id="mode-demploi" class="anchor" href="#mode-demploi" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode d'emploi</h2>
 
 <p>C'est simple : lisez le fichier README fourni ;)</p>
+
+<h2>
+<a id="prérequis" class="anchor" href="#pr%C3%A9requis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Prérequis</h2>
+
+<p>Il suffit de disposer d'un interpréteur Python. Les bibliothèques utilisées sont incluses dans la distribution standard Python 2.6 ou fournies. On suppose ici que l'interpréteur est situé dans /usr/bin/python.</p>
+
+<p>Les bibliothèques fournies avec ce logiciel sont :</p>
+
+<ul>
+<li>gaecookie, qui permet d'utiliser plusieurs cookies à la fois (plusieurs champs Set-cookie dans l'en-tête HTTP)</li>
+<li>keepalive : permet d'utiliser une connexion keep-alive avec la bibliothèques urllib, qui normalement ne le permet pas</li>
+</ul>
+
+<p>J'ai apporté une légère modification à la bibliothèque keepalive : j'ai simplement supprimé les méthodes relatives à HTTPS afin de supprimer la dépendance vers la bibliothèque SSL.</p>
+
+<h2>
+<a id="utilisation" class="anchor" href="#utilisation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Utilisation</h2>
+
+<h3>
+<a id="sous-unix-mac-os-lunix" class="anchor" href="#sous-unix-mac-os-lunix" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sous Unix (Mac OS, Lunix)</h3>
+
+<p>Dans un terminal, taper :</p>
+
+<pre><code>./palmares.py
+</code></pre>
+
+<h3>
+<a id="sous-windows" class="anchor" href="#sous-windows" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sous Windows</h3>
+
+<p>Python 2.6 peut être téléchargé ici : <a href="http://www.python.org/ftp/python/2.6/python-2.6.msi">http://www.python.org/ftp/python/2.6/python-2.6.msi</a></p>
+
+<ul>
+<li>lancer l'invite de commandes</li>
+<li>remonter dans le dossier C: grâce à la ligne de commande cd ".."</li>
+<li>aller dans le dossier d'installation python, par exemple
+<code>
+cd "Python26" 
+</code>
+si Python est installé dans C://Python26)</li>
+<li>entrer la ligne de commande </li>
+</ul>
+
+<pre><code>python.exe palmares.py
+</code></pre>
+
+<p>(après avoir mis tous les fichiers .py dans ce même répertoire)</p>
+
+<p>Autre façon de faire :</p>
+
+<ul>
+<li>faire un clic droit sur le fichier <code>palmares.py</code>
+</li>
+<li>sélectionner "ouvrir avec"</li>
+<li>choisir le terminal dans le dossier applications/utilitaires</li>
+</ul>
+
+<h3>
+<a id="exécution" class="anchor" href="#ex%C3%A9cution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Exécution</h3>
+
+<p>L'outil demande de saisir ses identifiants sur l'espace du licencié, le numéro de licence du joueur concerné et la profondeur de la recherche. Le dernier classement calculé affiché correspnd au classement calculé pour le joueur demandé. </p>
+
+<p>Il est nécessaire d'être connecté à Internet pendant toute l'opération.</p>
+
+<h3>
+<a id="interface-graphique" class="anchor" href="#interface-graphique" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interface graphique</h3>
+
+<p>Exécuter le fichier interface.py. Remplir les champs demandés et cliquer sur le bouton. La sortie s'affichera dans la grosse boite blanche en-dessous.</p>
+
+<p>Attention, l'interface est pleine de bugs.</p>
+
+<h2>
+<a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limitations</h2>
+
+<p>Il est pour le moment :</p>
+
+<ul>
+<li>seulement en version alpha</li>
+<li>verbeux et peu esthétique</li>
+</ul>
+
+<h2>
+<a id="todo-list" class="anchor" href="#todo-list" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO list:</h2>
+
+<ul>
+<li>améliorer la GUI</li>
+<li>corriger les bugs de la GUI</li>
+<li>prise en compte des formats courts</li>
+</ul>
 
 <h3>
 <a id="plate-formes-supportées" class="anchor" href="#plate-formes-support%C3%A9es" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plate-formes supportées</h3>
 
 <p>Le programme est écrit en Python, donc il est censé fonctionner sur toutes les plate-formes supportant Python 2.6 (environ).</p>
 
-<h3>
-<a id="auteur" class="anchor" href="#auteur" aria-hidden="true"><span class="octicon octicon-link"></span></a>Auteur</h3>
+<h1>
+<a id="auteur" class="anchor" href="#auteur" aria-hidden="true"><span class="octicon octicon-link"></span></a>Auteur</h1>
 
 <p>Logiciel développé par Camille Coti (<a href="https://github.com/coti" class="user-mention">@coti</a>) et hébergé par GitHub.</p>
 
-<h3>
-<a id="copyright" class="anchor" href="#copyright" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright</h3>
+<h1>
+<a id="copyright" class="anchor" href="#copyright" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright</h1>
 
 <p>Classement est un programme informatique servant à estimer son futur classement de tennis d'après la FFT en estimant récursivement le futur classement de ses adversaires.</p>
 
