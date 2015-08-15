@@ -1,6 +1,6 @@
 # Outil de récupération du classement de ses adversaires.
 
-(c) Camille Coti, 2013-2014
+(c) Camille Coti, 2013-2015
 
 ## Système de calcul
 
@@ -34,7 +34,6 @@ pip install requests==2.6.0
 * Sous Windows 
 ```
 python.exe -m pip install requests==2.6.0
-
 ```
 
 ## Utilisation
