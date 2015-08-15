@@ -512,9 +512,6 @@ def normalisationTab( tab, sexe ):
     for c in tab:
         o = normalisation( c, sexe )
         tabSortie.append( o )
-    # Insertion de la penalite wo
-    if nbWO( tab ) >= 3:
-        penaliteWO( tab )
     return tabSortie
 
 # Compter le nombre de wo
@@ -597,6 +594,10 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
                 
     myVictoires = normalisationTab( myVictoires, mySexe )
     myDefaites = normalisationTab( myDefaites, mySexe )
+    
+    # Insertion de la penalite wo
+    if nbWO( myDefaites ) >= 3:
+        myDefaites = penaliteWO( myDefaites )
 
     myClassement = normalisation( myClassement, mySexe )
 
