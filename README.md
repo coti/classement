@@ -30,6 +30,11 @@ En cas de message d'erreur à propos de la bibliothèque `requests` qui manquerait
 ```
 pip install requests==2.6.0
 ```
+ou
+```
+sudo python3.4 -m easy_install requests
+```
+Attention, la lib requests doit bien être en version 2.6
 
 * Sous Windows 
 ```

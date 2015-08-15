@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -660,7 +660,7 @@ def test():
     except:
         import sys
         print("Erreur ouverture", sys.exc_info()[0], sys.exc_info()[1])
-
+        return None
 
     try:
         lines = fd_v.readlines( )
