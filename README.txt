@@ -1,6 +1,6 @@
 # Outil de récupération du classement de ses adversaires.
 
-(c) Camille Coti, 2013-2014
+(c) Camille Coti, 2013-2015
 
 ## Système de calcul
 
@@ -15,7 +15,7 @@ L'outil proposé ici permet d'aller récupérer récursivement les palmarès de vos a
 
 ## Prérequis
 
-Il suffit de disposer d'un interpréteur Python. Les bibliothèques utilisées sont incluses dans la distribution standard Python 2.6 ou fournies. On suppose ici que l'interpréteur est situé dans /usr/bin/python.
+Il suffit de disposer d'un interpréteur Python. Les bibliothèques utilisées sont incluses dans la distribution standard Python 3.4 ou fournies. On suppose ici que l'interpréteur est situé dans /usr/bin/python.
 
 Les bibliothèques fournies avec ce logiciel sont :
 
@@ -23,6 +23,14 @@ Les bibliothèques fournies avec ce logiciel sont :
 * keepalive : permet d'utiliser une connexion keep-alive avec la bibliothèques urllib, qui normalement ne le permet pas
 
 J'ai apporté une légère modification à la bibliothèque keepalive : j'ai simplement supprimé les méthodes relatives à HTTPS afin de supprimer la dépendance vers la bibliothèque SSL.
+
+En cas de message d'erreur à propos de la bibliothèque `requests` qui manquerait, celle-ci peut être installée comme suit :
+
+* Sous Linux 
+pip install requests==2.6.0
+
+* Sous Windows 
+python.exe -m pip install requests==2.6.0
 
 ## Utilisation
 
@@ -32,15 +40,19 @@ Dans un terminal, taper :
 
 ./palmares.py
 
+Si vous avez plusieurs versions de Python sur votre système, vous pouvez éviter les problèmes en précisant quel interpréteur utiliser :
+
+python3 ./palmares.py
+
 ### Sous Windows
 
-Python 2.6 peut être téléchargé ici : http://www.python.org/ftp/python/2.6/python-2.6.msi
+Python 3 peut être téléchargé ici : https://www.python.org/ftp/python/3.4.0/python-3.4.0.msi
 
 * lancer l'invite de commandes
 * remonter dans le dossier C: grâce à la ligne de commande cd ".."
 * aller dans le dossier d'installation python, par exemple
-    cd "Python26" 
-si Python est installé dans C://Python26)
+    cd "Python34" 
+si Python est installé dans C://Python34)
 * entrer la ligne de commande 
     python.exe palmares.py
 (après avoir mis tous les fichiers .py dans ce même répertoire)

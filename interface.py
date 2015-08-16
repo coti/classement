@@ -116,7 +116,7 @@ class MainPanel( wx.Panel ):
             try:
                 numLicence = int( sLicence ) 
             except:
-                print "probleme avec le numero de licence saisi ", self.tLicence.GetValue( )
+                print("probleme avec le numero de licence saisi ", self.tLicence.GetValue( ))
                 self.creerDial( "probleme avec le numero de licence saisi " + self.tLicence.GetValue( ) )
         sProf = self.tProfondeur.GetValue( )
         if '' == sProf :
@@ -126,13 +126,13 @@ class MainPanel( wx.Panel ):
             try:
                 profondeur = int( sProf ) 
             except:
-                print "probleme avec la profondeur saisie ",
+                print("probleme avec la profondeur saisie ", end=' ')
         return textLogin, textPassword, numLicence, profondeur
 
     def OnRun( self, event ):
         # Recuperer ce qui a ete saisi
         textLogin, textPassword, numLicence, profondeur = self.getValues()
-        print textLogin, textPassword, numLicence, profondeur
+        print(textLogin, textPassword, numLicence, profondeur)
 
         # Calcul du classement
         palmares.recupClassement( textLogin, textPassword, numLicence, profondeur )
