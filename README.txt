@@ -40,10 +40,6 @@ Dans un terminal, taper :
 
 ./palmares.py
 
-Si vous avez plusieurs versions de Python sur votre système, vous pouvez éviter les problèmes en précisant quel interpréteur utiliser :
-
-python3 ./palmares.py
-
 ### Sous Windows
 
 Python 3 peut être téléchargé ici : https://www.python.org/ftp/python/3.4.0/python-3.4.0.msi
