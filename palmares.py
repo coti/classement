@@ -3,8 +3,8 @@
 
 """ Outil de recuperation du classement.
  "
- " :copyright: Copyright 2013-2015, see AUTHORS 
- "             Copyright 2013-2015, voir AUTHORS
+ " :copyright: Copyright 2013-2014, see AUTHORS 
+ "             Copyright 2013-2014, voir AUTHORS
  " :licence: CeCILL-C or LGPL, see COPYING for details.
  "           CeCILL-C ou LGPL, voir COPYING pour plus de details.
  "
