@@ -188,7 +188,7 @@ serie = { "NC" : 4,
 
 # affiche le classement calculé d'un joueur
 def afficheClassement( origine, calcul, harmonise ):
-    print(" ==> Classement de sortie : ", calcul, " - Harmonisé : " , harmonise, " -  classement d\'origine : ", origine)
+    print " ==> Classement de sortie : ", calcul, " - Harmonisé : " , harmonise, " -  classement d\'origine : ", origine
     return
 
 # calcule le V - E - 2I - 5G
@@ -240,7 +240,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     nb = victoires[ myClassement ]
     v = VE2I5G( myClassement, myVictoires, myDefaites )
 
-    print("V - E - 2I - 5G : ", v)
+    print "V - E - 2I - 5G : ", v
     
     add = 0
     if( 4 == serie[ myClassement ] ): 
@@ -333,7 +333,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
 #    victoiresComptant = sortedVictoires[:nbV]
 
-    print("Victoires prises en compte (", nbV,") : ", victoiresComptant)
+    print "Victoires prises en compte (", nbV,") : ", victoiresComptant
 
     nbPoints = 0
 
@@ -359,7 +359,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
             if True == absenceDef( myDefaites, myClassement ):
                 bonif = 50
     if bonif != 0:
-        print("Bonif absence de defaite significative: ", bonif)
+        print "Bonif absence de defaite significative: ", bonif
 
     nbPoints = nbPoints + bonif
 
@@ -369,7 +369,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
 
     nbPoints = nbPoints + bonif
     if bonif != 0:
-        print("Bonif championnat indiv: ", bonif)
+        print "Bonif championnat indiv: ", bonif
 
 
     return nbPoints
@@ -389,7 +389,7 @@ def sortVictoires( myVictoires ):
         pairVictoires.append( ( v[0], classementNumerique[ v[0] ], v[1] ) )
         dicVictoires[ v[0] ] = classementNumerique[ v[0] ]
 
-    sortedValues = sorted( list(dicVictoires.values()), reverse=True ) 
+    sortedValues = sorted( dicVictoires.values(), reverse=True ) 
 
     for s in sortedValues:
         for k, v, w in pairVictoires:
@@ -409,7 +409,7 @@ def maintienOK( myClassement, mySexe, myPoints ):
     else:
         maintien = maintienF
 
-    print("Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ])
+    print "Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ]
 
     if( maintien[ myClassement ] > myPoints ):
         return False
@@ -436,9 +436,9 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
     if grosse == "Promo" or grosse == "1S":
         return "1S"
     else:
-        for( k, v ) in classementNumerique.items():
+        for( k, v ) in classementNumerique.iteritems():
             if( k == grosse ):
-                for( k_, v_ ) in classementNumerique.items():
+                for( k_, v_ ) in classementNumerique.iteritems():
                     if( v_ == v + E ):
                         return k_
 
@@ -450,7 +450,7 @@ def echelonInferieur( myClassement ):
     if( v == 0 ):
         return 0
     
-    for( k_, v_ ) in classementNumerique.items():
+    for( k_, v_ ) in classementNumerique.iteritems():
         if( v_ == v - 1 ):
             return k_
 
@@ -532,7 +532,7 @@ def penaliteWO( defaites ):
             if w >= 3:
                 o = ( 'S', d[1] )
                 # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
-                print("Defaite significative ajoutée (wo)")
+                print "Defaite significative ajoutée (wo)"
             else:
                 o = d
         else:
@@ -566,7 +566,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     ok = False
 
     if estNumerote( myClassement ):
-        print("Cas particulier : le joueur est numéroté. On le calcule au meme classement.")
+        print "Cas particulier : le joueur est numéroté. On le calcule au meme classement."
         afficheClassement( myClassement, myClassement, myClassement )
         return ( myClassement, myClassement )
 
@@ -606,7 +606,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
 
-        print(" ==> Classement proposé : ", classementPropose)
+        print " ==> Classement proposé : ", classementPropose
 
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
@@ -618,14 +618,14 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     # penalite WO ?
     if nbWO( myDefaites ) >= 5:
-        print("Penalite car trop de WO (", nbWO( myDefaites ), " > 5 )")
+        print "Penalite car trop de WO (", nbWO( myDefaites ), " > 5 )"
         classementHarmonise = echelonInferieur( classementPropose )
 
     # penalite mauvais V - E - 2I - 5G ?
     if 2 == serie[ classementHarmonise ]:
         v = VE2I5G( classementHarmonise, myVictoires, myDefaites )
         if v <= -100:
-            print("Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 (" + str( v ) + ") : pénalité et descente d'un classement")
+            print "Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 (" + str( v ) + ") : pénalité et descente d'un classement"
             classementHarmonise = echelonInferieur( classementHarmonise )
 
     if 'NC' == classementPropose:
@@ -660,7 +660,7 @@ def test():
         fd_d = open( file_def, 'r' )
     except:
         import sys
-        print("Erreur ouverture", sys.exc_info()[0], sys.exc_info()[1])
+        print "Erreur ouverture", sys.exc_type, sys.exc_value
 
 
     try:
@@ -706,7 +706,7 @@ def test():
     except:    
 
         import sys
-        print("Erreur lecture", sys.exc_info()[0], sys.exc_info()[1])
+        print "Erreur lecture", sys.exc_type, sys.exc_value
             
         fd_v.close()
         fd_d.close()
@@ -772,7 +772,7 @@ def main():
 
 if __name__ == "__main__":
     import sys
-    if sys.version_info[0] != 3:
-        print("Erreur -- Fonctionne avec Python 3.x")
-        exit( -1 )
+    if sys.version_info[0] != 2:
+        print "Erreur -- Fonctionne avec Python 2.x"
+        exit -1
     main()

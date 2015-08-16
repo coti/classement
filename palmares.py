@@ -15,10 +15,10 @@
 """
 
 
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
-import http.client
-import http.cookiejar
+import urllib
+import urllib2
+import httplib
+import cookielib
 import re
 import socket
 
@@ -44,35 +44,35 @@ def buildOpener():
                 'Accept-Language' : 'fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4'
                 }
 
-    policy = http.cookiejar.DefaultCookiePolicy( rfc2965=True )
-    cj = http.cookiejar.CookieJar( policy )
+    policy = cookielib.DefaultCookiePolicy( rfc2965=True )
+    cj = cookielib.CookieJar( policy )
     keepalive_handler = HTTPHandler()
     try:
-        opener = urllib.request.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
-    except urllib.error.URLError as e:
-        print("URL error")
+        opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
+    except urllib2.URLError as e:
+        print "URL error"
         if hasattr(e, 'reason'):
-            print('Serveur inaccessible.')
-            print('Raison : ', e.reason)
+            print 'Serveur inaccessible.'
+            print 'Raison : ', e.reason
         if hasattr(e, 'code'):
-            print('Le serveur n\'a pas pu répondre à la requete.')
-            print('Code d\'erreur : ', e.code)
+            print 'Le serveur n\'a pas pu répondre à la requete.'
+            print 'Code d\'erreur : ', e.code
             if e.code == 403:
-                print('Le serveur vous a refusé l\'accès')
+                print 'Le serveur vous a refusé l\'accès'
             if e.code == 404:
-                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
+                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
         exit( -1 )
-    except urllib.error.HTTPError as e:
-        print("HTTP error code ", e.code, " : ", e.reason)
-        print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
+    except urllib2.HTTPError as e:
+        print "HTTP error code ", e.code, " : ", e.reason
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
     except:
         import sys
-        print("Autre exception : ", sys.exc_info()[0], sys.exc_info()[1])
+        print "Autre exception : ", sys.exc_type, sys.exc_value
         exit( -1 )
 
     t_headers = []
-    for k, v in list(headers.items()):
+    for k, v in headers.items():
         t_headers.append( ( k, v ) )
     opener.addheaders = t_headers 
 
@@ -83,33 +83,33 @@ def authentification( login, password, opener, cj ):
     global server
     page      = "/espacelic/connexion.do"
     payload   = { 'dispatch' : 'identifier', 'login' : login, 'motDePasse' : password }
-    data      = urllib.parse.urlencode( payload ).encode('utf-8')
+    data      = urllib.urlencode( payload )
     timeout   = 60
 
     # On ouvre la page d'authentification
     try:
         rep = opener.open( server+page, data, timeout )
-    except urllib.error.URLError as e:
-        print("URL error:", e.reason)
-        print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
+    except urllib2.URLError as e:
+        print "URL error:", e.reason
+        print "Verifiez votre connexion, ou l\'état du serveur de la FFT"
         if hasattr(e, 'reason'):
-            print('Serveur inaccessible.')
-            print('Raison : ', e.reason)
+            print 'Serveur inaccessible.'
+            print 'Raison : ', e.reason
         if hasattr(e, 'code'):
-            print('Le serveur n\'a pas pu répondre à la requete.')
-            print('Code d\'erreur : ', e.code)
+            print 'Le serveur n\'a pas pu répondre à la requete.'
+            print 'Code d\'erreur : ', e.code
             if e.code == 403:
-                print('Le serveur vous a refusé l\'accès')
+                print 'Le serveur vous a refusé l\'accès'
             if e.code == 404:
-                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
+                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
         exit( -1 )
     except socket.timeout as e:
-        print("Timeout -- connexion impossible au serveur de la FFT")
-        print("Verifiez votre connexion, ou l\'etat du serveur de la FFT")
+        print "Timeout -- connexion impossible au serveur de la FFT"
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
         exit( -1 )
     except:
         import sys
-        print("Autre exception : ", sys.exc_info()[0], sys.exc_info()[1])
+        print "Autre exception : ", sys.exc_type, sys.exc_value
         exit( -1 )
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
@@ -129,36 +129,36 @@ def getIdentifiant( opener, numLicence ):
     global server
     page      = "/espacelic/private/recherchelic.do"
     payload   = { 'dispatch' : 'rechercher', 'numeroLicence' : numLicence }
-    data      = urllib.parse.urlencode( payload )
+    data      = urllib.urlencode( payload )
     timeout   = 60
 
     try:
         rep = opener.open( server+page, data, timeout ) 
         line = rep.read()
-    except urllib.error.URLError as e:
-        print("URL error")
+    except urllib2.URLError as e:
+        print "URL error"
         if hasattr(e, 'reason'):
-            print('Serveur inaccessible.')
-            print('Raison : ', e.reason)
+            print 'Serveur inaccessible.'
+            print 'Raison : ', e.reason
         if hasattr(e, 'code'):
-            print('Le serveur n\'a pas pu repondre a la requete.')
-            print('Code d\'erreur : ', e.code)
+            print 'Le serveur n\'a pas pu repondre a la requete.'
+            print 'Code d\'erreur : ', e.code
             if e.code == 403:
-                print('Le serveur vous a refusé l\'accès')
+                print 'Le serveur vous a refusé l\'accès'
             if e.code == 404:
-                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
+                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
         exit( -1 )
-    except urllib.error.HTTPError as e:
-        print("HTTP error code ", e.code, " : ", e.reason)
-        print("Verifiez votre connexion, ou l\'etat du serveur de la FFT")
+    except urllib2.HTTPError as e:
+        print "HTTP error code ", e.code, " : ", e.reason
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
         exit( -1 )
     except socket.timeout as e:
-        print("Timeout -- connexion impossible au serveur de la FFT")
-        print("Verifiez votre connexion, ou l\'etat du serveur de la FFT")
+        print "Timeout -- connexion impossible au serveur de la FFT"
+        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
         exit( -1 )
     except:
         import sys
-        print("Autre exception : ", sys.exc_info()[0], sys.exc_info()[1])
+        print "Autre exception : ", sys.exc_type, sys.exc_value
         exit( -1 )
 
     # on parse et on recupere le nom
@@ -190,7 +190,7 @@ def getIdentifiant( opener, numLicence ):
     match = re.search( r_class, line )
     if match:
         cl = match.group(1)
-        print("classement: ", cl)
+        print "classement: ", cl
     else:
         cl = ''
 
@@ -201,26 +201,26 @@ def getPalma( annee, id, opener ):
     global server
     page      = "/espacelic/private/palmares.do"
     payload = { 'identifiant' : id, 'millesime' : annee }
-    data = urllib.parse.urlencode( payload )
+    data = urllib.urlencode( payload )
 
     try:
         rep = opener.open( server+page, data ) 
         line = rep.read()
-    except urllib.error.URLError as e:
-        print("URL error:", e.reason)
-        print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
+    except urllib2.URLError as e:
+        print "URL error:", e.reason
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
-    except urllib.error.HTTPError as e:
-        print("HTTP error code ", e.code, " : ", e.reason)
-        print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
+    except urllib2.HTTPError as e:
+        print "HTTP error code ", e.code, " : ", e.reason
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
     except socket.timeout as e:
-        print("Timeout -- connexion impossible au serveur de la FFT")
-        print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
+        print "Timeout -- connexion impossible au serveur de la FFT"
+        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
         exit( -1 )
     except:
         import sys
-        print("Autre exception : ", sys.exc_info()[0], sys.exc_info()[1])
+        print "Autre exception : ", sys.exc_type, sys.exc_value
         exit( -1 )
 
     # Separation victoires/defaites
@@ -239,14 +239,14 @@ def getPalma( annee, id, opener ):
         r = extractInfo( p )
         if '' not in r:
             V.append( r )
-    print(V)
+    print V
 
     D = []
     for p in tab_def:
         r = extractInfo( p )
         if '' not in r:
             D.append( r )
-    print(D)
+    print D
 
     return V, D
 
@@ -284,7 +284,7 @@ def extractInfo( ligne ):
     if match:
         wo = match.group(1)
         if 'o' == wo or 'O' == wo:
-            print("WO ", nom, wo)
+            print "WO ", nom, wo
             w = True
 
     # championnat ?
@@ -294,7 +294,7 @@ def extractInfo( ligne ):
     if match:
         c = match.group(1)
         if 'C' == c or 'c' == c:
-            print("Victoire en championnat indiv contre ", nom, c)
+            print "Victoire en championnat indiv contre ", nom, c
             champ = True
 
     return nom, idu, clmt, w, champ
@@ -314,8 +314,8 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     myD = []
     palmaV = []
     palmaD = []
-    print("profondeur : ", profondeur)
-    print("calcul du classement de ", nom)
+    print "profondeur : ", profondeur
+    print "calcul du classement de ", nom
 
     # en cas de classement qui contient l'annee,
     # e.g. 'NC (2014)' -> garder uniquement la 1ere partie
@@ -325,7 +325,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp( V )
-    print(champ, " victoire(s) en championnat individuel")
+    print champ, " victoire(s) en championnat individuel"
 
     if profondeur == 0:
         for _v in V:
@@ -352,30 +352,30 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     # calcul du classement a jour
     cl,harm = calculClassement( myV, myD, sexe,  classement, champ )
-    print("Nouveau classement de ", nom, " : ", cl, "(calcul)", harm, "(harmonisation)")
-    print("Palmarès de ", nom, " :")
-    print("[Nom] [Ancien classement] [Nouveau classement] [WO]")
-    print(" === VICTOIRES ===")
+    print "Nouveau classement de ", nom, " : ", cl, "(calcul)", harm, "(harmonisation)"
+    print "Palmarès de ", nom, " :"
+    print "[Nom] [Ancien classement] [Nouveau classement] [WO]"
+    print " === VICTOIRES ==="
     if len( palmaV ) == 0:
-        print("Aucune")
+        print "Aucune"
     else:
         for _v in palmaV:
             if True == _v[3] :
                 o = ( _v[0],_v[1], _v[2], "WO" ) 
-                print("\t".join( o ))
+                print "\t".join( o )
             else:
                 o = ( _v[0],_v[1], _v[2] ) 
-                print("\t".join( o ))
-    print(" === DÉFAITES ===")
+                print "\t".join( o )
+    print " === DÉFAITES ==="
     if len( palmaD ) == 0:
-        print("Aucune")
+        print "Aucune"
     else:
         for _d in palmaD:
             if True == _d[3] :
                 o = ( _d[0],_d[1], _d[2], "WO" ) 
             else:
                 o = ( _d[0],_d[1], _d[2] ) 
-                print("\t".join( o ))
+                print "\t".join( o )
 
     return ( cl, harm )
 
@@ -386,16 +386,16 @@ def recupClassement( login, password, LICENCE, profondeur ):
     authentification( login, password, op, cj )
 
     nom, id, cl, sexe = getIdentifiant( op, LICENCE )
-    print(nom)
-    print(id)
-    print(cl)
-    print(sexe)
+    print nom
+    print id
+    print cl
+    print sexe
 
     # recuperation de son propre palma, et recursivement de celui des autres
 
     new_cl, harm = classementJoueur( op, id, nom, cl, sexe, profondeur )
 
-    print("nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
+    print "nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)"
     return
 
 # Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
@@ -407,7 +407,7 @@ def trimNumLicence( s ) :
         try:
             i = int( s[:-1] )
         except:
-            print("Problème avec le numero de licence")
+            print "Problème avec le numero de licence"
     l = str( i )
     if len( l ) < 7:
         for k in range( 0, 7 - len( l ) ):
@@ -419,30 +419,30 @@ def main():
     import sys
 
     if len(sys.argv) < 5:
-        login = input( "Login : " )
-        password = input("Mot de passe : " )
-        licence = trimNumLicence( input( "Numero de licence : " ) )
+        login = raw_input( "Login : " )
+        password = raw_input("Mot de passe : " )
+        licence = trimNumLicence( raw_input( "Numero de licence : " ) )
         if -1 == licence:
-            print("Erreur fatale -- Fin de l\'execution")
+            print "Erreur fatale -- Fin de l\'execution"
             return -1
         try:
-            profondeur = int( input( "Profondeur : " ) )
+            profondeur = int( raw_input( "Profondeur : " ) )
         except:
-            print("Erreur de saisie de la profondeur.")
-            print("Erreur fatale -- Fin de l\'execution")
+            print "Erreur de saisie de la profondeur."
+            print "Erreur fatale -- Fin de l\'execution"
             return -1
     else:
         login      = sys.argv[1]
         password   = sys.argv[2]
         licence = trimNumLicence( sys.argv[3] )
         if -1 == licence:
-            print("Erreur fatale -- Fin de l\'execution")
+            print "Erreur fatale -- Fin de l\'execution"
             return -1
         try:
             profondeur = int( sys.argv[4])
         except:
-            print("Erreur de saisie de la profondeur.")
-            print("Erreur fatale -- Fin de l\'execution")
+            print "Erreur de saisie de la profondeur."
+            print "Erreur fatale -- Fin de l\'execution"
             return -1
 
     recupClassement( login, password, licence, profondeur )
@@ -451,7 +451,7 @@ def main():
 
 if __name__ == "__main__" :
     import sys
-    if sys.version_info[0] != 3:
-        print("Erreur -- Fonctionne avec Python 3.x")
-        exit( -1 )
+    if sys.version_info[0] != 2:
+        print "Erreur -- Fonctionne avec Python 2.x"
+        exit -1
     main()

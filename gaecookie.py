@@ -15,7 +15,7 @@
 #                                                                   #
 #####################################################################
 
-import re,urllib.request,urllib.error,urllib.parse
+import re,urllib2
 
 # This regex is implemented according to RFC2109, RFC2068 and RFC6265
 NS_COOKIE=re.compile(r'''
@@ -61,11 +61,11 @@ NS_COOKIE=re.compile(r'''
 # support comma separated cookies by definition
 # so there is nothing to fix with "set-cookie2" cookies
 
-class GAECookieProcessor(urllib.request.HTTPCookieProcessor):
+class GAECookieProcessor(urllib2.HTTPCookieProcessor):
   def __init__(self, cookiejar=None):
-    import http.cookiejar
+    import cookielib
     if cookiejar is None:
-      cookiejar = http.cookiejar.CookieJar()
+      cookiejar = cookielib.CookieJar()
     self.cookiejar = cookiejar
 
   def http_request(self, request):
@@ -91,18 +91,18 @@ class GAECookieProcessor(urllib.request.HTTPCookieProcessor):
   https_response = http_response
 
 def test():
-  i=input()
+  i=raw_input()
   while i !='':
-    print(i)
+    print i
     for s in NS_COOKIE.finditer(i):
-      print('Set-Cookie: %s' % s.group(0))
-      print(s.group('name'),'=',s.group('value'))
-      print('  path   =',s.group('path'))
-      print('  domain =',s.group('domain'))
-      print('  expires=',s.group('expires'))
-      print('  max-age=',s.group('maxage'))
+      print 'Set-Cookie: %s' % s.group(0)
+      print s.group('name'),'=',s.group('value')
+      print '  path   =',s.group('path')
+      print '  domain =',s.group('domain')
+      print '  expires=',s.group('expires')
+      print '  max-age=',s.group('maxage')
     try:
-      i=input()
+      i=raw_input()
     except:
       i=''
 
