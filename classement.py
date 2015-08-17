@@ -193,6 +193,7 @@ def afficheClassement( origine, calcul, harmonise ):
 
 # calcule le V - E - 2I - 5G
 def VE2I5G( classement, victoires, defaites ):
+    print defaites
     v = len( victoires )
     e = nbInf( classement, defaites, 0 )
     i = nbInf( classement, defaites, 1 )
@@ -211,6 +212,7 @@ def nbInf( myClassement, defaites, E ):
         else:
             if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
                 nb = nb+1
+                print "Defaite contre", i
 
     return nb
 
@@ -608,6 +610,9 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
         print " ==> Classement proposé : ", classementPropose
 
+        print "DEFAITES:", myDefaites
+
+        
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
         if( True != ok ):
