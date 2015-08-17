@@ -212,7 +212,6 @@ def nbInf( myClassement, defaites, E ):
         else:
             if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
                 nb = nb+1
-                print "Defaite contre", i
 
     return nb
 
@@ -610,9 +609,6 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
         print " ==> Classement proposé : ", classementPropose
 
-        print "DEFAITES:", myDefaites
-
-        
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
         if( True != ok ):
