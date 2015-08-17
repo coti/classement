@@ -194,12 +194,12 @@ def afficheClassement( origine, calcul, harmonise ):
 # calcule le V - E - 2I - 5G
 def VE2I5G( classement, victoires, defaites ):
     v = len( victoires )
-    e = nbInf( classement, defaites, 0 )
-    i = nbInf( classement, defaites, 1 )
-    g = nbInf( classement, defaites, -1 )
     print "V = ", v, " (Nombre de victoires)"
+    e = nbInf( classement, defaites, 0 )
     print "E = ", e, " (Nb de défaites à échelon égal)"
+    i = nbInf( classement, defaites, 1 )
     print "I = ", i, " (Nb de défaites à échelon -1)"
+    g = nbInf( classement, defaites, -1 )
     print "G = ", g, " (Nb de défaites à échelons <= -2 et par w.o à partir du 3e)"
     return ( v - e - 2*i - 5*g )
 
@@ -207,15 +207,19 @@ def VE2I5G( classement, victoires, defaites ):
 # Calcule le nb de defaites E echelons en-dessous
 def nbInf( myClassement, defaites, E ):
     global classementNumerique
+    lst = []
     nb = 0
     for i in defaites:
         if( E >= 0 ) :
             if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
+                lst.append( i[0] )
                 nb = nb+1
         else:
             if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
+                lst.append( i[0] )
                 nb = nb+1
 
+    print lst
     return nb
 
 # Retourne le nombre de points apportes par une victoire
