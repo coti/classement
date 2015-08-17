@@ -3,7 +3,7 @@
 
 """ Outil de recuperation du classement.
  "
- " :copyright: Copyright 2013-2014, see AUTHORS 
+ " :copyright: Copyright 2013-2015, see AUTHORS 
  "             Copyright 2013-2014, voir AUTHORS
  " :licence: CeCILL-C or LGPL, see COPYING for details.
  "           CeCILL-C ou LGPL, voir COPYING pour plus de details.
@@ -23,7 +23,7 @@ import re
 import socket
 
 from gaecookie import GAECookieProcessor
-from keepalive import HTTPHandler
+from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
@@ -46,7 +46,7 @@ def buildOpener():
 
     policy = cookielib.DefaultCookiePolicy( rfc2965=True )
     cj = cookielib.CookieJar( policy )
-    keepalive_handler = HTTPHandler()
+    keepalive_handler = keepalive.HTTPSHandler( )
     try:
         opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
     except urllib2.URLError as e:
@@ -68,7 +68,7 @@ def buildOpener():
         exit( -1 )
     except:
         import sys
-        print "Autre exception : ", sys.exc_type, sys.exc_value
+        print "Build opener : Autre exception : ", sys.exc_type, sys.exc_value
         exit( -1 )
 
     t_headers = []
@@ -109,7 +109,7 @@ def authentification( login, password, opener, cj ):
         exit( -1 )
     except:
         import sys
-        print "Autre exception : ", sys.exc_type, sys.exc_value
+        print "Authentification : Autre exception : ", sys.exc_type, sys.exc_value
         exit( -1 )
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http

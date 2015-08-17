@@ -1,4 +1,4 @@
-Copyright 2013-2014
+Copyright 2013-2015
      Camille Coti	<camille.coti@gmail.com>
  
 Classement is a program whose purpose is to issue requests to the French
@@ -25,11 +25,8 @@ knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
 
 
 
-The keepalive module is originally part of the urlgrabber software. 
-It was written by Michael D. Stenner and Ryan Tomayko.
+The urlgrabber module was written by Michael D. Stenner and Ryan Tomayko.
 It is distributed under the terms of the GNU Lesser General Public License. 
-The modification to the keepalive module that was included in the present 
-software was done by Camille Coti.
 
 The gaecookie module was written by Min Xiang.
 It was released under the terms of the MIT license.
