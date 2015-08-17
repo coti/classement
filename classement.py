@@ -197,10 +197,10 @@ def VE2I5G( classement, victoires, defaites ):
     e = nbInf( classement, defaites, 0 )
     i = nbInf( classement, defaites, 1 )
     g = nbInf( classement, defaites, -1 )
-    print "V = ", v
-    print "E = ", e
-    print "I = ", i
-    print "G = ", g
+    print "V = ", v, " (Nombre de victoires)"
+    print "E = ", e, " (Nb de défaites à échelon égal)"
+    print "I = ", i, " (Nb de défaites à échelon -1)"
+    print "G = ", g, " (Nb de défaites à échelons <= -2 et par w.o à partir du 3e)"
     return ( v - e - 2*i - 5*g )
 
 
