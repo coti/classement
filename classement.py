@@ -211,6 +211,7 @@ def nbInf( myClassement, defaites, E ):
     nb = 0
     for i in defaites:
         if( E >= 0 ) :
+            if not i[1]: # exclure les WO
                 if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
                     lst.append( i[0] )
                     nb = nb+1
