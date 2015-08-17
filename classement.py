@@ -211,13 +211,14 @@ def nbInf( myClassement, defaites, E ):
     nb = 0
     for i in defaites:
         if( E >= 0 ) :
-            if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
-                lst.append( i[0] )
-                nb = nb+1
+                if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
+                    lst.append( i[0] )
+                    nb = nb+1
         else:
-            if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
-                lst.append( i[0] )
-                nb = nb+1
+            if not i[1] or i[0] == "S": # exclure les WO sauf à partir du 3eme
+                if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
+                    lst.append( i[0] )
+                    nb = nb+1
 
     print lst
     return nb
