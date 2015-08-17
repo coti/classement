@@ -193,7 +193,6 @@ def afficheClassement( origine, calcul, harmonise ):
 
 # calcule le V - E - 2I - 5G
 def VE2I5G( classement, victoires, defaites ):
-    print defaites
     v = len( victoires )
     e = nbInf( classement, defaites, 0 )
     i = nbInf( classement, defaites, 1 )
