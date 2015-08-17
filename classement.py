@@ -198,6 +198,10 @@ def VE2I5G( classement, victoires, defaites ):
     e = nbInf( classement, defaites, 0 )
     i = nbInf( classement, defaites, 1 )
     g = nbInf( classement, defaites, -1 )
+    print "V = ", v
+    print "E = ", e
+    print "I = ", i
+    print "G = ", g
     return ( v - e - 2*i - 5*g )
 
 
@@ -207,8 +211,9 @@ def nbInf( myClassement, defaites, E ):
     nb = 0
     for i in defaites:
         if( E >= 0 ) :
-            if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
-                nb = nb+1
+            if classementNumerique[ i[0] ] != -1: # ne pas risquer de prendre les defaites significatives pour WO ici
+                if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
+                    nb = nb+1
         else:
             if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
                 nb = nb+1
