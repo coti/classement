@@ -15,7 +15,7 @@
 """
 
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import urllib
 import urllib2
@@ -139,7 +139,7 @@ def getIdentifiant( opener, numLicence ):
     timeout   = 60
 
     rep = requete( opener, server+page, data, timeout )
-    line = rep.read()
+    line = rep.read().decode( 'latin1' )
 
     # on parse et on recupere le nom
     r_nom = r'<td class="r_nom">\s*(.*?)\s*</td>'
@@ -184,7 +184,7 @@ def getPalma( annee, id, opener ):
     data = urllib.urlencode( payload )
 
     rep = requete( opener, server+page, data )
-    line = rep.read()
+    line = rep.read().decode( 'latin1' )
 
     # Separation victoires/defaites
 
