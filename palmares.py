@@ -349,7 +349,6 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
             myD.append( ( nc, _d[3] ) )
             palmaD.append( ( _d[0], _d[2], nc, _d[3] ) )
 
-
     # calcul du classement a jour
     cl,harm = calculClassement( myV, myD, sexe,  classement, champ )
     print "Nouveau classement de ", nom, " : ", cl, "(calcul)", harm, "(harmonisation)"
@@ -375,7 +374,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
                 o = ( _d[0],_d[1], _d[2], "WO" ) 
             else:
                 o = ( _d[0],_d[1], _d[2] ) 
-                print "\t".join( o )
+            print "\t".join( o )
 
     return ( cl, harm )
 
