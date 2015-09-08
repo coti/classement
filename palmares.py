@@ -386,6 +386,8 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     # sorties
     s = strClassement( nom, cl, harm, palmaV, palmaD )
     print s
+    if 1 == profondeur:
+        print "resultat final"
 
     return ( cl, harm )
 
