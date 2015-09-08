@@ -370,13 +370,13 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
         # calcul du futur classement de mes victoires
         for _v in V:
-            nc,harm = classementJoueur( opener, _v[1], _v[0], _v[2], sexe, profondeur )
+            nc,harm,s = classementJoueur( opener, _v[1], _v[0], _v[2], sexe, profondeur )
             myV.append( ( nc, _v[3] ) )
             palmaV.append( ( _v[0], _v[2], nc, _v[3] ) )
 
         # calcul du futur classement de mes defaites
         for _d in D:
-            nc,harm = classementJoueur( opener, _d[1], _d[0], _d[2], sexe, profondeur )
+            nc,harm,s = classementJoueur( opener, _d[1], _d[0], _d[2], sexe, profondeur )
             myD.append( ( nc, _d[3] ) )
             palmaD.append( ( _d[0], _d[2], nc, _d[3] ) )
 
@@ -386,10 +386,8 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     # sorties
     s = strClassement( nom, cl, harm, palmaV, palmaD )
     print s
-    if 1 == profondeur:
-        print "resultat final"
 
-    return ( cl, harm )
+    return ( cl, harm, s )
 
 def recupClassement( login, password, LICENCE, profondeur ):
     
@@ -405,9 +403,16 @@ def recupClassement( login, password, LICENCE, profondeur ):
 
     # recuperation de son propre palma, et recursivement de celui des autres
 
-    new_cl, harm = classementJoueur( op, id, nom, cl, sexe, profondeur )
+    new_cl, harm, s = classementJoueur( op, id, nom, cl, sexe, profondeur )
 
     print "nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)"
+
+    # on crache la sortie du joueur dans un fichier
+    fn = str( LICENCE ) + ".txt"
+    fd = open( fn, "w" )
+    fd.write( s )
+    fd.close()
+
     return
 
 # Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
