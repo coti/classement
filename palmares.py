@@ -307,6 +307,37 @@ def nbVictoiresChamp( tab ):
             nb = nb + 1
     return nb
 
+# Prepare une chaine mettant en forme le classement et le palma
+def strClassement( nom, classement, harmonise, palmaV, palmaD ):
+    chaine = "Nouveau classement de " + nom + " : " + classement + "(calcul)" + harmonise + "(harmonisation)\n"
+    chaine += "Palmarès de " + nom + " :\n"
+    chaine += "[Nom] [Ancien classement] [Nouveau classement] [WO]\n"
+    chaine += " === VICTOIRES ===\n"
+    if len( palmaV ) == 0:
+        chaine += "Aucune\n"
+    else:
+        for _v in palmaV:
+            if True == _v[3] :
+                o = ( _v[0],_v[1], _v[2], "WO" ) 
+                chaine += "\t".join( o )
+                chaine += "\n"
+            else:
+                o = ( _v[0],_v[1], _v[2] ) 
+                chaine += "\t".join( o )
+                chaine += "\n"
+    chaine += " === DÉFAITES ===\n"
+    if len( palmaD ) == 0:
+        chaine += "Aucune"
+    else:
+        for _d in palmaD:
+            if True == _d[3] :
+                o = ( _d[0],_d[1], _d[2], "WO" ) 
+            else:
+                o = ( _d[0],_d[1], _d[2] ) 
+            chaine += "\t".join( o )
+            chaine += "\n"
+    return chaine
+
 # Calcule le classement d'un joueur
 def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     V, D = getPalma( 2015, id, opener )
@@ -351,30 +382,10 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     # calcul du classement a jour
     cl,harm = calculClassement( myV, myD, sexe,  classement, champ )
-    print "Nouveau classement de ", nom, " : ", cl, "(calcul)", harm, "(harmonisation)"
-    print "Palmarès de ", nom, " :"
-    print "[Nom] [Ancien classement] [Nouveau classement] [WO]"
-    print " === VICTOIRES ==="
-    if len( palmaV ) == 0:
-        print "Aucune"
-    else:
-        for _v in palmaV:
-            if True == _v[3] :
-                o = ( _v[0],_v[1], _v[2], "WO" ) 
-                print "\t".join( o )
-            else:
-                o = ( _v[0],_v[1], _v[2] ) 
-                print "\t".join( o )
-    print " === DÉFAITES ==="
-    if len( palmaD ) == 0:
-        print "Aucune"
-    else:
-        for _d in palmaD:
-            if True == _d[3] :
-                o = ( _d[0],_d[1], _d[2], "WO" ) 
-            else:
-                o = ( _d[0],_d[1], _d[2] ) 
-            print "\t".join( o )
+
+    # sorties
+    s = strClassement( nom, cl, harm, palmaV, palmaD )
+    print s
 
     return ( cl, harm )
 
