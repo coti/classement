@@ -787,5 +787,5 @@ if __name__ == "__main__":
     import sys
     if sys.version_info[0] != 2:
         print("Erreur -- Fonctionne avec Python 2.x")
-        exit -1
+        exit( -1 )
     main()
