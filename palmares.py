@@ -78,17 +78,10 @@ def buildOpener():
 
     return cj, opener
 
-# S'authentifie aupres du serveur
-def authentification( login, password, opener, cj ):
-    global server
-    page      = "/espacelic/connexion.do"
-    payload   = { 'dispatch' : 'identifier', 'login' : login, 'motDePasse' : password }
-    data      = urllib.urlencode( payload )
-    timeout   = 60
-
-    # On ouvre la page d'authentification
+def requete( opener, url, data, timeout=60 ):
     try:
-        rep = opener.open( server+page, data, timeout )
+        rep = opener.open( url, data, timeout )
+        return rep
     except urllib2.URLError as e:
         print "URL error:", e.reason
         print "Verifiez votre connexion, ou l\'état du serveur de la FFT"
@@ -109,8 +102,19 @@ def authentification( login, password, opener, cj ):
         exit( -1 )
     except:
         import sys
-        print "Authentification : Autre exception : ", sys.exc_type, sys.exc_value
+        print "Autre exception : ", sys.exc_type, sys.exc_value
         exit( -1 )
+
+# S'authentifie aupres du serveur
+def authentification( login, password, opener, cj ):
+    global server
+    page      = "/espacelic/connexion.do"
+    payload   = { 'dispatch' : 'identifier', 'login' : login, 'motDePasse' : password }
+    data      = urllib.urlencode( payload )
+    timeout   = 60
+
+    # On ouvre la page d'authentification
+    requete( opener, server + page, data, timeout )
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
     cookietab = []
@@ -132,34 +136,8 @@ def getIdentifiant( opener, numLicence ):
     data      = urllib.urlencode( payload )
     timeout   = 60
 
-    try:
-        rep = opener.open( server+page, data, timeout ) 
-        line = rep.read()
-    except urllib2.URLError as e:
-        print "URL error"
-        if hasattr(e, 'reason'):
-            print 'Serveur inaccessible.'
-            print 'Raison : ', e.reason
-        if hasattr(e, 'code'):
-            print 'Le serveur n\'a pas pu repondre a la requete.'
-            print 'Code d\'erreur : ', e.code
-            if e.code == 403:
-                print 'Le serveur vous a refusé l\'accès'
-            if e.code == 404:
-                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
-        exit( -1 )
-    except urllib2.HTTPError as e:
-        print "HTTP error code ", e.code, " : ", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
-        exit( -1 )
-    except socket.timeout as e:
-        print "Timeout -- connexion impossible au serveur de la FFT"
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
-        exit( -1 )
-    except:
-        import sys
-        print "Autre exception : ", sys.exc_type, sys.exc_value
-        exit( -1 )
+    rep = requete( opener, server+page, data, timeout )
+    line = rep.read()
 
     # on parse et on recupere le nom
     r_nom = r'<td class="r_nom">\s*(.*?)\s*</td>'
@@ -203,25 +181,8 @@ def getPalma( annee, id, opener ):
     payload = { 'identifiant' : id, 'millesime' : annee }
     data = urllib.urlencode( payload )
 
-    try:
-        rep = opener.open( server+page, data ) 
-        line = rep.read()
-    except urllib2.URLError as e:
-        print "URL error:", e.reason
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
-        exit( -1 )
-    except urllib2.HTTPError as e:
-        print "HTTP error code ", e.code, " : ", e.reason
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
-        exit( -1 )
-    except socket.timeout as e:
-        print "Timeout -- connexion impossible au serveur de la FFT"
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
-        exit( -1 )
-    except:
-        import sys
-        print "Autre exception : ", sys.exc_type, sys.exc_value
-        exit( -1 )
+    rep = requete( opener, server+page, data )
+    line = rep.read()
 
     # Separation victoires/defaites
 
