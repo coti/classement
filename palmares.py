@@ -15,6 +15,8 @@
 """
 
 
+from __future__ import print_function
+
 import urllib
 import urllib2
 import httplib
@@ -50,25 +52,25 @@ def buildOpener():
     try:
         opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
     except urllib2.URLError as e:
-        print "URL error"
+        print("URL error")
         if hasattr(e, 'reason'):
-            print 'Serveur inaccessible.'
-            print 'Raison : ', e.reason
+            print('Serveur inaccessible.')
+            print('Raison : ', e.reason)
         if hasattr(e, 'code'):
-            print 'Le serveur n\'a pas pu répondre à la requete.'
-            print 'Code d\'erreur : ', e.code
+            print('Le serveur n\'a pas pu répondre à la requete.')
+            print('Code d\'erreur : ', e.code)
             if e.code == 403:
-                print 'Le serveur vous a refusé l\'accès'
+                print('Le serveur vous a refusé l\'accès')
             if e.code == 404:
-                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
+                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
         exit( -1 )
     except urllib2.HTTPError as e:
-        print "HTTP error code ", e.code, " : ", e.reason
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
+        print("HTTP error code ", e.code, " : ", e.reason)
+        print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
         exit( -1 )
     except:
         import sys
-        print "Build opener : Autre exception : ", sys.exc_type, sys.exc_value
+        print("Build opener : Autre exception : ", sys.exc_type, sys.exc_value)
         exit( -1 )
 
     t_headers = []
@@ -83,26 +85,26 @@ def requete( opener, url, data, timeout=60 ):
         rep = opener.open( url, data, timeout )
         return rep
     except urllib2.URLError as e:
-        print "URL error:", e.reason
-        print "Verifiez votre connexion, ou l\'état du serveur de la FFT"
+        print("URL error:", e.reason)
+        print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
         if hasattr(e, 'reason'):
-            print 'Serveur inaccessible.'
-            print 'Raison : ', e.reason
+            print('Serveur inaccessible.')
+            print('Raison : ', e.reason)
         if hasattr(e, 'code'):
-            print 'Le serveur n\'a pas pu répondre à la requete.'
-            print 'Code d\'erreur : ', e.code
+            print('Le serveur n\'a pas pu répondre à la requete.')
+            print('Code d\'erreur : ', e.code)
             if e.code == 403:
-                print 'Le serveur vous a refusé l\'accès'
+                print('Le serveur vous a refusé l\'accès')
             if e.code == 404:
-                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
+                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
         exit( -1 )
     except socket.timeout as e:
-        print "Timeout -- connexion impossible au serveur de la FFT"
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
+        print("Timeout -- connexion impossible au serveur de la FFT")
+        print("Verifiez votre connexion, ou l\'etat du serveur de la FFT")
         exit( -1 )
     except:
         import sys
-        print "Autre exception : ", sys.exc_type, sys.exc_value
+        print("Autre exception : ", sys.exc_type, sys.exc_value)
         exit( -1 )
 
 # S'authentifie aupres du serveur
@@ -168,7 +170,7 @@ def getIdentifiant( opener, numLicence ):
     match = re.search( r_class, line )
     if match:
         cl = match.group(1)
-        print "classement: ", cl
+        print("classement: ", cl)
     else:
         cl = ''
 
@@ -200,14 +202,14 @@ def getPalma( annee, id, opener ):
         r = extractInfo( p )
         if '' not in r:
             V.append( r )
-    print V
+    print(V)
 
     D = []
     for p in tab_def:
         r = extractInfo( p )
         if '' not in r:
             D.append( r )
-    print D
+    print(D)
 
     return V, D
 
@@ -245,7 +247,7 @@ def extractInfo( ligne ):
     if match:
         wo = match.group(1)
         if 'o' == wo or 'O' == wo:
-            print "WO ", nom, wo
+            print("WO ", nom, wo)
             w = True
 
     # championnat ?
@@ -255,7 +257,7 @@ def extractInfo( ligne ):
     if match:
         c = match.group(1)
         if 'C' == c or 'c' == c:
-            print "Victoire en championnat indiv contre ", nom, c
+            print("Victoire en championnat indiv contre ", nom, c)
             champ = True
 
     return nom, idu, clmt, w, champ
@@ -306,8 +308,8 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     myD = []
     palmaV = []
     palmaD = []
-    print "profondeur : ", profondeur
-    print "calcul du classement de ", nom
+    print("profondeur : ", profondeur)
+    print("calcul du classement de ", nom)
 
     # en cas de classement qui contient l'annee,
     # e.g. 'NC (2014)' -> garder uniquement la 1ere partie
@@ -317,7 +319,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp( V )
-    print champ, " victoire(s) en championnat individuel"
+    print(champ, " victoire(s) en championnat individuel")
 
     if profondeur == 0:
         for _v in V:
@@ -346,7 +348,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     # sorties
     s = strClassement( nom, cl, harm, palmaV, palmaD )
-    print s
+    print(s)
 
     return ( cl, harm, s )
 
@@ -357,16 +359,16 @@ def recupClassement( login, password, LICENCE, profondeur ):
     authentification( login, password, op, cj )
 
     nom, id, cl, sexe = getIdentifiant( op, LICENCE )
-    print nom
-    print id
-    print cl
-    print sexe
+    print(nom)
+    print(id)
+    print(cl)
+    print(sexe)
 
     # recuperation de son propre palma, et recursivement de celui des autres
 
     new_cl, harm, s = classementJoueur( op, id, nom, cl, sexe, profondeur )
 
-    print "nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)"
+    print("nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
     # on crache la sortie du joueur dans un fichier
     fn = str( LICENCE ) + ".txt"
@@ -385,7 +387,7 @@ def trimNumLicence( s ) :
         try:
             i = int( s[:-1] )
         except:
-            print "Problème avec le numero de licence"
+            print("Problème avec le numero de licence")
     l = str( i )
     if len( l ) < 7:
         for k in range( 0, 7 - len( l ) ):
@@ -401,26 +403,26 @@ def main():
         password = raw_input("Mot de passe : " )
         licence = trimNumLicence( raw_input( "Numero de licence : " ) )
         if -1 == licence:
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
         try:
             profondeur = int( raw_input( "Profondeur : " ) )
         except:
-            print "Erreur de saisie de la profondeur."
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur de saisie de la profondeur.")
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
     else:
         login      = sys.argv[1]
         password   = sys.argv[2]
         licence = trimNumLicence( sys.argv[3] )
         if -1 == licence:
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
         try:
             profondeur = int( sys.argv[4])
         except:
-            print "Erreur de saisie de la profondeur."
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur de saisie de la profondeur.")
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
 
     recupClassement( login, password, licence, profondeur )
@@ -430,6 +432,6 @@ def main():
 if __name__ == "__main__" :
     import sys
     if sys.version_info[0] != 2:
-        print "Erreur -- Fonctionne avec Python 2.x"
+        print("Erreur -- Fonctionne avec Python 2.x")
         exit -1
     main()
