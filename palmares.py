@@ -15,19 +15,21 @@
 """
 
 
+from __future__ import print_function, unicode_literals
+
 import urllib
 import urllib2
-import httplib
 import cookielib
 import re
 import socket
+import HTMLParser
 
 from gaecookie import GAECookieProcessor
 from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
-server    = "https://edl.app.fft.fr"
+server    = "https://mon-espace-tennis.fft.fr"
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
 def buildOpener():
@@ -50,25 +52,25 @@ def buildOpener():
     try:
         opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
     except urllib2.URLError as e:
-        print "URL error"
+        print("URL error")
         if hasattr(e, 'reason'):
-            print 'Serveur inaccessible.'
-            print 'Raison : ', e.reason
+            print('Serveur inaccessible.')
+            print('Raison : ', e.reason)
         if hasattr(e, 'code'):
-            print 'Le serveur n\'a pas pu répondre à la requete.'
-            print 'Code d\'erreur : ', e.code
+            print('Le serveur n\'a pas pu répondre à la requete.')
+            print('Code d\'erreur : ', e.code)
             if e.code == 403:
-                print 'Le serveur vous a refusé l\'accès'
+                print('Le serveur vous a refusé l\'accès')
             if e.code == 404:
-                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
+                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
         exit( -1 )
     except urllib2.HTTPError as e:
-        print "HTTP error code ", e.code, " : ", e.reason
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
+        print("HTTP error code ", e.code, " : ", e.reason)
+        print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
         exit( -1 )
     except:
         import sys
-        print "Build opener : Autre exception : ", sys.exc_type, sys.exc_value
+        print("Build opener : Autre exception : ", sys.exc_type, sys.exc_value)
         exit( -1 )
 
     t_headers = []
@@ -78,39 +80,43 @@ def buildOpener():
 
     return cj, opener
 
+def requete( opener, url, data, timeout=60 ):
+    try:
+        rep = opener.open( url, data, timeout )
+        return rep.read().decode('utf-8')
+    except urllib2.URLError as e:
+        print("URL error:", e.reason)
+        print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
+        if hasattr(e, 'reason'):
+            print('Serveur inaccessible.')
+            print('Raison : ', e.reason)
+        if hasattr(e, 'code'):
+            print('Le serveur n\'a pas pu répondre à la requete.')
+            print('Code d\'erreur : ', e.code)
+            if e.code == 403:
+                print('Le serveur vous a refusé l\'accès')
+            if e.code == 404:
+                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
+        exit( -1 )
+    except socket.timeout as e:
+        print("Timeout -- connexion impossible au serveur de la FFT")
+        print("Verifiez votre connexion, ou l\'etat du serveur de la FFT")
+        exit( -1 )
+    except:
+        import sys
+        print("Autre exception : ", sys.exc_type, sys.exc_value)
+        exit( -1 )
+
 # S'authentifie aupres du serveur
 def authentification( login, password, opener, cj ):
     global server
-    page      = "/espacelic/connexion.do"
-    payload   = { 'dispatch' : 'identifier', 'login' : login, 'motDePasse' : password }
+    page      = "/ajax_register/login/ajax"
+    payload   = { 'form_id': 'user_login', 'name': login, 'pass': password }
     data      = urllib.urlencode( payload )
     timeout   = 60
 
     # On ouvre la page d'authentification
-    try:
-        rep = opener.open( server+page, data, timeout )
-    except urllib2.URLError as e:
-        print "URL error:", e.reason
-        print "Verifiez votre connexion, ou l\'état du serveur de la FFT"
-        if hasattr(e, 'reason'):
-            print 'Serveur inaccessible.'
-            print 'Raison : ', e.reason
-        if hasattr(e, 'code'):
-            print 'Le serveur n\'a pas pu répondre à la requete.'
-            print 'Code d\'erreur : ', e.code
-            if e.code == 403:
-                print 'Le serveur vous a refusé l\'accès'
-            if e.code == 404:
-                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
-        exit( -1 )
-    except socket.timeout as e:
-        print "Timeout -- connexion impossible au serveur de la FFT"
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
-        exit( -1 )
-    except:
-        import sys
-        print "Authentification : Autre exception : ", sys.exc_type, sys.exc_value
-        exit( -1 )
+    requete( opener, server + page, data, timeout )
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
     cookietab = []
@@ -127,175 +133,101 @@ def authentification( login, password, opener, cj ):
 def getIdentifiant( opener, numLicence ):
 
     global server
-    page      = "/espacelic/private/recherchelic.do"
-    payload   = { 'dispatch' : 'rechercher', 'numeroLicence' : numLicence }
+    page      = "/recherche-joueur"
+    payload   = { 'numeroLicence' : numLicence }
     data      = urllib.urlencode( payload )
     timeout   = 60
 
-    try:
-        rep = opener.open( server+page, data, timeout ) 
-        line = rep.read()
-    except urllib2.URLError as e:
-        print "URL error"
-        if hasattr(e, 'reason'):
-            print 'Serveur inaccessible.'
-            print 'Raison : ', e.reason
-        if hasattr(e, 'code'):
-            print 'Le serveur n\'a pas pu repondre a la requete.'
-            print 'Code d\'erreur : ', e.code
-            if e.code == 403:
-                print 'Le serveur vous a refusé l\'accès'
-            if e.code == 404:
-                print 'La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?'
-        exit( -1 )
-    except urllib2.HTTPError as e:
-        print "HTTP error code ", e.code, " : ", e.reason
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
-        exit( -1 )
-    except socket.timeout as e:
-        print "Timeout -- connexion impossible au serveur de la FFT"
-        print "Verifiez votre connexion, ou l\'etat du serveur de la FFT"
-        exit( -1 )
-    except:
-        import sys
-        print "Autre exception : ", sys.exc_type, sys.exc_value
-        exit( -1 )
+    rep = requete( opener, server+page+'?'+data, None, timeout )
 
-    # on parse et on recupere le nom
-    r_nom = r'<td class="r_nom">\s*(.*?)\s*</td>'
-    match = re.search( r_nom, line )
-    if match:
-        nom = match.group(1)
-    else:
-        nom = ''
+    vide = ('', '', '', '')
 
-    # on recupere le sexe
-    r_sexe = r'<td class="r_sexe">\s*(.*?)\s*</td>'
-    match = re.search( r_sexe, line )
+    r_tableau = r'<tbody>.*</tbody>'
+    match = re.search( r_tableau, rep, re.DOTALL )
     if match:
-        sexe = match.group(1)
+        tableau = match.group()
     else:
-        sexe = ''
+        return vide
 
-    # on recupere l'id interne
-    r_id = r'<a href="javascript:classement\((.*?)\);">'
-    match = re.search( r_id, line )
-    if match:
-        idu = match.group(1)
-    else:
-        idu = ''
+    r_cellule = r'<td>(.*?)</td>'
+    matches = re.findall( r_cellule, tableau, re.DOTALL )
+    if matches:
+        sexe = matches[0]
+        nom = matches[1]
 
-    # et on recupere le classement
-    r_class = r'<a href="javascript:classement\([0-9]+\);">\s*(.*?)\s*</a>'
-    match = re.search( r_class, line )
-    if match:
-        cl = match.group(1)
-        print "classement: ", cl
+        # classement et id interne
+        r_class_idu = r'<a href="/classement/(\d+)">(.+)</a>'
+        match = re.match( r_class_idu, matches[4] )
+        if match:
+            idu = match.group(1)
+            cl = match.group(2)
+        else:
+            return vide
     else:
-        cl = ''
+        return vide
+
+    print("classement: ", cl)
 
     return nom, idu, cl, sexe
 
 # Obtenir le palma d'un joueur d'identifiant donne
 def getPalma( annee, id, opener ):
     global server
-    page      = "/espacelic/private/palmares.do"
-    payload = { 'identifiant' : id, 'millesime' : annee }
-    data = urllib.urlencode( payload )
+    page      = "/palmares/" + id
+    payload   = { 'millesime': annee }
+    data      = urllib.urlencode( payload )
 
-    try:
-        rep = opener.open( server+page, data ) 
-        line = rep.read()
-    except urllib2.URLError as e:
-        print "URL error:", e.reason
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
-        exit( -1 )
-    except urllib2.HTTPError as e:
-        print "HTTP error code ", e.code, " : ", e.reason
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
-        exit( -1 )
-    except socket.timeout as e:
-        print "Timeout -- connexion impossible au serveur de la FFT"
-        print "Vérifiez votre connexion, ou l\'état du serveur de la FFT"
-        exit( -1 )
-    except:
-        import sys
-        print "Autre exception : ", sys.exc_type, sys.exc_value
-        exit( -1 )
+    rep = requete( opener, server+page+'?'+data, None )
 
-    # Separation victoires/defaites
-
-    r_limite = r'<th colspan="11" class="titre">(.*?)<th colspan="11" class="titre">(.*?)</tbody>'
-    results = re.findall( r_limite, line, re.S|re.M )[0]
-    victoires = results[0]
-    defaites = results[1]
-
-    r_player = r'<tr>(.*?)</tr>'
-    tab_vic = re.findall( r_player, victoires, re.S|re.M )
-    tab_def = re.findall( r_player, defaites, re.S|re.M )
+    r_ligne = r"<tr class=.*?<span class='(?:victory|defeat)'>.*?</tr>"
+    lignes = re.findall( r_ligne, rep, re.DOTALL )
 
     V = []
-    for p in tab_vic:
-        r = extractInfo( p )
-        if '' not in r:
-            V.append( r )
-    print V
-
     D = []
-    for p in tab_def:
+
+    for p in lignes:
         r = extractInfo( p )
-        if '' not in r:
+        if '' in r:
+            continue
+        if 'victory' in p:
+            V.append( r )
+        elif 'defeat' in p:
             D.append( r )
-    print D
+
+    print(V)
+    print(D)
 
     return V, D
 
 # Extraire les infos d'un joueur dans un palma
 def extractInfo( ligne ):
+    vide = ('', '', '', '', '')
 
-    # id du joueur
-    r_id = r'<a href="javascript:changerDePersonne\((.*?)\);">'
-    match = re.search( r_id, ligne )
+    r_cellule = r'<td>(.*?)</td>'
+    matches = re.findall( r_cellule, ligne, re.DOTALL )
+    if not matches:
+        return vide
+
+    # id et nom du joueur
+    r_id_nom = r'<a href="/palmares/(\d+)">(.*)</a>'
+    match = re.match( r_id_nom, matches[0] )
     if match:
         idu = match.group(1)
+        #  Il peut y avoir des caractères spéciaux à décoder dans le nom
+        nom = HTMLParser.HTMLParser().unescape(match.group(2))
     else:
-        idu = ''
-
-    # nom du joueur
-    r_nom = r'<a href="javascript:changerDePersonne\([0-9]+\);">\s*(.*?)\s*</a>'
-    match = re.search( r_nom, ligne )
-    if match:
-        nom = match.group(1)
-    else:
-        nom = ''
+        return vide
 
     # classement du joueur
-    r_class = r'<a href="javascript:classement\([0-9]*\);">\s*(.*?)\s*</a>'
-    match = re.search( r_class, ligne )
-    if match:
-        clmt = match.group(1)
-    else:
-        clmt = ''
-        
+    clmt = matches[2]
+
     # wo ?
-    r_wo = r'<td class="wo" >(.*?)</td>'
-    match = re.search( r_wo, ligne )
-    w = False
-    if match:
-        wo = match.group(1)
-        if 'o' == wo or 'O' == wo:
-            print "WO ", nom, wo
-            w = True
+    w = matches[5] == 'Oui'
 
     # championnat ?
-    r_type = r'<td class="typeHomol"\s*>\s*(.*?)\s*</td>'
-    match = re.search( r_type, ligne )
-    champ = False
-    if match:
-        c = match.group(1)
-        if 'C' == c or 'c' == c:
-            print "Victoire en championnat indiv contre ", nom, c
-            champ = True
+    champ = matches[7].lower() == 'c'
+    if champ:
+        print("Victoire en championnat indiv contre ", nom)
 
     return nom, idu, clmt, w, champ
 
@@ -345,8 +277,8 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     myD = []
     palmaV = []
     palmaD = []
-    print "profondeur : ", profondeur
-    print "calcul du classement de ", nom
+    print("profondeur : ", profondeur)
+    print("calcul du classement de ", nom)
 
     # en cas de classement qui contient l'annee,
     # e.g. 'NC (2014)' -> garder uniquement la 1ere partie
@@ -356,7 +288,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp( V )
-    print champ, " victoire(s) en championnat individuel"
+    print(champ, " victoire(s) en championnat individuel")
 
     if profondeur == 0:
         for _v in V:
@@ -385,7 +317,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
     # sorties
     s = strClassement( nom, cl, harm, palmaV, palmaD )
-    print s
+    print(s)
 
     return ( cl, harm, s )
 
@@ -396,21 +328,20 @@ def recupClassement( login, password, LICENCE, profondeur ):
     authentification( login, password, op, cj )
 
     nom, id, cl, sexe = getIdentifiant( op, LICENCE )
-    print nom
-    print id
-    print cl
-    print sexe
+    print(nom)
+    print(id)
+    print(cl)
+    print(sexe)
 
     # recuperation de son propre palma, et recursivement de celui des autres
-
     new_cl, harm, s = classementJoueur( op, id, nom, cl, sexe, profondeur )
 
-    print "nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)"
+    print("nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
     # on crache la sortie du joueur dans un fichier
     fn = str( LICENCE ) + ".txt"
     fd = open( fn, "w" )
-    fd.write( s )
+    fd.write( s.encode('utf-8') )
     fd.close()
 
     return
@@ -424,7 +355,7 @@ def trimNumLicence( s ) :
         try:
             i = int( s[:-1] )
         except:
-            print "Problème avec le numero de licence"
+            print("Problème avec le numero de licence")
     l = str( i )
     if len( l ) < 7:
         for k in range( 0, 7 - len( l ) ):
@@ -440,26 +371,26 @@ def main():
         password = raw_input("Mot de passe : " )
         licence = trimNumLicence( raw_input( "Numero de licence : " ) )
         if -1 == licence:
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
         try:
             profondeur = int( raw_input( "Profondeur : " ) )
         except:
-            print "Erreur de saisie de la profondeur."
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur de saisie de la profondeur.")
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
     else:
         login      = sys.argv[1]
         password   = sys.argv[2]
         licence = trimNumLicence( sys.argv[3] )
         if -1 == licence:
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
         try:
             profondeur = int( sys.argv[4])
         except:
-            print "Erreur de saisie de la profondeur."
-            print "Erreur fatale -- Fin de l\'execution"
+            print("Erreur de saisie de la profondeur.")
+            print("Erreur fatale -- Fin de l\'execution")
             return -1
 
     recupClassement( login, password, licence, profondeur )
@@ -469,6 +400,6 @@ def main():
 if __name__ == "__main__" :
     import sys
     if sys.version_info[0] != 2:
-        print "Erreur -- Fonctionne avec Python 2.x"
-        exit -1
+        print("Erreur -- Fonctionne avec Python 2.x")
+        exit( -1 )
     main()

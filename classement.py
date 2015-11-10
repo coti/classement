@@ -16,6 +16,9 @@
   """
 
 
+from __future__ import print_function, unicode_literals
+
+
 classementNumerique = { "S"  : -1,
                         "NC" : 0,
                         "40" : 1,
@@ -188,19 +191,19 @@ serie = { "NC" : 4,
 
 # affiche le classement calculé d'un joueur
 def afficheClassement( origine, calcul, harmonise ):
-    print " ==> Classement de sortie : ", calcul, " - Harmonisé : " , harmonise, " -  classement d\'origine : ", origine
+    print(" ==> Classement de sortie : ", calcul, " - Harmonisé : " , harmonise, " -  classement d\'origine : ", origine)
     return
 
 # calcule le V - E - 2I - 5G
 def VE2I5G( classement, victoires, defaites ):
     v = len( victoires )
-    print "V = ", v, " (Nombre de victoires)"
+    print("V = ", v, " (Nombre de victoires)")
     e = nbInf( classement, defaites, 0 )
-    print "E = ", e, " (Nb de défaites à échelon égal)"
+    print("E = ", e, " (Nb de défaites à échelon égal)")
     i = nbInf( classement, defaites, 1 )
-    print "I = ", i, " (Nb de défaites à échelon -1)"
+    print("I = ", i, " (Nb de défaites à échelon -1)")
     g = nbInf( classement, defaites, -1 )
-    print "G = ", g, " (Nb de défaites à échelons <= -2 et par w.o à partir du 3e)"
+    print("G = ", g, " (Nb de défaites à échelons <= -2 et par w.o à partir du 3e)")
     return ( v - e - 2*i - 5*g )
 
 
@@ -221,7 +224,7 @@ def nbInf( myClassement, defaites, E ):
                     lst.append( i[0] )
                     nb = nb+1
 
-    print lst
+    print(lst)
     return nb
 
 # Retourne le nombre de points apportes par une victoire
@@ -250,7 +253,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     nb = victoires[ myClassement ]
     v = VE2I5G( myClassement, myVictoires, myDefaites )
 
-    print "V - E - 2I - 5G : ", v
+    print("V - E - 2I - 5G : ", v)
     
     add = 0
     if( 4 == serie[ myClassement ] ): 
@@ -343,7 +346,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
 #    victoiresComptant = sortedVictoires[:nbV]
 
-    print "Victoires prises en compte (", nbV,") : ", victoiresComptant
+    print("Victoires prises en compte (", nbV,") : ", victoiresComptant)
 
     nbPoints = 0
 
@@ -369,7 +372,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
             if True == absenceDef( myDefaites, myClassement ):
                 bonif = 50
     if bonif != 0:
-        print "Bonif absence de defaite significative: ", bonif
+        print("Bonif absence de defaite significative: ", bonif)
 
     nbPoints = nbPoints + bonif
 
@@ -379,7 +382,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
 
     nbPoints = nbPoints + bonif
     if bonif != 0:
-        print "Bonif championnat indiv: ", bonif
+        print("Bonif championnat indiv: ", bonif)
 
 
     return nbPoints
@@ -419,7 +422,7 @@ def maintienOK( myClassement, mySexe, myPoints ):
     else:
         maintien = maintienF
 
-    print "Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ]
+    print("Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ])
 
     if( maintien[ myClassement ] > myPoints ):
         return False
@@ -542,7 +545,7 @@ def penaliteWO( defaites ):
             if w >= 3:
                 o = ( 'S', d[1] )
                 # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
-                print "Defaite significative ajoutée (wo)"
+                print("Defaite significative ajoutée (wo)")
             else:
                 o = d
         else:
@@ -576,7 +579,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
     ok = False
 
     if estNumerote( myClassement ):
-        print "Cas particulier : le joueur est numéroté. On le calcule au meme classement."
+        print("Cas particulier : le joueur est numéroté. On le calcule au meme classement.")
         afficheClassement( myClassement, myClassement, myClassement )
         return ( myClassement, myClassement )
 
@@ -616,7 +619,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
 
-        print " ==> Classement proposé : ", classementPropose
+        print(" ==> Classement proposé : ", classementPropose)
 
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
@@ -628,14 +631,14 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     # penalite WO ?
     if nbWO( myDefaites ) >= 5:
-        print "Penalite car trop de WO (", nbWO( myDefaites ), " > 5 )"
+        print("Penalite car trop de WO (", nbWO( myDefaites ), " > 5 )")
         classementHarmonise = echelonInferieur( classementPropose )
 
     # penalite mauvais V - E - 2I - 5G ?
     if 2 == serie[ classementHarmonise ]:
         v = VE2I5G( classementHarmonise, myVictoires, myDefaites )
         if v <= -100:
-            print "Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 (" + str( v ) + ") : pénalité et descente d'un classement"
+            print("Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 (" + str( v ) + ") : pénalité et descente d'un classement")
             classementHarmonise = echelonInferieur( classementHarmonise )
 
     if 'NC' == classementPropose:
@@ -670,7 +673,7 @@ def test():
         fd_d = open( file_def, 'r' )
     except:
         import sys
-        print "Erreur ouverture", sys.exc_type, sys.exc_value
+        print("Erreur ouverture", sys.exc_type, sys.exc_value)
 
 
     try:
@@ -716,7 +719,7 @@ def test():
     except:    
 
         import sys
-        print "Erreur lecture", sys.exc_type, sys.exc_value
+        print("Erreur lecture", sys.exc_type, sys.exc_value)
             
         fd_v.close()
         fd_d.close()
@@ -783,6 +786,6 @@ def main():
 if __name__ == "__main__":
     import sys
     if sys.version_info[0] != 2:
-        print "Erreur -- Fonctionne avec Python 2.x"
-        exit -1
+        print("Erreur -- Fonctionne avec Python 2.x")
+        exit( -1 )
     main()
