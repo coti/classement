@@ -85,7 +85,6 @@ def requete( opener, url, data, timeout=60 ):
         rep = opener.open( url, data, timeout )
         return rep.read().decode('utf-8')
     except urllib2.URLError as e:
-        print("URL error:", e.reason)
         print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
         if hasattr(e, 'reason'):
             print('Serveur inaccessible.')
