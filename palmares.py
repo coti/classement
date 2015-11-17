@@ -29,6 +29,7 @@ from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
+millesime = 2015
 server    = "https://mon-espace-tennis.fft.fr"
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
@@ -278,7 +279,7 @@ def strClassement( nom, classement, harmonise, palmaV, palmaD ):
 
 # Calcule le classement d'un joueur
 def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
-    V, D = getPalma( 2015, id, opener )
+    V, D = getPalma( millesime, id, opener )
     myV = []
     myD = []
     palmaV = []
