@@ -154,14 +154,21 @@ def getIdentifiant( opener, numLicence ):
         sexe = matches[0]
         nom = matches[1]
 
-        # classement et id interne
-        r_class_idu = r'<a href="/classement/(\d+)">(.+)</a>'
-        match = re.match( r_class_idu, matches[4] )
+        # id interne
+        r_idu = r'<a href="/palmares/(\d+)">.+</a>'
+        match = re.match( r_idu, matches[8] )
         if match:
             idu = match.group(1)
-            cl = match.group(2)
         else:
             return vide
+
+        # classement
+        r_class = r'<a href="/classement/\d+">(.+)</a>'
+        match = re.match( r_class, matches[4] )
+        if match:
+            cl = match.group(1)
+        else:
+            cl = 'NC'
     else:
         return vide
 
