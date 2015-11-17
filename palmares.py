@@ -29,6 +29,7 @@ from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
+millesime = 2015
 server    = "https://mon-espace-tennis.fft.fr"
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
@@ -85,7 +86,6 @@ def requete( opener, url, data, timeout=60 ):
         rep = opener.open( url, data, timeout )
         return rep.read().decode('utf-8')
     except urllib2.URLError as e:
-        print("URL error:", e.reason)
         print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
         if hasattr(e, 'reason'):
             print('Serveur inaccessible.')
@@ -155,14 +155,21 @@ def getIdentifiant( opener, numLicence ):
         sexe = matches[0]
         nom = matches[1]
 
-        # classement et id interne
-        r_class_idu = r'<a href="/classement/(\d+)">(.+)</a>'
-        match = re.match( r_class_idu, matches[4] )
+        # id interne
+        r_idu = r'<a href="/palmares/(\d+)">.+</a>'
+        match = re.match( r_idu, matches[8] )
         if match:
             idu = match.group(1)
-            cl = match.group(2)
         else:
             return vide
+
+        # classement
+        r_class = r'<a href="/classement/\d+">(.+)</a>'
+        match = re.match( r_class, matches[4] )
+        if match:
+            cl = match.group(1)
+        else:
+            cl = 'NC'
     else:
         return vide
 
@@ -272,7 +279,7 @@ def strClassement( nom, classement, harmonise, palmaV, palmaD ):
 
 # Calcule le classement d'un joueur
 def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
-    V, D = getPalma( 2015, id, opener )
+    V, D = getPalma( millesime, id, opener )
     myV = []
     myD = []
     palmaV = []
