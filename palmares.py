@@ -216,7 +216,7 @@ def extractInfo( ligne ):
         return vide
 
     # id et nom du joueur
-    r_id_nom = r'<a href="/palmares/(\d+)">(.*)</a>'
+    r_id_nom = r'<a href="/palmares/(\d+)(?:\?[\w=&]+)*">(.*)</a>'
     match = re.match( r_id_nom, matches[0] )
     if match:
         idu = match.group(1)
