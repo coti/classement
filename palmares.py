@@ -29,7 +29,7 @@ from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
-millesime = 2015
+millesime = 2016
 server    = "https://mon-espace-tennis.fft.fr"
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
