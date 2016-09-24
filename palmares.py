@@ -23,6 +23,15 @@ import cookielib
 import re
 import socket
 import HTMLParser
+import logging
+import sys
+import itertools
+import time
+import thread
+
+from _ssl import SSLError
+from threading import Thread
+from Queue import Queue
 
 from gaecookie import GAECookieProcessor
 from urlgrabber import keepalive
@@ -70,7 +79,6 @@ def buildOpener():
         print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
         exit( -1 )
     except:
-        import sys
         print("Build opener : Autre exception : ", sys.exc_type, sys.exc_value)
         exit( -1 )
 
@@ -82,41 +90,61 @@ def buildOpener():
     return cj, opener
 
 def requete( opener, url, data, timeout=60 ):
-    try:
-        rep = opener.open( url, data, timeout )
-        return rep.read().decode('utf-8')
-    except urllib2.URLError as e:
-        print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
-        if hasattr(e, 'reason'):
-            print('Serveur inaccessible.')
-            print('Raison : ', e.reason)
-        if hasattr(e, 'code'):
-            print('Le serveur n\'a pas pu répondre à la requete.')
-            print('Code d\'erreur : ', e.code)
-            if e.code == 403:
-                print('Le serveur vous a refusé l\'accès')
-            if e.code == 404:
-                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
-        exit( -1 )
-    except socket.timeout as e:
-        print("Timeout -- connexion impossible au serveur de la FFT")
-        print("Verifiez votre connexion, ou l\'etat du serveur de la FFT")
-        exit( -1 )
-    except:
-        import sys
-        print("Autre exception : ", sys.exc_type, sys.exc_value)
-        exit( -1 )
+    if data is not None:
+        data = urllib.urlencode(data)
+
+    # Le timeout donné à opener.open n'est pas respecté. Il faut définir le default socket timeout
+    # qui par défaut est infini
+    socket.setdefaulttimeout(timeout)
+
+    retries = 5
+    while retries > 0:
+        retries -= 1
+        try:
+            logging.debug('requete: {}, data:{}, timeout: {}, retries:{}'.format(url, data, timeout, retries))
+            rep = opener.open( url, data, timeout )
+            return rep.read().decode('utf-8')
+        except urllib2.URLError as e:
+            print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
+            if hasattr(e, 'reason'):
+                print('Serveur inaccessible.')
+                print('Raison : ', ''.join(e.reason))
+            if hasattr(e, 'code'):
+                print('Le serveur n\'a pas pu répondre à la requete.')
+                print('Code d\'erreur : ', e.code)
+                if e.code == 403:
+                    print('Le serveur vous a refusé l\'accès')
+                if e.code == 404:
+                    print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
+        except socket.timeout as e:
+            print("Timeout -- connexion impossible au serveur de la FFT")
+        except SSLError as e:
+            if e.message == 'The read operation timed out':
+                # On reçoit cette exception en cas de timeout, pas la peine de la montrer
+                # à l'utilisateur
+                logging.debug("{} {}".format(sys.exc_type.__name__, e.message))
+            else:
+                print("Autre exception : {} - {}".format(type(e).__name__, e.message))
+        except KeyboardInterrupt:
+            thread.interrupt_main()
+        except Exception as e:
+            print("Autre exception : {} - {}".format(type(e).__name__, e.message))
+
 
 # S'authentifie aupres du serveur
 def authentification( login, password, opener, cj ):
+    print('Connexion au site de la FFT')
+
     global server
     page      = "/ajax_register/login/ajax"
     payload   = { 'form_id': 'user_login', 'name': login, 'pass': password }
-    data      = urllib.urlencode( payload )
-    timeout   = 60
+    timeout   = 20
 
     # On ouvre la page d'authentification
-    requete( opener, server + page, data, timeout )
+    rep = requete( opener, server + page, payload, timeout )
+    if rep is None:
+        print("Erreur à l'authentification")
+        exit(-1)
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
     cookietab = []
@@ -129,16 +157,21 @@ def authentification( login, password, opener, cj ):
     
     return
 
+
 # Retourne l'identifiant interne d'un licencie
 def getIdentifiant( opener, numLicence ):
+    print('Récupération de l\'identifiant')
 
     global server
     page      = "/recherche-joueur"
     payload   = { 'numeroLicence' : numLicence }
     data      = urllib.urlencode( payload )
-    timeout   = 60
+    timeout   = 20
 
     rep = requete( opener, server+page+'?'+data, None, timeout )
+    if rep is None:
+        print("Erreur à la récupération de l'identifiant")
+        exit(-1)
 
     vide = ('', '', '', '')
 
@@ -177,14 +210,18 @@ def getIdentifiant( opener, numLicence ):
 
     return nom, idu, cl, sexe
 
+
 # Obtenir le palma d'un joueur d'identifiant donne
 def getPalma( annee, id, opener ):
     global server
     page      = "/palmares/" + id
     payload   = { 'millesime': annee }
     data      = urllib.urlencode( payload )
+    timeout   = 8
 
-    rep = requete( opener, server+page+'?'+data, None )
+    logging.debug('getPalma ' + id)
+    rep = requete( opener, server+page+'?'+data, None, timeout )
+    logging.debug('getPalma ' + id + ' OK')
 
     r_ligne = r"<tr class=.*?<span class='(?:victory|defeat)'>.*?</tr>"
     lignes = re.findall( r_ligne, rep, re.DOTALL )
@@ -201,10 +238,59 @@ def getPalma( annee, id, opener ):
         elif 'defeat' in p:
             D.append( r )
 
-    print(V)
-    print(D)
-
     return V, D
+
+
+def getPalmaRecursif(annee, identifiant, opener, profondeurMax):
+
+    q = Queue()
+    palmaresJoueurs = {}
+
+    def getAndEnqueue(idJoueur, profondeur):
+        V, D = getPalma(annee, idJoueur, opener)
+        palmaresJoueurs[idJoueur] = (V, D)
+        if profondeur < profondeurMax:
+            for nom, idu, clmt, w, champ in itertools.chain(V, D):
+                logging.debug('enqueue {} (P={})'.format(idu, profondeur + 1))
+                q.put((idu, profondeur + 1))
+
+    def traitement():
+        while True:
+            idJoueur, p = q.get()
+            if idJoueur not in palmaresJoueurs:
+                getAndEnqueue(idJoueur, p)
+            q.task_done()
+
+    # Récupération du palmarès du joueur de départ
+    print('Récupération de mon palmarès')
+    getAndEnqueue(identifiant, 0)
+
+    print('Récupération des palmarès des adversaires')
+
+    # Lancement des threads de traitement
+    concurrence = 10
+    for i in range(concurrence):
+        t = Thread(target=traitement)
+        t.daemon = True
+        t.start()
+
+    # Attente de la fin de tous les threads
+    # q.join() empêche toute interruption par l'utilisateur, on vérifie donc
+    # périodiquement si q est vide
+    c = 0
+    while not q.empty():
+        c += 1
+        if c % 5 == 0:
+            print('{} palmarès restants à récupérer'.format(q.qsize()))
+        time.sleep(1)
+
+    # Même une fois q vide, il faut attendre que les derniers palmarès soient récupérés
+    print('Attente des derniers palmarès')
+        q.join()
+
+    print('Palmarès récupérés pour {} joueurs'.format(len(palmaresJoueurs)))
+    return palmaresJoueurs
+
 
 # Extraire les infos d'un joueur dans un palma
 def extractInfo( ligne ):
@@ -233,10 +319,9 @@ def extractInfo( ligne ):
 
     # championnat ?
     champ = matches[7].lower() == 'c'
-    if champ:
-        print("Victoire en championnat indiv contre ", nom)
 
     return nom, idu, clmt, w, champ
+
 
 # Retourne le nombre de victoires en championnat individuel
 def nbVictoiresChamp( tab ):
@@ -245,6 +330,7 @@ def nbVictoiresChamp( tab ):
         if t[4]:
             nb = nb + 1
     return nb
+
 
 # Prepare une chaine mettant en forme le classement et le palma
 def strClassement( nom, classement, harmonise, palmaV, palmaD ):
@@ -277,9 +363,10 @@ def strClassement( nom, classement, harmonise, palmaV, palmaD ):
             chaine += "\n"
     return chaine
 
+
 # Calcule le classement d'un joueur
-def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
-    V, D = getPalma( millesime, id, opener )
+def classementJoueur( palmaresJoueurs, id, nom, classement, sexe, profondeur ):
+    V, D = palmaresJoueurs[id]
     myV = []
     myD = []
     palmaV = []
@@ -309,13 +396,13 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
 
         # calcul du futur classement de mes victoires
         for _v in V:
-            nc,harm,s = classementJoueur( opener, _v[1], _v[0], _v[2], sexe, profondeur )
+            nc,harm,s = classementJoueur( palmaresJoueurs, _v[1], _v[0], _v[2], sexe, profondeur )
             myV.append( ( nc, _v[3] ) )
             palmaV.append( ( _v[0], _v[2], nc, _v[3] ) )
 
         # calcul du futur classement de mes defaites
         for _d in D:
-            nc,harm,s = classementJoueur( opener, _d[1], _d[0], _d[2], sexe, profondeur )
+            nc,harm,s = classementJoueur( palmaresJoueurs, _d[1], _d[0], _d[2], sexe, profondeur )
             myD.append( ( nc, _d[3] ) )
             palmaD.append( ( _d[0], _d[2], nc, _d[3] ) )
 
@@ -327,6 +414,7 @@ def classementJoueur( opener, id, nom, classement, sexe, profondeur ):
     print(s)
 
     return ( cl, harm, s )
+
 
 def recupClassement( login, password, LICENCE, profondeur ):
     
@@ -341,7 +429,10 @@ def recupClassement( login, password, LICENCE, profondeur ):
     print(sexe)
 
     # recuperation de son propre palma, et recursivement de celui des autres
-    new_cl, harm, s = classementJoueur( op, id, nom, cl, sexe, profondeur )
+    palmaresJoueurs = getPalmaRecursif(millesime, id, op, profondeur)
+
+    # calcul du nouveau classement
+    new_cl, harm, s = classementJoueur( palmaresJoueurs, id, nom, cl, sexe, profondeur )
 
     print("nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
@@ -352,6 +443,7 @@ def recupClassement( login, password, LICENCE, profondeur ):
     fd.close()
 
     return
+
 
 # Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
 def trimNumLicence( s ) :
@@ -369,10 +461,8 @@ def trimNumLicence( s ) :
             l = '0'+l
     return l
 
+
 def main():
-
-    import sys
-
     if len(sys.argv) < 5:
         login = raw_input( "Login : " )
         password = raw_input("Mot de passe : " )
@@ -405,8 +495,11 @@ def main():
 
 
 if __name__ == "__main__" :
-    import sys
     if sys.version_info[0] != 2:
         print("Erreur -- Fonctionne avec Python 2.x")
         exit( -1 )
+
+    try:
     main()
+    except KeyboardInterrupt:
+        print("Interruption par l'utilisateur")
