@@ -22,6 +22,7 @@ import re
 
 classementNumerique = { "S"  : -1,
                         "Niveau" : 0,
+                        "ND" : 0,
                         "NC" : 0,
                         "40" : 1,
                         "30/5" : 2,
