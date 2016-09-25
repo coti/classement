@@ -18,8 +18,10 @@
 
 from __future__ import print_function, unicode_literals
 
+import re
 
 classementNumerique = { "S"  : -1,
+                        "Niveau" : 0,
                         "NC" : 0,
                         "40" : 1,
                         "30/5" : 2,
@@ -489,7 +491,7 @@ def normalisation( cl, sexe ):
     c = classement.split( ) # certains classements ont des precisions, e.g. 'NC (2014)' -> garder uniquement la 1ere partie
     if len( c ) > 1:
         classement = c[0]
-        cl[0] = c[0]
+        cl = (c[0], cl[1])
     if len( classement ) < 2:
         return cl
     o = classement
@@ -514,10 +516,7 @@ def normalisation( cl, sexe ):
 
 # determine si le joueur est numéroté
 def estNumerote( classement ):
-    if ( 'T' == classement[0] ) or ( 'N' == classement[0] and 'C' != classement[1] ):
-        return True
-    else:
-        return False
+    return re.match(r'[NT]\d+', classement) is not None
 
 # Conversion des numerotes en "Promo" ou "1S"
 def normalisationTab( tab, sexe ):
