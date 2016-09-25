@@ -286,7 +286,7 @@ def getPalmaRecursif(annee, identifiant, opener, profondeurMax):
 
     # Même une fois q vide, il faut attendre que les derniers palmarès soient récupérés
     print('Attente des derniers palmarès')
-        q.join()
+    q.join()
 
     print('Palmarès récupérés pour {} joueurs'.format(len(palmaresJoueurs)))
     return palmaresJoueurs
@@ -500,6 +500,6 @@ if __name__ == "__main__" :
         exit( -1 )
 
     try:
-    main()
+        main()
     except KeyboardInterrupt:
         print("Interruption par l'utilisateur")
