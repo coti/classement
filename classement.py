@@ -69,14 +69,14 @@ maintienF = { "NC" : 0,
               "15/3" : 310,
               "15/2" : 330,
               "15/1" : 350,
-              "15" : 400,
+              "15" : 390,
               "5/6" : 400,
               "4/6" : 430,
               "3/6" : 490,
               "2/6" : 550,
               "1/6" : 600,
-              "0" : 700,
-              "-2/6" : 740,
+              "0" : 620,
+              "-2/6" : 750,
               "-4/6" : 750,
               "-15" : 800,
               "-30" : 850,
@@ -96,7 +96,7 @@ maintienH = { "NC" : 0,
               "15/3" : 320,
               "15/2" : 340,
               "15/1" : 370,
-              "15" : 430,
+              "15" : 425,
               "5/6" : 430,
               "4/6" : 430,
               "3/6" : 460,
@@ -419,17 +419,15 @@ def maintienOK( myClassement, mySexe, myPoints ):
     global maintienH
     global maintienF
     
-    if( 'H' == mySexe ):
+    if 'M' == mySexe:
         maintien = maintienH
     else:
         maintien = maintienF
 
     print("Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ])
 
-    if( maintien[ myClassement ] > myPoints ):
-        return False
-    else:
-        return True
+    return myPoints >= maintien[myClassement]
+
 
 # Plus gros classement battu
 def plusGrosseVictoire( myVictoires ):
