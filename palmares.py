@@ -233,6 +233,9 @@ def getPalma( annee, id, opener ):
         r = extractInfo( p )
         if '' in r:
             continue
+        if r[2].startswith('Niveau'):  # On élimine les matchs jeunes
+            continue
+
         if 'victory' in p:
             V.append( r )
         elif 'defeat' in p:

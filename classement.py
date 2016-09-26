@@ -21,7 +21,6 @@ from __future__ import print_function, unicode_literals
 import re
 
 classementNumerique = { "S"  : -1,
-                        "Niveau" : 0,
                         "ND" : 0,
                         "NC" : 0,
                         "40" : 1,
