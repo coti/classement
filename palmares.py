@@ -438,6 +438,11 @@ def recupClassement( login, password, LICENCE, profondeur ):
     authentification( login, password, op, cj )
 
     nom, id, cl, sexe = getIdentifiant( op, LICENCE )
+
+    if id == '':
+        print("Impossible de récupérer l'identifiant")
+        exit(1)
+
     print(nom)
     print(id)
     print(cl)
