@@ -39,7 +39,7 @@ from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
-millesime = 2016
+millesime = 2017
 server    = "https://mon-espace-tennis.fft.fr"
 
 Resultat = namedtuple('Resultat', 'nom, identifiant, classement, wo, championnat')
