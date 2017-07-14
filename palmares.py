@@ -33,6 +33,7 @@ from _ssl import SSLError
 from threading import Thread
 from Queue import Queue
 from collections import namedtuple
+from decimal import Decimal
 
 from gaecookie import GAECookieProcessor
 from urlgrabber import keepalive
@@ -42,7 +43,7 @@ from classement import calculClassement, penaliteWO, nbWO
 millesime = 2017
 server    = "https://mon-espace-tennis.fft.fr"
 
-Resultat = namedtuple('Resultat', 'nom, identifiant, classement, wo, championnat')
+Resultat = namedtuple('Resultat', 'nom, identifiant, classement, wo, championnat, coefficient')
 
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
@@ -214,7 +215,7 @@ def getIdentifiant( opener, numLicence ):
 
 # Obtenir le palma d'un joueur d'identifiant donne
 def getPalma( annee, id, opener ):
-    page      = "/palmares/" + id
+    page      = "/simulation-classement/" + id
     payload   = { 'millesime': annee }
     data      = urllib.urlencode( payload )
     timeout   = 8
@@ -223,7 +224,7 @@ def getPalma( annee, id, opener ):
     rep = requete( opener, server+page+'?'+data, None, timeout )
     logging.debug('getPalma ' + id + ' OK')
 
-    r_ligne = r"<tr class=.*?<span class='(?:victory|defeat)'>.*?</tr>"
+    r_ligne = r"<tr><td>.*?<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
     lignes = re.findall( r_ligne, rep, re.DOTALL )
 
     V = []
@@ -238,9 +239,9 @@ def getPalma( annee, id, opener ):
         if r.classement.startswith('Niveau'):
             continue
 
-        if 'victory' in p:
+        if 'victories' in p:
             V.append( r )
-        elif 'defeat' in p:
+        elif 'defeats' in p:
             D.append( r )
 
     return V, D
@@ -300,33 +301,41 @@ def getPalmaRecursif(annee, identifiant, opener, profondeurMax):
 
 # Extraire les infos d'un joueur dans un palma
 def extractInfo( ligne ):
-    r_cellule = r'<td>(.*?)</td>'
-    matches = re.findall( r_cellule, ligne, re.DOTALL )
-    if not matches:
+
+    # id du joueur
+    r_id = r'<input type="hidden" name="(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire_\d+\]" value="(\d+)" />'
+    id_matches = re.findall( r_id, ligne )
+    if id_matches:
+        idu = id_matches[0]
+    else:
         return None
 
-    # id et nom du joueur
-    r_id_nom = r'<a href="/palmares/(\d+)(?:\?[\w=&]+)*">(.*)</a>'
-    match = re.match( r_id_nom, matches[0] )
-    if match:
-        idu = match.group(1)
-        #  Il peut y avoir des caractères spéciaux à décoder dans le nom
-        nom = HTMLParser.HTMLParser().unescape(match.group(2))
-    else:
-        # Joueur anonyme
-        idu = None
-        nom = '(anonyme)'
+    r_cellule = r'<td.*?>(.*?)</td>'
+    cell_matches = re.findall( r_cellule, ligne, re.DOTALL | re.MULTILINE )
+    if not cell_matches:
+        return None
+
+    # Il peut y avoir des caractères spéciaux à décoder dans le nom
+    nom = HTMLParser.HTMLParser().unescape(cell_matches[1]).strip() or '(anonyme)'
 
     # classement du joueur
-    clmt = matches[2]
+    clmt = cell_matches[2]
 
     # wo ?
-    w = matches[5] == 'Oui'
+    w = cell_matches[4] == 'Oui'
 
     # championnat ?
-    champ = matches[7].lower() == 'c'
+    champ = cell_matches[5] == 'Championnat individuel'
 
-    return Resultat(nom, idu, clmt, w, champ)
+    # Coefficient
+    r_coeff = r'\(Coef\. (\d,\d+)\)'
+    coeff_matches = re.findall(r_coeff, cell_matches[6])
+    if coeff_matches:
+        coeff = Decimal(coeff_matches[0].replace(',', '.'))
+    else:
+        coeff = Decimal(1)
+
+    return Resultat(nom, idu, clmt, w, champ, coeff)
 
 
 # Retourne le nombre de victoires en championnat individuel
@@ -397,25 +406,25 @@ def classementJoueur( palmaresJoueurs, id, nom, classement, sexe, profondeur ):
 
     if profondeur == 0:
         for _v in V:
-            myV.append( ( _v.classement, _v.wo ) )
-            palmaV.append( ( _v.nom, _v.classement, _v.classement, _v.wo ) )
+            myV.append( ( _v.classement, _v.wo, _v.coefficient ) )
+            palmaV.append( ( _v.nom, _v.classement, _v.classement, _v.wo, _v.coefficient ) )
         for _d in D:
-            myD.append( ( _d.classement, _d.wo ) )
-            palmaD.append( ( _d.nom, _d.classement, _d.classement, _d.wo ) )
+            myD.append( ( _d.classement, _d.wo, _d.coefficient ) )
+            palmaD.append( ( _d.nom, _d.classement, _d.classement, _d.wo, _d.coefficient ) )
     else:
         profondeur -= 1
 
         # calcul du futur classement de mes victoires
         for _v in V:
             nc,harm,s = classementJoueur( palmaresJoueurs, _v.identifiant, _v.nom, _v.classement, sexe, profondeur )
-            myV.append( ( nc, _v.wo ) )
-            palmaV.append( ( _v.nom, _v.classement, nc, _v.wo ) )
+            myV.append( ( nc, _v.wo, _v.coefficient ) )
+            palmaV.append( ( _v.nom, _v.classement, nc, _v.wo, _v.coefficient ) )
 
         # calcul du futur classement de mes defaites
         for _d in D:
             nc,harm,s = classementJoueur( palmaresJoueurs, _d.identifiant, _d.nom, _d.classement, sexe, profondeur )
-            myD.append( ( nc, _d.wo ) )
-            palmaD.append( ( _d.nom, _d.classement, nc, _d.wo ) )
+            myD.append( ( nc, _d.wo, _d.coefficient ) )
+            palmaD.append( ( _d.nom, _d.classement, nc, _d.wo, _d.coefficient ) )
 
     # calcul du classement a jour
     cl,harm = calculClassement( myV, myD, sexe,  classement, champ )

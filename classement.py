@@ -339,14 +339,13 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     nbV = nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites )
     sortedVictoires = sortVictoires( myVictoires )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
-#    victoiresComptant = sortedVictoires[:nbV]
 
-    print("Victoires prises en compte (", nbV,") : ", victoiresComptant)
+    print("Victoires prises en compte (", nbV,") : ", ', '.join(v[0] for v in victoiresComptant))
 
     nbPoints = 0
 
-    for v in victoiresComptant:
-        nbPoints = nbPoints + pointsVictoire( myClassement, v )
+    for classement, coeff in victoiresComptant:
+        nbPoints += pointsVictoire( myClassement, classement ) * coeff
 
     # Bonifs
 
@@ -378,30 +377,14 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     if bonif != 0:
         print("Bonif championnat indiv: ", bonif)
 
-
-    return nbPoints
+    return int(nbPoints)
 
 # Trie les victoires par ordre decroissant
 def sortVictoires( myVictoires ):
-    if 0 == len( myVictoires ):
+    if not myVictoires:
         return []
 
-    dicVictoires = {}
-    pairVictoires = []
-    sortedVictoires = []
-
-    for v in myVictoires:
-        pairVictoires.append( ( v[0], classementNumerique[ v[0] ], v[1] ) )
-        dicVictoires[ v[0] ] = classementNumerique[ v[0] ]
-
-    sortedValues = sorted( dicVictoires.values(), reverse=True ) 
-
-    for s in sortedValues:
-        for k, v, w in pairVictoires:
-            if( v == s ):
-                sortedVictoires.append( ( k, w ) )
-
-    return sortedVictoires
+    return sorted(myVictoires, key=lambda v: (classementNumerique[v[0]], v[2]), reverse=True)
 
 
 # Teste si les points de maintien sont atteints pour le classement
@@ -470,7 +453,7 @@ def normalisation( cl, sexe ):
     c = classement.split( ) # certains classements ont des precisions, e.g. 'NC (2014)' -> garder uniquement la 1ere partie
     if len( c ) > 1:
         classement = c[0]
-        cl = (c[0], cl[1])
+        cl = (c[0], cl[1], cl[2])
     if len( classement ) < 2:
         return cl
     o = classement
@@ -491,7 +474,7 @@ def normalisation( cl, sexe ):
     else:
         if "PROMO" == classement or "promo" == classement :
             o = "Promo"
-    return o, cl[1]
+    return o, cl[1], cl[2]
 
 # determine si le joueur est numéroté
 def estNumerote( classement ):
@@ -543,11 +526,7 @@ def absenceDef( defaites, classement ):
 
 # Victoires comptant : on supprime les wo
 def victoiresQuiComptent( vic, nb ):
-    tab = []
-    for v in vic:
-        if False == v[1] :
-            tab.append( v[0] )
-    return tab[:nb]
+    return [(v[0], v[2]) for v in vic if not v[1]][:nb]
 
 # Calcul du classement
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv ):
