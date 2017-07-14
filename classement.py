@@ -211,7 +211,6 @@ def VE2I5G( classement, victoires, defaites ):
 
 # Calcule le nb de defaites E echelons en-dessous
 def nbInf( myClassement, defaites, E ):
-    global classementNumerique
     lst = []
     nb = 0
     for i in defaites:
@@ -231,8 +230,6 @@ def nbInf( myClassement, defaites, E ):
 
 # Retourne le nombre de points apportes par une victoire
 def pointsVictoire( myClassement, classementBattu ):
-    global classementNumerique
-    global points
     diff = classementNumerique[ classementBattu ] - classementNumerique[ myClassement ]
     if( diff  < -3 ):
         return 0
@@ -243,10 +240,6 @@ def pointsVictoire( myClassement, classementBattu ):
 
 # Retourne le nombre de victoires prises en compte
 def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
-    global serie
-    global victoiresH
-    global victoiresF
-
     if( "H" == sexe ):
         victoires = victoiresH
     else:
@@ -363,7 +356,6 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     bonif = 0
 
     if True == bonifAbsenceDefaitesPossible:
-        global serie
         if serie[ myClassement ] == 2:
             if True == absenceDef( myDefaites, myClassement ):
                 bonif =150
@@ -391,8 +383,6 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
 
 # Trie les victoires par ordre decroissant
 def sortVictoires( myVictoires ):
-    global classementNumerique
-
     if 0 == len( myVictoires ):
         return []
 
@@ -416,9 +406,6 @@ def sortVictoires( myVictoires ):
 
 # Teste si les points de maintien sont atteints pour le classement
 def maintienOK( myClassement, mySexe, myPoints ):
-    global maintienH
-    global maintienF
-    
     if 'M' == mySexe:
         maintien = maintienH
     else:
@@ -440,8 +427,6 @@ def plusGrosseVictoire( myVictoires ):
 
 # Plus gros classement battu + E echelons
 def plusGrosseVictoirePlusN( myVictoires, E ):
-    global classementNumerique
-
     if 0 == len( myVictoires ):
         return None
 
@@ -457,7 +442,6 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
 
 # Echelon inferieur au classement d'entree
 def echelonInferieur( myClassement ):
-    global classementNumerique
     v = classementNumerique[ myClassement ]
 
     if( v == 0 ):
@@ -469,10 +453,7 @@ def echelonInferieur( myClassement ):
 
 # Classement propose au premier tour
 def classementPropose1erTour( myVictoires, myClassement ):
-    global serie
-    global classementNumerique
-
-    grosse = plusGrosseVictoire( myVictoires )    
+    grosse = plusGrosseVictoire( myVictoires )
     if( 4 == serie[ grosse ] ): 
         plus = plusGrosseVictoirePlusN( myVictoires, 2 )
     else:
@@ -553,8 +534,6 @@ def penaliteWO( defaites ):
 
 # Absence de defaite significative ?
 def absenceDef( defaites, classement ):
-    global classementNumerique
-
     for d in defaites:
 #        if 'S' != d: # on exclu les wo
         if d[1] == False:

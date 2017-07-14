@@ -47,7 +47,6 @@ Resultat = namedtuple('Resultat', 'nom, identifiant, classement, wo, championnat
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
 def buildOpener():
-    global server
     headers = {  "Connection" : "Keep-alive",
                  #'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36',
                  'User-Agent' : 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/4.0.3 Safari/531.9',
@@ -139,7 +138,6 @@ def requete( opener, url, data, timeout=60 ):
 def authentification( login, password, opener, cj ):
     print('Connexion au site de la FFT')
 
-    global server
     page      = "/ajax_register/login/ajax"
     payload   = { 'form_id': 'user_login', 'name': login, 'pass': password }
     timeout   = 20
@@ -166,7 +164,6 @@ def authentification( login, password, opener, cj ):
 def getIdentifiant( opener, numLicence ):
     print('Récupération de l\'identifiant')
 
-    global server
     page      = "/recherche-joueur"
     payload   = { 'numeroLicence' : numLicence }
     data      = urllib.urlencode( payload )
@@ -217,7 +214,6 @@ def getIdentifiant( opener, numLicence ):
 
 # Obtenir le palma d'un joueur d'identifiant donne
 def getPalma( annee, id, opener ):
-    global server
     page      = "/palmares/" + id
     payload   = { 'millesime': annee }
     data      = urllib.urlencode( payload )
