@@ -349,33 +349,28 @@ def nbVictoiresChamp( tab ):
 
 # Prepare une chaine mettant en forme le classement et le palma
 def strClassement( nom, classement, harmonise, palmaV, palmaD ):
-    chaine = "Nouveau classement de " + nom + " : " + classement + "(calcul)" + harmonise + "(harmonisation)\n"
+    chaine = "Nouveau classement de " + nom + " : " + classement + " (calcul) - " + harmonise + " (harmonisation)\n"
     chaine += "Palmarès de " + nom + " :\n"
-    chaine += "[Nom] [Ancien classement] [Nouveau classement] [WO]\n"
+    chaine += "[Nom] [Ancien classement] [Nouveau classement] [WO] [Coeff]\n"
+
+    def print_line(m):
+        return "{:24} {:5}  {:5}  {:2}  {}" \
+            .format(m[0], m[1], m[2],
+                    "WO" if m[3] else "", str(m[4]) if m[4] != 1 else "")
+
     chaine += " === VICTOIRES ===\n"
     if len( palmaV ) == 0:
         chaine += "Aucune\n"
     else:
         for _v in palmaV:
-            if True == _v[3] :
-                o = ( _v[0],_v[1], _v[2], "WO" ) 
-                chaine += "\t".join( o )
-                chaine += "\n"
-            else:
-                o = ( _v[0],_v[1], _v[2] ) 
-                chaine += "\t".join( o )
-                chaine += "\n"
+            chaine += print_line(_v) + "\n"
+
     chaine += " === DÉFAITES ===\n"
     if len( palmaD ) == 0:
         chaine += "Aucune"
     else:
         for _d in palmaD:
-            if True == _d[3] :
-                o = ( _d[0],_d[1], _d[2], "WO" ) 
-            else:
-                o = ( _d[0],_d[1], _d[2] ) 
-            chaine += "\t".join( o )
-            chaine += "\n"
+            chaine += print_line(_d) + "\n"
     return chaine
 
 
