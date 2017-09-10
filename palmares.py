@@ -235,8 +235,8 @@ def getPalma( annee, id, opener ):
         if r is None:
             continue
 
-        # On élimine les matchs jeunes
-        if r.classement.startswith('Niveau'):
+        # Le classement est vide pour les matchs jeunes, qui ne comptent pas
+        if not r.classement:
             continue
 
         if 'victories' in p:
