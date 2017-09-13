@@ -30,6 +30,7 @@ import time
 import thread
 import os
 import platform
+import json
 
 from _ssl import SSLError
 from threading import Thread
@@ -146,8 +147,9 @@ def authentification( login, password, opener, cj ):
 
     # On ouvre la page d'authentification
     rep = requete( opener, server + page, payload, timeout )
-    if rep is None:
-        exit_pause(1, "Erreur à l'authentification")
+    rep_json = json.loads(rep)
+    if "L'identifiant ou le mot de passe n'est pas correct" in rep_json[1]['output']:
+        exit_pause(1, "L'identifiant ou le mot de passe n'est pas correct")
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
     cookietab = []
