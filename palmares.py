@@ -28,6 +28,8 @@ import sys
 import itertools
 import time
 import thread
+import os
+import platform
 
 from _ssl import SSLError
 from threading import Thread
@@ -77,14 +79,13 @@ def buildOpener():
                 print('Le serveur vous a refusé l\'accès')
             if e.code == 404:
                 print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
-        exit( -1 )
+        exit_pause(1)
     except urllib2.HTTPError as e:
         print("HTTP error code ", e.code, " : ", e.reason)
-        print("Vérifiez votre connexion, ou l\'état du serveur de la FFT")
-        exit( -1 )
+        exit_pause(1, "Vérifiez votre connexion, ou l\'état du serveur de la FFT")
     except:
         print("Build opener : Autre exception : ", sys.exc_type, sys.exc_value)
-        exit( -1 )
+        exit_pause(1)
 
     t_headers = []
     for k, v in headers.items():
@@ -146,8 +147,7 @@ def authentification( login, password, opener, cj ):
     # On ouvre la page d'authentification
     rep = requete( opener, server + page, payload, timeout )
     if rep is None:
-        print("Erreur à l'authentification")
-        exit(-1)
+        exit_pause(1, "Erreur à l'authentification")
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
     cookietab = []
@@ -172,8 +172,7 @@ def getIdentifiant( opener, numLicence ):
 
     rep = requete( opener, server+page+'?'+data, None, timeout )
     if rep is None:
-        print("Erreur à la récupération de l'identifiant")
-        exit(-1)
+        exit_pause(1, "Erreur à la récupération de l'identifiant")
 
     vide = ('', '', '', '')
 
@@ -440,8 +439,7 @@ def recupClassement( login, password, LICENCE, profondeur ):
     nom, id, cl, sexe = getIdentifiant( op, LICENCE )
 
     if id == '':
-        print("Impossible de récupérer l'identifiant")
-        exit(1)
+        exit_pause(1, "Impossible de récupérer l'identifiant")
 
     print(nom)
     print(id)
@@ -514,12 +512,26 @@ def main():
     return
 
 
+def exit_pause(status=0, error_message=""):
+    if error_message:
+        print(error_message)
+
+    if platform.system() == "Windows" and "PROMPT" not in os.environ:
+        # Si le script a été lancé en dehors de cmd (en double-cliquant), on pause l'exécution
+        # pour laisser la possibilité de lire la sortie.
+        # La variable PROMPT n'est présente qu'avec cmd (https://stackoverflow.com/q/558776/119323)
+        raw_input("Appuyez sur une touche pour terminer")
+
+    sys.exit(status)
+
+
 if __name__ == "__main__" :
     if sys.version_info[0] != 2:
-        print("Erreur -- Fonctionne avec Python 2.x")
-        exit( -1 )
+        exit_pause(1, "Erreur -- Fonctionne avec Python 2.x")
 
     try:
         main()
     except KeyboardInterrupt:
         print("Interruption par l'utilisateur")
+
+    exit_pause()
