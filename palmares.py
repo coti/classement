@@ -35,7 +35,6 @@ import json
 from _ssl import SSLError
 from threading import Thread
 from Queue import Queue
-from collections import namedtuple
 from decimal import Decimal
 
 from gaecookie import GAECookieProcessor
@@ -46,7 +45,38 @@ from classement import calculClassement, penaliteWO, nbWO
 millesime = 2017
 server    = "https://mon-espace-tennis.fft.fr"
 
-Resultat = namedtuple('Resultat', 'nom, identifiant, classement, wo, championnat, coefficient')
+
+class Resultat(object):
+    """
+    :type joueur: Joueur
+    """
+
+    def __init__(self, joueur, wo, championnat, coefficient):
+        self.coefficient = coefficient
+        self.championnat = championnat
+        self.wo = wo
+        self.joueur = joueur
+
+    def __str__(self):
+        return str(self.joueur)
+
+
+class Joueur(object):
+    """
+    :type victoires: list[Resultat]
+    :type defaites: list[Resultat]
+    """
+
+    def __init__(self, nom, identifiant, classement):
+        self.classement = classement
+        self.classement_calcul = None
+        self.identifiant = identifiant
+        self.nom = nom
+        self.victoires = []
+        self.defaites = []
+
+    def __str__(self):
+        return "{} - {}".format(self.identifiant, self.nom)
 
 
 # Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
@@ -215,63 +245,71 @@ def getIdentifiant( opener, numLicence ):
 
 
 # Obtenir le palma d'un joueur d'identifiant donne
-def getPalma( annee, id, opener ):
-    page      = "/simulation-classement/" + id
+def getPalma(annee, joueur, joueurs, opener):
+    """
+    :type joueur: Joueur
+    :type joueurs: dict[str, Joueur]
+    """
+
+    page      = "/simulation-classement/" + joueur.identifiant
     payload   = { 'millesime': annee }
     data      = urllib.urlencode( payload )
     timeout   = 8
 
-    logging.debug('getPalma ' + id)
+    logging.debug('getPalma ' + joueur.nom)
     rep = requete( opener, server+page+'?'+data, None, timeout )
-    logging.debug('getPalma ' + id + ' OK')
+    logging.debug('getPalma ' + joueur.nom + ' OK')
 
     r_ligne = r"<tr><td>.*?<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
     lignes = re.findall( r_ligne, rep, re.DOTALL )
 
-    V = []
-    D = []
-
     for p in lignes:
-        r = extractInfo( p )
+        r = extractInfo(p, joueurs)
         if r is None:
             continue
 
         # Le classement est vide pour les matchs jeunes, qui ne comptent pas
-        if not r.classement:
+        if not r.joueur.classement:
             continue
 
         if 'victories' in p:
-            V.append( r )
+            joueur.victoires.append(r)
         elif 'defeats' in p:
-            D.append( r )
-
-    return V, D
+            joueur.defaites.append(r)
 
 
-def getPalmaRecursif(annee, identifiant, opener, profondeurMax):
+def getPalmaRecursif(annee, joueur, opener, profondeurMax):
+    """
+    :type joueur: Joueur
+    """
 
+    # File des joueurs dont le palmarès reste à récupérer
     q = Queue()
-    palmaresJoueurs = {}
 
-    def getAndEnqueue(idJoueur, profondeur):
-        V, D = getPalma(annee, idJoueur, opener)
-        palmaresJoueurs[idJoueur] = (V, D)
+    # Identifiants des joueurs dont les palmarès ont été récupérés
+    id_palmares = set()
+
+    # Map ID -> joueur pour n'avoir qu'un objet Joueur par joueur réel
+    joueurs = {joueur.identifiant: joueur}
+
+    def getAndEnqueue(joueur, profondeur):
+        id_palmares.add(joueur.identifiant)
+        getPalma(annee, joueur, joueurs, opener)
         if profondeur < profondeurMax:
-            for resultat in itertools.chain(V, D):
-                if resultat.identifiant is not None:
-                    logging.debug('enqueue {} (P={})'.format(resultat.identifiant, profondeur + 1))
-                    q.put((resultat.identifiant, profondeur + 1))
+            for resultat in itertools.chain(joueur.victoires, joueur.defaites):
+                logging.debug('enqueue {} (P={})'.format(resultat.joueur.nom, profondeur + 1))
+                q.put((resultat.joueur, profondeur + 1))
 
     def traitement():
         while True:
-            idJoueur, p = q.get()
-            if idJoueur not in palmaresJoueurs:
-                getAndEnqueue(idJoueur, p)
+            joueur, p = q.get()
+            if joueur.identifiant not in id_palmares:
+                getAndEnqueue(joueur, p)
             q.task_done()
 
     # Récupération du palmarès du joueur de départ
     print('Récupération de mon palmarès')
-    getAndEnqueue(identifiant, 0)
+    getAndEnqueue(joueur, 0)
 
     print('Récupération des palmarès des adversaires')
 
@@ -296,12 +334,14 @@ def getPalmaRecursif(annee, identifiant, opener, profondeurMax):
     print('Attente des derniers palmarès')
     q.join()
 
-    print('Palmarès récupérés pour {} joueurs'.format(len(palmaresJoueurs)))
-    return palmaresJoueurs
+    print('Palmarès récupérés pour {} joueurs'.format(len(id_palmares)))
 
 
 # Extraire les infos d'un joueur dans un palma
-def extractInfo( ligne ):
+def extractInfo(ligne, joueurs):
+    """
+    :type joueurs: dict[str, Joueur]
+    """
 
     # id du joueur
     r_id = r'<input type="hidden" name="(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire_\d+\]" value="(\d+)" />'
@@ -322,6 +362,8 @@ def extractInfo( ligne ):
     # classement du joueur
     clmt = cell_matches[2]
 
+    joueur = joueurs.setdefault(idu, Joueur(nom, idu, clmt))
+
     # wo ?
     w = cell_matches[4] == 'Oui'
 
@@ -336,7 +378,7 @@ def extractInfo( ligne ):
     else:
         coeff = Decimal(1)
 
-    return Resultat(nom, idu, clmt, w, champ, coeff)
+    return Resultat(joueur, w, champ, coeff)
 
 
 # Retourne le nombre de victoires en championnat individuel
@@ -349,87 +391,86 @@ def nbVictoiresChamp( tab ):
 
 
 # Prepare une chaine mettant en forme le classement et le palma
-def strClassement( nom, classement, harmonise, palmaV, palmaD ):
-    chaine = "Nouveau classement de " + nom + " : " + classement + " (calcul) - " + harmonise + " (harmonisation)\n"
-    chaine += "Palmarès de " + nom + " :\n"
+def strClassement(joueur, classement_calcul, classement_harmonise):
+    """
+    :type joueur: Joueur
+    """
+
+    chaine = "Nouveau classement de {} : {} (calcul) - {} (harmonisation)\n".format(
+        joueur.nom, classement_calcul, classement_harmonise)
+    chaine += "Palmarès de " + joueur.nom + " :\n"
     chaine += "[Nom] [Ancien classement] [Nouveau classement] [WO] [Coeff]\n"
 
-    def print_line(m):
+    def print_line(r):
         return "{:24} {:5}  {:5}  {:2}  {}" \
-            .format(m[0], m[1], m[2],
-                    "WO" if m[3] else "", str(m[4]) if m[4] != 1 else "")
+            .format(r.joueur.nom, r.joueur.classement, r.joueur.classement_calcul or r.joueur.classement,
+                    "WO" if r.wo else "", str(r.coefficient) if r.coefficient != 1 else "")
 
     chaine += " === VICTOIRES ===\n"
-    if len( palmaV ) == 0:
+    if len(joueur.victoires) == 0:
         chaine += "Aucune\n"
     else:
-        for _v in palmaV:
-            chaine += print_line(_v) + "\n"
+        for v in joueur.victoires:
+            chaine += print_line(v) + "\n"
 
     chaine += " === DÉFAITES ===\n"
-    if len( palmaD ) == 0:
+    if len(joueur.defaites) == 0:
         chaine += "Aucune"
     else:
-        for _d in palmaD:
-            chaine += print_line(_d) + "\n"
+        for d in joueur.defaites:
+            chaine += print_line(d) + "\n"
     return chaine
 
 
 # Calcule le classement d'un joueur
-def classementJoueur( palmaresJoueurs, id, nom, classement, sexe, profondeur ):
+def classementJoueur(joueur, sexe, profondeur):
+    """
+    :type joueur: Joueur
+    """
 
-    # Pour les joueurs anonymes ou dont le palmarès est manquant on renvoie le classement d'origine
-    if id is None or id not in palmaresJoueurs:
-        return classement, classement, ''
-
-    V, D = palmaresJoueurs[id]
     myV = []
     myD = []
-    palmaV = []
-    palmaD = []
     print("profondeur : ", profondeur)
-    print("calcul du classement de ", nom)
+    print("calcul du classement de ", joueur.nom)
 
     # en cas de classement qui contient l'annee,
     # e.g. 'NC (2014)' -> garder uniquement la 1ere partie
-    c = classement.split( )
-    if len( c ) > 1:
-        classement = c[0]
+    c = joueur.classement.split()
+    if len(c) > 1:
+        joueur.classement = c[0]
 
     # nb de victoires en championnat indiv
-    champ = nbVictoiresChamp( V )
+    champ = nbVictoiresChamp(joueur.victoires)
     print(champ, " victoire(s) en championnat individuel")
 
     if profondeur == 0:
-        for _v in V:
-            myV.append( ( _v.classement, _v.wo, _v.coefficient ) )
-            palmaV.append( ( _v.nom, _v.classement, _v.classement, _v.wo, _v.coefficient ) )
-        for _d in D:
-            myD.append( ( _d.classement, _d.wo, _d.coefficient ) )
-            palmaD.append( ( _d.nom, _d.classement, _d.classement, _d.wo, _d.coefficient ) )
+        for v in joueur.victoires:
+            myV.append((v.joueur.classement, v.wo, v.coefficient))
+        for d in joueur.defaites:
+            myD.append((d.joueur.classement, d.wo, d.coefficient))
     else:
         profondeur -= 1
 
         # calcul du futur classement de mes victoires
-        for _v in V:
-            nc,harm,s = classementJoueur( palmaresJoueurs, _v.identifiant, _v.nom, _v.classement, sexe, profondeur )
-            myV.append( ( nc, _v.wo, _v.coefficient ) )
-            palmaV.append( ( _v.nom, _v.classement, nc, _v.wo, _v.coefficient ) )
+        for v in joueur.victoires:
+            nc, harm, s = classementJoueur(v.joueur, sexe, profondeur)
+            v.joueur.classement_calcul = nc
+            myV.append((nc, v.wo, v.coefficient))
 
         # calcul du futur classement de mes defaites
-        for _d in D:
-            nc,harm,s = classementJoueur( palmaresJoueurs, _d.identifiant, _d.nom, _d.classement, sexe, profondeur )
-            myD.append( ( nc, _d.wo, _d.coefficient ) )
-            palmaD.append( ( _d.nom, _d.classement, nc, _d.wo, _d.coefficient ) )
+        for d in joueur.defaites:
+            nc, harm, s = classementJoueur(d.joueur, sexe, profondeur)
+            d.joueur.classement_calcul = nc
+            myD.append((nc, d.wo, d.coefficient))
 
     # calcul du classement a jour
-    cl,harm = calculClassement( myV, myD, sexe,  classement, champ )
+    cl, harm = calculClassement(myV, myD, sexe, joueur.classement, champ)
 
     # sorties
-    s = strClassement( nom, cl, harm, palmaV, palmaD )
+    s = strClassement(joueur, cl, harm)
     print(s)
 
-    return ( cl, harm, s )
+    return cl, harm, s
 
 
 def recupClassement( login, password, LICENCE, profondeur ):
@@ -448,11 +489,13 @@ def recupClassement( login, password, LICENCE, profondeur ):
     print(cl)
     print(sexe)
 
+    joueur = Joueur(nom, id, cl)
+
     # recuperation de son propre palma, et recursivement de celui des autres
-    palmaresJoueurs = getPalmaRecursif(millesime, id, op, profondeur)
+    getPalmaRecursif(millesime, joueur, op, profondeur)
 
     # calcul du nouveau classement
-    new_cl, harm, s = classementJoueur( palmaresJoueurs, id, nom, cl, sexe, profondeur )
+    new_cl, harm, s = classementJoueur(joueur, sexe, profondeur)
 
     print("nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
