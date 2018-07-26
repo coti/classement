@@ -240,7 +240,7 @@ def pointsVictoire( myClassement, classementBattu ):
 
 # Retourne le nombre de victoires prises en compte
 def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
-    if( "H" == sexe ):
+    if( "M" == sexe ):
         victoires = victoiresH
     else:
         victoires = victoiresF
@@ -305,7 +305,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
     elif( -2 == serie[ myClassement ] ): 
         if( v < -81 ) :
             add = -4
-        elif( v >= -80 and v <= 61 ):
+        elif( v >= -80 and v <= -61 ):
             add = -4
         elif( v >= -60 and v <= -41 ):
             add = -3
