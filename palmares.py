@@ -42,7 +42,7 @@ from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
-millesime = 2017
+millesime = 2018
 server    = "https://mon-espace-tennis.fft.fr"
 
 

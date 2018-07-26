@@ -45,9 +45,8 @@ classementNumerique = { "S"  : -1,
                         "-2/6" : 20,
                         "-4/6" : 21,
                         "-15" : 22,
-                        "-30" : 23,
-                        "Promo" : 24,
-                        "1S" : 25}
+                        "Top 60/Top 100" : 23,
+                        "Top 40/Top 60" : 24}
 
 points = { -3 : 15,
            -2 : 20,
@@ -61,54 +60,52 @@ maintienF = { "NC" : 0,
               "30/5" : 6,
               "30/4" : 70,
               "30/3" : 120,
-              "30/2" : 170,
-              "30/1" : 210,
-              "30" : 260,
-              "15/5" : 290,
-              "15/4" : 300,
-              "15/3" : 310,
-              "15/2" : 330,
-              "15/1" : 350,
-              "15" : 390,
-              "5/6" : 400,
-              "4/6" : 430,
-              "3/6" : 490,
-              "2/6" : 550,
-              "1/6" : 600,
-              "0" : 620,
-              "-2/6" : 750,
-              "-4/6" : 750,
-              "-15" : 800,
-              "-30" : 850,
-              "Promo" : 910,
-              "1S" : 5000}
+              "30/2" : 155,
+              "30/1" : 195,
+              "30" : 245,
+              "15/5" : 275,
+              "15/4" : 285,
+              "15/3" : 295,
+              "15/2" : 315,
+              "15/1" : 335,
+              "15" : 375,
+              "5/6" : 385,
+              "4/6" : 415,
+              "3/6" : 475,
+              "2/6" : 535,
+              "1/6" : 585,
+              "0" : 605,
+              "-2/6" : 735,
+              "-4/6" : 735,
+              "-15" : 785,
+              "Top 60/Top 100" : 835,
+              "Top 40/Top 60" : 895}
 
 maintienH = { "NC" : 0,
               "40" : 0,
               "30/5" : 6,
               "30/4" : 70,
               "30/3" : 120,
-              "30/2" : 170,
-              "30/1" : 210,
-              "30" : 280,
-              "15/5" : 300,
-              "15/4" : 310,
-              "15/3" : 320,
-              "15/2" : 340,
-              "15/1" : 370,
-              "15" : 425,
-              "5/6" : 430,
-              "4/6" : 430,
-              "3/6" : 460,
-              "2/6" : 490,
-              "1/6" : 540,
-              "0" : 600,
-              "-2/6" : 750,
-              "-4/6" : 850,
-              "-15" : 950,
-              "-30" : 1000,
-              "Promo" : 1100,
-              "1S" : 5000}
+              "30/2" : 155,
+              "30/1" : 195,
+              "30" : 265,
+              "15/5" : 285,
+              "15/4" : 295,
+              "15/3" : 305,
+              "15/2" : 325,
+              "15/1" : 355,
+              "15" : 410,
+              "5/6" : 415,
+              "4/6" : 415,
+              "3/6" : 445,
+              "2/6" : 475,
+              "1/6" : 525,
+              "0" : 585,
+              "-2/6" : 735,
+              "-4/6" : 835,
+              "-15" : 935,
+              "Top 60/Top 100" : 985,
+              "Top 40/Top 60" : 1085}
 
 victoiresF = { "NC" : 6,
                "40" : 6,
@@ -133,9 +130,8 @@ victoiresF = { "NC" : 6,
                "-2/6" : 15,
                "-4/6" : 16,
                "-15" : 17,
-               "-30" : 17,
-               "Promo" : 19,
-               "1S" : 19}
+               "Top 60/Top 100" : 17,
+               "Top 40/Top 60" : 19}
 
 victoiresH = { "NC" : 6,
                "40" : 6,
@@ -160,9 +156,8 @@ victoiresH = { "NC" : 6,
                "-2/6" : 15,
                "-4/6" : 17,
                "-15" : 19,
-               "-30" : 20,
-               "Promo" : 22,
-               "1S" : 22}
+               "Top 60/Top 100" : 20,
+               "Top 40/Top 60" : 22}
 
 serie = { "NC" : 4,
           "40" : 4,
@@ -187,9 +182,8 @@ serie = { "NC" : 4,
           "-2/6" : -2,
           "-4/6" : -2,
           "-15" : -2,
-          "-30" : -2,
-          "Promo" : -2,
-          "1S" : 1}
+          "Top 60/Top 100" : -2,
+          "Top 40/Top 60" : -2}
 
 # affiche le classement calculé d'un joueur
 def afficheClassement( origine, calcul, harmonise ):
@@ -329,7 +323,7 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
             add = 6
         elif( v >= 45 ):
             add = 7
-    else: # 1S et promo
+    else:
         add = 0
     return nb + add
 
@@ -414,8 +408,8 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
         return None
 
     grosse = plusGrosseVictoire( myVictoires )
-    if grosse == "Promo" or grosse == "1S":
-        return "1S"
+    if grosse == "Top 60/Top 100" or grosse == "Top 40/Top 60":
+        return "Top 40/Top 60"
     else:
         for( k, v ) in classementNumerique.iteritems():
             if( k == grosse ):
@@ -462,25 +456,22 @@ def normalisation( cl, sexe ):
         s = classement[1:]
         n = int( s )
         if 'H' == sexe:
-            if n <= 30:
-                o = "1S"
+            if n <= 60:
+                o = "Top 40/Top 60"
             else:
-                o = "Promo"
+                o = "Top 60/Top 100"
         else:
-            if n <= 20:
-                o = "1S"
+            if n <= 40:
+                o = "Top 40/Top 60"
             else:
-                o = "Promo"
-    else:
-        if "PROMO" == classement or "promo" == classement :
-            o = "Promo"
+                o = "Top 60/Top 100"
     return o, cl[1], cl[2]
 
 # determine si le joueur est numéroté
 def estNumerote( classement ):
     return re.match(r'[NT]\d+', classement) is not None
 
-# Conversion des numerotes en "Promo" ou "1S"
+# Conversion des numerotes en "Top 40/Top 60" ou "Top 60/Top 100"
 def normalisationTab( tab, sexe ):
     tabSortie = []
     for c in tab:
