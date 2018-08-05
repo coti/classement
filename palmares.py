@@ -69,7 +69,7 @@ class Joueur(object):
 
     def __init__(self, nom, identifiant, classement):
         self.classement = classement
-        self.classement_calcul = None
+        self.classement_calcul = classement
         self.identifiant = identifiant
         self.nom = nom
         self.victoires = []
@@ -263,7 +263,7 @@ def getPalma(annee, joueur, joueurs, opener):
     r_ligne = r"<tr><td>.*?<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
     lignes = re.findall( r_ligne, rep, re.DOTALL )
 
-    for p in lignes:
+    for p in lignes:	    
         r = extractInfo(p, joueurs)
         if r is None:
             continue
@@ -445,9 +445,9 @@ def classementJoueur(joueur, sexe, profondeur):
 
     if profondeur == 0:
         for v in joueur.victoires:
-            myV.append((v.joueur.classement, v.wo, v.coefficient))
+            myV.append((v.joueur.classement_calcul, v.wo, v.coefficient))
         for d in joueur.defaites:
-            myD.append((d.joueur.classement, d.wo, d.coefficient))
+            myD.append((d.joueur.classement_calcul, d.wo, d.coefficient))
     else:
         profondeur -= 1
 
@@ -500,7 +500,7 @@ def recupClassement( login, password, LICENCE, profondeur ):
     print("nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
     # on crache la sortie du joueur dans un fichier
-    fn = str( LICENCE ) + ".txt"
+    fn = str( LICENCE ) + "_" + str( nom ) + "_p" + str( profondeur ) + ".txt"
     fd = open( fn, "w" )
     fd.write( s.encode('utf-8') )
     fd.close()
