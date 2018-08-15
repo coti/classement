@@ -1,6 +1,6 @@
 # Outil de récupération du classement de ses adversaires.
 
-(c) Camille Coti, 2013-2015
+(c) Camille Coti, 2013-2018
 
 ## Système de calcul
 
@@ -56,9 +56,9 @@ Il est nécessaire d'être connecté à Internet pendant toute l'opération.
 
 ### Interface graphique
 
-Exécuter le fichier interface.py. Remplir les champs demandés et cliquer sur le bouton. La sortie s'affichera dans la grosse boite blanche en-dessous.
+Exécuter le fichier interface2.py. Remplir les champs demandés et cliquer sur le bouton. La sortie s'affichera dans la grosse boite blanche en-dessous.
 
-Attention, l'interface est pleine de bugs.
+Attention, l'interface est pleine de bugs. Merci aux testeurs !
 
 ## Limitations
 
