@@ -182,6 +182,30 @@ class ThreadSafeText( tk.Text ):
             self.update_idletasks()
         self.after(10, self.update_me)
 
+def displayWarning():
+    warn = tk.Tk()
+    
+    warn.wm_title( "Classement futur de tennis" )
+    txt1 = tk.Label( warn, text = "Attention" )
+    txt1.config( font=("Verdana", 20), fg = "red")
+
+    txt2 = tk.Label( warn, text = "Verion très très préliminaire, peu testée" )
+    txt2.config( font=("Verdana", 18), fg = "blue")
+
+    txt3 = tk.Label( warn, text = "En particulier, au moment de quitter (en particulier en cours de simulation), le programme risque d'avoir besoin d'un peu d'autorité", wraplength = 400 )
+    txt3.config( font=("Verdana", 18), fg = "blue")
+
+    ok = tk.Button( warn, text = "Ok, j'ai compris", command = warn.destroy )
+    ok.config( font=("Verdana", 20), fg = "green" )
+    ok.pack()
+
+    txt1.pack()
+    txt2.pack()
+    txt3.pack()
+    ok.pack()
+    
+    return
+    
 # View
 
 def main():
@@ -190,6 +214,8 @@ def main():
     global lic_entr
     global prof_entr
 
+    displayWarning()
+    
     signal.signal( signal.SIGUSR1, sighandler )
 
     window = tk.Tk()
