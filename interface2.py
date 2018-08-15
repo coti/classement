@@ -1,9 +1,20 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #coding: utf8
+
+""" Outil de recuperation du classement: interface graphique.
+ "
+ " :copyright: Copyright 2018, see AUTHORS 
+ "             Copyright 2018, voir AUTHORS
+ " :licence: CeCILL-C or LGPL, see COPYING for details.
+ "           CeCILL-C ou LGPL, voir COPYING pour plus de details.
+ "
+ " Version très très très alpha.
+"""
+
 
 import sys
 import threading
-import tkinter as tk
+import Tkinter as tk
 import Queue
 import signal
 import palmares
@@ -41,7 +52,7 @@ def start( ):
     try:
         prof = int( prof_s )
     except ValueError:
-        print "la profondeur n'est pas un entier"
+        print( "la profondeur n'est pas un entier" )
         popProfondeur()
         return
 
@@ -114,7 +125,7 @@ def stopThread():
 # Used to communicate with authority b/w the threads
 
 def sighandler( signum, frame ):
-    print "Caught signal"
+    print( "Caught signal" )
     #    sys.exit()
     import thread
     thread.exit()
