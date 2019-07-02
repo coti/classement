@@ -42,8 +42,8 @@ from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
-millesime = 2018
-server    = "https://mon-espace-tennis.fft.fr"
+millesime = 2019
+server    = "https://tenup.fft.fr"
 
 
 class Resultat(object):
@@ -197,7 +197,7 @@ def authentification( login, password, opener, cj ):
 def getIdentifiant( opener, numLicence ):
     print('Récupération de l\'identifiant')
 
-    page      = "/recherche-joueur"
+    page      = "/recherche-licencies"
     payload   = { 'numeroLicence' : numLicence }
     data      = urllib.urlencode( payload )
     timeout   = 20
@@ -251,7 +251,7 @@ def getPalma(annee, joueur, joueurs, opener):
     :type joueurs: dict[str, Joueur]
     """
 
-    page      = "/simulation-classement/" + joueur.identifiant
+    page      = "/palmares/" + joueur.identifiant
     payload   = { 'millesime': annee }
     data      = urllib.urlencode( payload )
     timeout   = 8
@@ -260,7 +260,7 @@ def getPalma(annee, joueur, joueurs, opener):
     rep = requete( opener, server+page+'?'+data, None, timeout )
     logging.debug('getPalma ' + joueur.nom + ' OK')
 
-    r_ligne = r"<tr><td>.*?<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
+    r_ligne = r"<tr><td>.*?<span class=\'(?:victory|defeat)\'>.*?</tr>"
     lignes = re.findall( r_ligne, rep, re.DOTALL )
 
     for p in lignes:	    
@@ -272,9 +272,9 @@ def getPalma(annee, joueur, joueurs, opener):
         if not r.joueur.classement:
             continue
 
-        if 'victories' in p:
+        if 'victory' in p:
             joueur.victoires.append(r)
-        elif 'defeats' in p:
+        elif 'defeat' in p:
             joueur.defaites.append(r)
 
 
@@ -343,12 +343,17 @@ def extractInfo(ligne, joueurs):
     :type joueurs: dict[str, Joueur]
     """
 
-    # id du joueur
-    r_id = r'<input type="hidden" name="(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire_\d+\]" value="(\d+)" />'
-    id_matches = re.findall( r_id, ligne )
-    if id_matches:
-        idu = id_matches[0]
+    # id et nom du joueur
+    r_id_nom = r'<a href="/palmares/(\d+)(?:\?[\w=&]+)*?">(.*?)</a>'
+    matches = re.findall( r_id_nom, ligne )
+    if matches:
+        idu = matches[0][0]
+        # Il peut y avoir des caractères spéciaux à décoder dans le nom
+        nom = HTMLParser.HTMLParser().unescape(matches[0][1]).strip()
     else:
+        # Joueur anonyme
+        idu = None
+        nom = '(anonyme)'
         return None
 
     r_cellule = r'<td.*?>(.*?)</td>'
@@ -356,23 +361,20 @@ def extractInfo(ligne, joueurs):
     if not cell_matches:
         return None
 
-    # Il peut y avoir des caractères spéciaux à décoder dans le nom
-    nom = HTMLParser.HTMLParser().unescape(cell_matches[1]).strip() or '(anonyme)'
-
     # classement du joueur
     clmt = cell_matches[2]
 
     joueur = joueurs.setdefault(idu, Joueur(nom, idu, clmt))
 
     # wo ?
-    w = cell_matches[4] == 'Oui'
+    w = cell_matches[4] == 'wo'
 
     # championnat ?
-    champ = cell_matches[5] == 'Championnat individuel'
+    champ = cell_matches[7].lower() == 'c'
 
     # Coefficient
-    r_coeff = r'\(Coef\. (\d,\d+)\)'
-    coeff_matches = re.findall(r_coeff, cell_matches[6])
+    r_coeff = r'Coefficient (\d\.\d+)'
+    coeff_matches = re.findall(r_coeff, cell_matches[5])
     if coeff_matches:
         coeff = Decimal(coeff_matches[0].replace(',', '.'))
     else:
