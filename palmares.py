@@ -251,7 +251,7 @@ def getPalma(annee, joueur, joueurs, opener):
     :type joueurs: dict[str, Joueur]
     """
 
-    page      = "/palmares/" + joueur.identifiant
+    page      = "/simulation-classement/" + joueur.identifiant
     payload   = { 'millesime': annee }
     data      = urllib.urlencode( payload )
     timeout   = 8
@@ -260,7 +260,7 @@ def getPalma(annee, joueur, joueurs, opener):
     rep = requete( opener, server+page+'?'+data, None, timeout )
     logging.debug('getPalma ' + joueur.nom + ' OK')
 
-    r_ligne = r"<tr><td>.*?<span class=\'(?:victory|defeat)\'>.*?</tr>"
+    r_ligne = r"<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
     lignes = re.findall( r_ligne, rep, re.DOTALL )
 
     for p in lignes:	    
@@ -272,9 +272,9 @@ def getPalma(annee, joueur, joueurs, opener):
         if not r.joueur.classement:
             continue
 
-        if 'victory' in p:
+        if 'victories' in p:
             joueur.victoires.append(r)
-        elif 'defeat' in p:
+        elif 'defeats' in p:
             joueur.defaites.append(r)
 
 
@@ -343,17 +343,12 @@ def extractInfo(ligne, joueurs):
     :type joueurs: dict[str, Joueur]
     """
 
-    # id et nom du joueur
-    r_id_nom = r'<a href="/palmares/(\d+)(?:\?[\w=&]+)*?">(.*?)</a>'
-    matches = re.findall( r_id_nom, ligne )
-    if matches:
-        idu = matches[0][0]
-        # Il peut y avoir des caractères spéciaux à décoder dans le nom
-        nom = HTMLParser.HTMLParser().unescape(matches[0][1]).strip()
+    # id du joueur
+    r_id = r'<input type="hidden" name="(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire_\d+\]" value="(\d+)" />'
+    id_matches = re.findall(r_id, ligne)
+    if id_matches:
+        idu = id_matches[0]
     else:
-        # Joueur anonyme
-        idu = None
-        nom = '(anonyme)'
         return None
 
     r_cellule = r'<td.*?>(.*?)</td>'
@@ -361,20 +356,23 @@ def extractInfo(ligne, joueurs):
     if not cell_matches:
         return None
 
+    # Il peut y avoir des caractères spéciaux à décoder dans le nom
+    nom = HTMLParser.HTMLParser().unescape(cell_matches[0]).strip() or '(anonyme)'
+
     # classement du joueur
-    clmt = cell_matches[2]
+    clmt = cell_matches[1]
 
     joueur = joueurs.setdefault(idu, Joueur(nom, idu, clmt))
 
     # wo ?
-    w = cell_matches[4] == 'wo'
+    w = cell_matches[4] == 'Oui'
 
     # championnat ?
-    champ = cell_matches[7].lower() == 'c'
+    champ = cell_matches[5] == 'Championnat individuel'
 
     # Coefficient
-    r_coeff = r'Coefficient (\d\.\d+)'
-    coeff_matches = re.findall(r_coeff, cell_matches[5])
+    r_coeff = r'\(coefficient (\d\.\d+)\)'
+    coeff_matches = re.findall(r_coeff, cell_matches[6])
     if coeff_matches:
         coeff = Decimal(coeff_matches[0].replace(',', '.'))
     else:
