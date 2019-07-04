@@ -385,7 +385,7 @@ def extractInfo(ligne, joueurs):
 def nbVictoiresChamp( tab ):
     nb = 0
     for t in tab:
-        if t.championnat:
+        if t.championnat and not t.wo:
             nb += 1
     return nb
 
