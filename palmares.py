@@ -240,8 +240,6 @@ def getIdentifiant( opener, numLicence ):
     else:
         return vide
 
-    print("classement: ", cl)
-
     return nom + ' ' + prenom, idu, cl, sexe
 
 
@@ -312,7 +310,7 @@ def getPalmaRecursif(annee, joueur, opener, profondeurMax):
     print('Récupération de mon palmarès')
     getAndEnqueue(joueur, 0)
 
-    print('Récupération des palmarès des adversaires')
+    print('Récupération des palmarès des adversaires (profondeur : {})'.format(profondeurMax))
 
     # Lancement des threads de traitement
     concurrence = 10
@@ -336,6 +334,7 @@ def getPalmaRecursif(annee, joueur, opener, profondeurMax):
     q.join()
 
     print('Palmarès récupérés pour {} joueurs'.format(len(id_palmares)))
+    print()
 
 
 # Extraire les infos d'un joueur dans un palma
@@ -431,18 +430,11 @@ def classementJoueur(joueur, sexe, profondeur):
 
     myV = []
     myD = []
-    print("profondeur : ", profondeur)
-    print("calcul du classement de ", joueur.nom)
-
     # en cas de classement qui contient l'annee,
     # e.g. 'NC (2014)' -> garder uniquement la 1ere partie
     c = joueur.classement.split()
     if len(c) > 1:
         joueur.classement = c[0]
-
-    # nb de victoires en championnat indiv
-    champ = nbVictoiresChamp(joueur.victoires)
-    print(champ, " victoire(s) en championnat individuel")
 
     if profondeur == 0:
         for v in joueur.victoires:
@@ -450,19 +442,23 @@ def classementJoueur(joueur, sexe, profondeur):
         for d in joueur.defaites:
             myD.append((d.joueur.classement_calcul, d.wo, d.coefficient))
     else:
-        profondeur -= 1
-
         # calcul du futur classement de mes victoires
         for v in joueur.victoires:
-            nc, harm, s = classementJoueur(v.joueur, sexe, profondeur)
+            nc, harm, s = classementJoueur(v.joueur, sexe, profondeur - 1)
             v.joueur.classement_calcul = nc
             myV.append((nc, v.wo, v.coefficient))
 
         # calcul du futur classement de mes defaites
         for d in joueur.defaites:
-            nc, harm, s = classementJoueur(d.joueur, sexe, profondeur)
+            nc, harm, s = classementJoueur(d.joueur, sexe, profondeur - 1)
             d.joueur.classement_calcul = nc
             myD.append((nc, d.wo, d.coefficient))
+
+    print("Calcul du classement de {} (profondeur {})".format(joueur.nom, profondeur))
+
+    # nb de victoires en championnat indiv
+    champ = nbVictoiresChamp(joueur.victoires)
+    print(champ, "victoire(s) en championnat individuel")
 
     # calcul du classement a jour
     cl, harm = calculClassement(myV, myD, sexe, joueur.classement, champ)
@@ -486,9 +482,9 @@ def recupClassement( login, password, LICENCE, profondeur ):
         exit_pause(1, "Impossible de récupérer l'identifiant")
 
     print(nom)
-    print(id)
     print(cl)
     print(sexe)
+    print()
 
     joueur = Joueur(nom, id, cl)
 
@@ -498,7 +494,7 @@ def recupClassement( login, password, LICENCE, profondeur ):
     # calcul du nouveau classement
     new_cl, harm, s = classementJoueur(joueur, sexe, profondeur)
 
-    print("nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
+    print("Nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
     # on crache la sortie du joueur dans un fichier
     fn = str( LICENCE ) + "_" + str( nom ) + "_p" + str( profondeur ) + ".txt"

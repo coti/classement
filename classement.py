@@ -187,40 +187,45 @@ serie = { "NC" : 4,
 
 # affiche le classement calculé d'un joueur
 def afficheClassement( origine, calcul, harmonise ):
-    print(" ==> Classement de sortie : ", calcul, " - Harmonisé : " , harmonise, " -  classement d\'origine : ", origine)
+    print(" ==> Classement de sortie :", calcul, "- Harmonisé :" , harmonise, "-  classement d\'origine :", origine)
     return
 
 # calcule le V - E - 2I - 5G
-def VE2I5G( classement, victoires, defaites ):
+def VE2I5G(classement, victoires, defaites, impression=False):
     v = len( victoires )
-    print("V = ", v, " (Nombre de victoires)")
-    e = nbInf( classement, defaites, 0 )
-    print("E = ", e, " (Nb de défaites à échelon égal)")
-    i = nbInf( classement, defaites, 1 )
-    print("I = ", i, " (Nb de défaites à échelon -1)")
-    g = nbInf( classement, defaites, -1 )
-    print("G = ", g, " (Nb de défaites à échelons <= -2 et par w.o à partir du 3e)")
+
+    lstE = lstInf(classement, defaites, 0)
+    e = len(lstE)
+
+    lstI = lstInf(classement, defaites, 1)
+    i = len(lstI)
+
+    lstG = lstInf(classement, defaites, -1)
+    g = len(lstG)
+
+    if impression:
+        print("V = ", v, "(Nombre de victoires)")
+        print("E = ", e, "(Nb de défaites à échelon égal) :", ', '.join(lstE))
+        print("I = ", i, "(Nb de défaites à échelon -1) :", ', '.join(lstI))
+        print("G = ", g, "(Nb de défaites à échelons <= -2 et par w.o à partir du 3e) :", ', '.join(lstG))
+
     return ( v - e - 2*i - 5*g )
 
 
 # Calcule le nb de defaites E echelons en-dessous
-def nbInf( myClassement, defaites, E ):
+def lstInf(myClassement, defaites, E):
     lst = []
-    nb = 0
     for i in defaites:
         if( E >= 0 ) :
             if not i[1]: # exclure les WO
                 if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
                     lst.append( i[0] )
-                    nb = nb+1
         else:
             if not i[1] or i[0] == "S": # exclure les WO sauf à partir du 3eme
                 if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
                     lst.append( i[0] )
-                    nb = nb+1
 
-    print(lst)
-    return nb
+    return lst
 
 # Retourne le nombre de points apportes par une victoire
 def pointsVictoire( myClassement, classementBattu ):
@@ -240,9 +245,9 @@ def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites ):
         victoires = victoiresF
 
     nb = victoires[ myClassement ]
-    v = VE2I5G( myClassement, myVictoires, myDefaites )
+    v = VE2I5G( myClassement, myVictoires, myDefaites, impression=True )
 
-    print("V - E - 2I - 5G : ", v)
+    print("V - E - 2I - 5G :", v)
     
     add = 0
     if( 4 == serie[ myClassement ] ): 
@@ -334,7 +339,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     sortedVictoires = sortVictoires( myVictoires )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
 
-    print("Victoires prises en compte (", nbV,") : ", ', '.join(v[0] for v in victoiresComptant))
+    print("Victoires prises en compte ({}) : {}".format(nbV, ', '.join(v[0] for v in victoiresComptant)))
 
     nbPoints = 0
 
@@ -359,7 +364,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
             if True == absenceDef( myDefaites, myClassement ):
                 bonif = 50
     if bonif != 0:
-        print("Bonif absence de defaite significative: ", bonif)
+        print("Bonif absence de defaite significative:", bonif)
 
     nbPoints = nbPoints + bonif
 
@@ -369,7 +374,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
 
     nbPoints = nbPoints + bonif
     if bonif != 0:
-        print("Bonif championnat indiv: ", bonif)
+        print("Bonif championnat indiv :", bonif)
 
     return int(nbPoints)
 
@@ -388,7 +393,7 @@ def maintienOK( myClassement, mySexe, myPoints ):
     else:
         maintien = maintienF
 
-    print("Points acquis : ", myPoints, " - points nécessaires pour le maintien a ", myClassement, " : ", maintien[ myClassement ])
+    print("Points acquis :", myPoints, "- points nécessaires pour le maintien à", myClassement, ":", maintien[ myClassement ])
 
     return myPoints >= maintien[myClassement]
 
@@ -565,7 +570,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
 
-        print(" ==> Classement proposé : ", classementPropose)
+        print(" ==> Classement proposé :", classementPropose)
 
         pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv )
         ok = maintienOK( classementPropose, mySexe, pt )
@@ -577,7 +582,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
 
     # penalite WO ?
     if nbWO( myDefaites ) >= 5:
-        print("Penalite car trop de WO (", nbWO( myDefaites ), " > 5 )")
+        print("Penalite car trop de WO (", nbWO( myDefaites ), "> 5)")
         classementHarmonise = echelonInferieur( classementPropose )
 
     # penalite mauvais V - E - 2I - 5G ?
