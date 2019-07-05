@@ -220,6 +220,7 @@ def getIdentifiant( opener, numLicence ):
     if matches:
         sexe = matches[0]
         nom = matches[1]
+        prenom = matches[2]
 
         # id interne
         r_idu = r'<a href="/palmares/(\d+)">.+</a>'
@@ -241,7 +242,7 @@ def getIdentifiant( opener, numLicence ):
 
     print("classement: ", cl)
 
-    return nom, idu, cl, sexe
+    return nom + ' ' + prenom, idu, cl, sexe
 
 
 # Obtenir le palma d'un joueur d'identifiant donne
