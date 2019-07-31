@@ -465,7 +465,7 @@ def classementJoueur(joueur, sexe, profondeur):
 
     # sorties
     s = strClassement(joueur, cl, harm)
-    print(s)
+    print(s.encode('utf-8', errors='ignore'))
 
     return cl, harm, s
 
