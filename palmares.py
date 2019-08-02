@@ -17,6 +17,7 @@
 
 from __future__ import print_function, unicode_literals
 
+import argparse
 import urllib
 import urllib2
 import cookielib
@@ -505,53 +506,60 @@ def recupClassement( login, password, LICENCE, profondeur ):
     return
 
 
-# Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si ils ont ete perdus
-def trimNumLicence( s ) :
-    i = -1
-    try:
-        i = int( s )
-    except:
-        try:
-            i = int( s[:-1] )
-        except:
-            print("Problème avec le numero de licence")
-    l = str( i )
-    if len( l ) < 7:
-        for k in range( 0, 7 - len( l ) ):
-            l = '0'+l
-    return l
+# Prend le numero de licence tel qu'il est retourne par raw_input, vire l'eventuel lettre finale, rajoute des 0 si
+# ils ont ete perdus
+def trimNumLicence(s):
+    match = re.match(r"(\d{1,7})[a-zA-Z]?$", s)
+    if not match:
+        return None
+    numero = match.group(1)
+    return "0" * max(0, 7 - len(numero)) + numero
 
 
 def main():
-    if len(sys.argv) < 5:
-        login = raw_input( "Login : " )
-        password = raw_input("Mot de passe : " )
-        licence = trimNumLicence( raw_input( "Numero de licence : " ) )
-        if -1 == licence:
-            print("Erreur fatale -- Fin de l\'execution")
-            return -1
-        try:
-            profondeur = int( raw_input( "Profondeur : " ) )
-        except:
-            print("Erreur de saisie de la profondeur.")
-            print("Erreur fatale -- Fin de l\'execution")
-            return -1
-    else:
-        login      = sys.argv[1]
-        password   = sys.argv[2]
-        licence = trimNumLicence( sys.argv[3] )
-        if -1 == licence:
-            print("Erreur fatale -- Fin de l\'execution")
-            return -1
-        try:
-            profondeur = int( sys.argv[4])
-        except:
-            print("Erreur de saisie de la profondeur.")
-            print("Erreur fatale -- Fin de l\'execution")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("login", nargs="?", default=None)
+    parser.add_argument("password", nargs="?", default=None)
+    parser.add_argument("licence", nargs="?", default=None)
+    parser.add_argument("profondeur", nargs="?", default=None, type=int)
+    args = parser.parse_args()
+
+    login = args.login if args.login else raw_input("Identifiant : ")
+    password = args.password if args.password else raw_input("Mot de passe : ")
+
+    licence = trimNumLicence(args.licence if args.licence else raw_input("Numero de licence : "))
+    if licence is None:
+        print("Erreur de saisie du numéro de licence")
+        return -1
+
+    try:
+        profondeur = args.profondeur if args.profondeur is not None else int(raw_input("Profondeur : "))
+    except:
+        print('Erreur de saisie de la profondeur')
+        return -1
+
+    if profondeur > 2:
+        print("Vous avez choisi une profondeur importante ({}).\n"
+              "Cela va générer un très grand nombre de requêtes au site de la FFT.\n"
+              "Êtes-vous sûr de vouloir continuer ?".format(profondeur))
+        if not confirmation():
             return -1
 
-    recupClassement( login, password, licence, profondeur )
+    recupClassement(login, password, licence, profondeur)
     return
+
+
+def confirmation():
+    oui = {"oui", "o", ""}
+    non = {"non", "n"}
+    choix = raw_input("(oui/non) ").lower()
+    if choix in oui:
+        return True
+    elif choix in non:
+        return False
+    else:
+        print("Choix invalide. Entrez oui ou non.")
+        return confirmation()
 
 
 def exit_pause(status=0, error_message=""):
