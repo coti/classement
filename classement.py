@@ -190,40 +190,49 @@ def afficheClassement( origine, calcul, harmonise ):
     print(" ==> Classement de sortie :", calcul, "- Harmonisé :" , harmonise, "-  classement d\'origine :", origine)
     return
 
+
+def match_list_str(match_list):
+    g = (classement + (' ({})'.format(coeff) if coeff != 1 else '') for classement, _, coeff in match_list)
+    return ', '.join(g)
+
+
 # calcule le V - E - 2I - 5G
 def VE2I5G(classement, victoires, defaites, impression=False):
-    v = len( victoires )
+    def sum_coeff(match_list):
+        return sum(coeff for _, _, coeff in match_list)
+
+    v = sum_coeff(victoires)
 
     lstE = lstInf(classement, defaites, 0)
-    e = len(lstE)
+    e = sum_coeff(lstE)
 
     lstI = lstInf(classement, defaites, 1)
-    i = len(lstI)
+    i = sum_coeff(lstI)
 
     lstG = lstInf(classement, defaites, -1)
-    g = len(lstG)
+    g = sum_coeff(lstG)
 
     if impression:
-        print("V = ", v, "(Nombre de victoires)")
-        print("E = ", e, "(Nb de défaites à échelon égal) :", ', '.join(lstE))
-        print("I = ", i, "(Nb de défaites à échelon -1) :", ', '.join(lstI))
-        print("G = ", g, "(Nb de défaites à échelons <= -2 et par w.o à partir du 3e) :", ', '.join(lstG))
+        print("V = ", v, "(Nombre de victoires) : ", match_list_str(victoires))
+        print("E = ", e, "(Nb de défaites à échelon égal) :", match_list_str(lstE))
+        print("I = ", i, "(Nb de défaites à échelon -1) :", match_list_str(lstI))
+        print("G = ", g, "(Nb de défaites à échelons <= -2 et par w.o à partir du 3e) :", match_list_str(lstG))
 
-    return ( v - e - 2*i - 5*g )
+    return int(round(v - e - 2 * i - 5 * g))
 
 
 # Calcule le nb de defaites E echelons en-dessous
 def lstInf(myClassement, defaites, E):
     lst = []
-    for i in defaites:
-        if( E >= 0 ) :
-            if not i[1]: # exclure les WO
-                if( classementNumerique[ i[0] ] == ( classementNumerique[ myClassement ] - E ) ):
-                    lst.append( i[0] )
+    for classement, wo, coeff in defaites:
+        if E >= 0:
+            if not wo:  # exclure les WO
+                if classementNumerique[classement] == (classementNumerique[myClassement] - E):
+                    lst.append((classement, wo, coeff))
         else:
-            if not i[1] or i[0] == "S": # exclure les WO sauf à partir du 3eme
-                if( classementNumerique[ i[0] ] <= ( classementNumerique[ myClassement ] - 2 ) ):
-                    lst.append( i[0] )
+            if not wo or classement == "S":  # exclure les WO sauf à partir du 3eme
+                if classementNumerique[classement] <= (classementNumerique[myClassement] - 2):
+                    lst.append((classement, wo, coeff))
 
     return lst
 
@@ -339,11 +348,11 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv )
     sortedVictoires = sortVictoires( myVictoires )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
 
-    print("Victoires prises en compte ({}) : {}".format(nbV, ', '.join(v[0] for v in victoiresComptant)))
+    print("Victoires prises en compte ({}) : {}".format(nbV, match_list_str(victoiresComptant)))
 
     nbPoints = 0
 
-    for classement, coeff in victoiresComptant:
+    for classement, _, coeff in victoiresComptant:
         nbPoints += pointsVictoire( myClassement, classement ) * coeff
 
     # Bonifs
@@ -522,7 +531,7 @@ def absenceDef( defaites, classement ):
 
 # Victoires comptant : on supprime les wo
 def victoiresQuiComptent( vic, nb ):
-    return [(v[0], v[2]) for v in vic if not v[1]][:nb]
+    return [v for v in vic if not v[1]][:nb]
 
 # Calcul du classement
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv ):
