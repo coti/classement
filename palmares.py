@@ -455,7 +455,8 @@ def classementJoueur(joueur, sexe, profondeur):
             d.joueur.classement_calcul = nc
             myD.append((nc, d.wo, d.coefficient))
 
-    print("Calcul du classement de {} (profondeur {})".format(joueur.nom, profondeur))
+    print("Calcul du classement de {} (profondeur {})".format(joueur.nom, profondeur)
+          .encode(sys.stdout.encoding, errors='replace'))
 
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp(joueur.victoires)
