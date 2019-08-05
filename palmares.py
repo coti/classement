@@ -522,6 +522,8 @@ def main():
     parser.add_argument("password", nargs="?", default=None)
     parser.add_argument("licence", nargs="?", default=None)
     parser.add_argument("profondeur", nargs="?", default=None, type=int)
+    parser.add_argument("-f", "--force", action="store_true",
+                        help="Désactive le message de confirmation en cas de profondeur élevée")
     args = parser.parse_args()
 
     login = args.login if args.login else raw_input("Identifiant : ")
@@ -538,7 +540,7 @@ def main():
         print('Erreur de saisie de la profondeur')
         return -1
 
-    if profondeur > 2:
+    if profondeur > 2 and not args.force:
         print("Vous avez choisi une profondeur importante ({}).\n"
               "Cela va générer un très grand nombre de requêtes au site de la FFT.\n"
               "Êtes-vous sûr de vouloir continuer ?".format(profondeur))
