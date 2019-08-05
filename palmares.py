@@ -416,7 +416,7 @@ def strClassement(joueur, classement_calcul, classement_harmonise):
 
     chaine += " === DÉFAITES ===\n"
     if len(joueur.defaites) == 0:
-        chaine += "Aucune"
+        chaine += "Aucune\n"
     else:
         for d in joueur.defaites:
             chaine += print_line(d) + "\n"
@@ -424,8 +424,9 @@ def strClassement(joueur, classement_calcul, classement_harmonise):
 
 
 # Calcule le classement d'un joueur
-def classementJoueur(joueur, sexe, profondeur):
+def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     """
+    :param details_profondeur: Seuil de profondeur à partir duquel les détails sont affichés
     :type joueur: Joueur
     """
 
@@ -445,35 +446,48 @@ def classementJoueur(joueur, sexe, profondeur):
     else:
         # calcul du futur classement de mes victoires
         for v in joueur.victoires:
-            nc, harm, s = classementJoueur(v.joueur, sexe, profondeur - 1)
+            nc, harm, s = classementJoueur(v.joueur, sexe, profondeur - 1, details_profondeur)
             v.joueur.classement_calcul = nc
             myV.append((nc, v.wo, v.coefficient))
 
         # calcul du futur classement de mes defaites
         for d in joueur.defaites:
-            nc, harm, s = classementJoueur(d.joueur, sexe, profondeur - 1)
+            nc, harm, s = classementJoueur(d.joueur, sexe, profondeur - 1, details_profondeur)
             d.joueur.classement_calcul = nc
             myD.append((nc, d.wo, d.coefficient))
 
-    print("Calcul du classement de {} (profondeur {})".format(joueur.nom, profondeur)
-          .encode(sys.stdout.encoding, errors='replace'))
+    impression = profondeur >= details_profondeur
+
+    if impression:
+        print("Calcul du classement de {} (profondeur {})".format(joueur.nom, profondeur)
+              .encode(sys.stdout.encoding, errors='replace'))
 
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp(joueur.victoires)
-    print(champ, "victoire(s) en championnat individuel")
+    if impression:
+        print(champ, "victoire(s) en championnat individuel")
 
     # calcul du classement a jour
-    cl, harm = calculClassement(myV, myD, sexe, joueur.classement, champ)
+    cl, harm = calculClassement(myV, myD, sexe, joueur.classement, champ, impression)
 
-    # sorties
-    s = strClassement(joueur, cl, harm)
-    print(s.encode(sys.stdout.encoding, errors='replace'))
+    if impression:
+        # sorties
+        s = strClassement(joueur, cl, harm)
+        print(s.encode(sys.stdout.encoding, errors='replace'))
+    else:
+        s = None
 
     return cl, harm, s
 
 
-def recupClassement( login, password, LICENCE, profondeur ):
-    
+def recupClassement( login, password, LICENCE, profondeur, details_profondeur=0 ):
+    """
+    :param profondeur: Le niveau de profondeur maximum du calcul
+    :param details_profondeur: Le nombre de niveaux de profondeur pour lesquels on veut afficher les détails
+        (0: seulement le résultat final)
+    :return:
+    """
+
     # On s'identifie et on obtient ses prores infos
     cj, op = buildOpener()
     authentification( login, password, op, cj )
@@ -494,7 +508,8 @@ def recupClassement( login, password, LICENCE, profondeur ):
     getPalmaRecursif(millesime, joueur, op, profondeur)
 
     # calcul du nouveau classement
-    new_cl, harm, s = classementJoueur(joueur, sexe, profondeur)
+    new_cl, harm, s = classementJoueur(joueur, sexe, profondeur,
+                                       profondeur - min(details_profondeur, profondeur))
 
     print("Nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
@@ -525,6 +540,9 @@ def main():
     parser.add_argument("profondeur", nargs="?", default=None, type=int)
     parser.add_argument("-f", "--force", action="store_true",
                         help="Désactive le message de confirmation en cas de profondeur élevée")
+    parser.add_argument("-d", "--details", type=int, default=0,
+                        help="Le nombre de niveaux de profondeurs pour lesquels on veut afficher"
+                             "le détail du calcul. Par défaut : 0 (le résultat final uniquement)")
     args = parser.parse_args()
 
     login = args.login if args.login else raw_input("Identifiant : ")
@@ -548,7 +566,7 @@ def main():
         if not confirmation():
             return -1
 
-    recupClassement(login, password, licence, profondeur)
+    recupClassement(login, password, licence, profondeur, args.details)
     return
 
 
