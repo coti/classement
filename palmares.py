@@ -70,11 +70,12 @@ class Joueur(object):
 
     def __init__(self, nom, identifiant, classement):
         self.classement = classement
-        self.classement_calcul = classement
+        self.classement_calcul = None
         self.identifiant = identifiant
         self.nom = nom
         self.victoires = []
         self.defaites = []
+        self.calcul_fait = None
 
     def __str__(self):
         return "{} - {}".format(self.identifiant, self.nom)
@@ -403,8 +404,12 @@ def strClassement(joueur, classement_calcul, classement_harmonise):
     chaine += "[Nom] [Ancien classement] [Nouveau classement] [WO] [Coeff]\n"
 
     def print_line(r):
+        if r.joueur.classement_calcul:
+            nouveau_classement = r.joueur.classement_calcul[1]
+        else:
+            nouveau_classement = r.joueur.classement
         return "{:24} {:5}  {:5}  {:2}  {}" \
-            .format(r.joueur.nom, r.joueur.classement, r.joueur.classement_calcul or r.joueur.classement,
+            .format(r.joueur.nom, r.joueur.classement, nouveau_classement,
                     "WO" if r.wo else "", str(r.coefficient) if r.coefficient != 1 else "")
 
     chaine += " === VICTOIRES ===\n"
@@ -430,6 +435,11 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     :type joueur: Joueur
     """
 
+    if joueur.calcul_fait >= profondeur:
+        logging.debug("Calcul déjà fait pour {} en profondeur {} ou plus ({})".format(joueur.nom, profondeur, joueur.calcul_fait))
+        nc, harm = joueur.classement_calcul
+        return nc, harm, None
+
     myV = []
     myD = []
     # en cas de classement qui contient l'annee,
@@ -440,20 +450,20 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
 
     if profondeur == 0:
         for v in joueur.victoires:
-            myV.append((v.joueur.classement_calcul, v.wo, v.coefficient))
+            myV.append((v.joueur.classement, v.wo, v.coefficient))
         for d in joueur.defaites:
-            myD.append((d.joueur.classement_calcul, d.wo, d.coefficient))
+            myD.append((d.joueur.classement, d.wo, d.coefficient))
     else:
         # calcul du futur classement de mes victoires
         for v in joueur.victoires:
             nc, harm, s = classementJoueur(v.joueur, sexe, profondeur - 1, details_profondeur)
-            v.joueur.classement_calcul = nc
+            v.joueur.classement_calcul = (nc, harm)
             myV.append((nc, v.wo, v.coefficient))
 
         # calcul du futur classement de mes defaites
         for d in joueur.defaites:
             nc, harm, s = classementJoueur(d.joueur, sexe, profondeur - 1, details_profondeur)
-            d.joueur.classement_calcul = nc
+            d.joueur.classement_calcul = (nc, harm)
             myD.append((nc, d.wo, d.coefficient))
 
     impression = profondeur >= details_profondeur
@@ -477,6 +487,7 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     else:
         s = None
 
+    joueur.calcul_fait = profondeur
     return cl, harm, s
 
 
