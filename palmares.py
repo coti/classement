@@ -573,7 +573,8 @@ def main():
     if profondeur > 2 and not args.force:
         print("Vous avez choisi une profondeur importante ({}).\n"
               "Cela va générer un très grand nombre de requêtes au site de la FFT.\n"
-              "Êtes-vous sûr de vouloir continuer ?".format(profondeur))
+              "Êtes-vous sûr de vouloir continuer ?".format(profondeur)
+              .encode(sys.stdout.encoding, errors='replace'))
         if not confirmation():
             return -1
 
