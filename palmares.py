@@ -34,6 +34,7 @@ import platform
 import json
 
 from _ssl import SSLError
+from getpass import getpass
 from threading import Thread
 from Queue import Queue
 from decimal import Decimal
@@ -557,7 +558,7 @@ def main():
     args = parser.parse_args()
 
     login = args.login if args.login else raw_input("Identifiant : ")
-    password = args.password if args.password else raw_input("Mot de passe : ")
+    password = args.password if args.password else getpass("Mot de passe : ")
 
     licence = trimNumLicence(args.licence if args.licence else raw_input("Numero de licence : "))
     if licence is None:
