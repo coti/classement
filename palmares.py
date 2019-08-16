@@ -184,8 +184,10 @@ def authentification( login, password, opener, cj ):
         exit_pause(1, "Echec de chargement de la page d'authentification")
 
     rep_json = json.loads(rep)
-    if "L'identifiant ou le mot de passe n'est pas correct" in rep_json[1]['output']:
+    if "nom d'utilisateur ou mot de passe non reconnu" in rep_json[1]['output']:
         exit_pause(1, "L'identifiant ou le mot de passe n'est pas correct")
+    if rep_json[1]['title'] != 'Connexion réussie':
+        exit_pause(1, "Echec de connexion")
 
     # On recupere alors les cookies, donc on les insere dans l'en-tete http
     cookietab = []
