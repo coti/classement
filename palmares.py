@@ -147,7 +147,7 @@ def requete( opener, url, data, timeout=60 ):
             print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
             if hasattr(e, 'reason'):
                 print('Serveur inaccessible.')
-                print('Raison : ', ''.join(e.reason))
+                print('Raison : ', e.reason)
             if hasattr(e, 'code'):
                 print('Le serveur n\'a pas pu répondre à la requete.')
                 print('Code d\'erreur : ', e.code)
@@ -180,6 +180,9 @@ def authentification( login, password, opener, cj ):
 
     # On ouvre la page d'authentification
     rep = requete( opener, server + page, payload, timeout )
+    if not rep:
+        exit_pause(1, "Echec de chargement de la page d'authentification")
+
     rep_json = json.loads(rep)
     if "L'identifiant ou le mot de passe n'est pas correct" in rep_json[1]['output']:
         exit_pause(1, "L'identifiant ou le mot de passe n'est pas correct")
