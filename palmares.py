@@ -571,7 +571,7 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
 
     login = args.login if args.login else raw_input("Identifiant : ")
-    password = args.password if args.password else getpass("Mot de passe : ")
+    password = args.password if args.password else getpass(b"Mot de passe : ")
 
     licence = trimNumLicence(args.licence if args.licence else raw_input("Numero de licence : "))
     if licence is None:
