@@ -259,8 +259,9 @@ def getPalma(annee, joueur, joueurs, opener):
     timeout   = 8
 
     logging.debug('getPalma ' + joueur.nom)
+    start_time = time.time()
     rep = requete( opener, server+page+'?'+data, None, timeout )
-    logging.debug('getPalma ' + joueur.nom + ' OK')
+    logging.debug('getPalma {} OK ({:.0f} ms)'.format(joueur.nom, (time.time() - start_time) * 1000))
 
     r_ligne = r"<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
     lignes = re.findall( r_ligne, rep, re.DOTALL )
@@ -563,7 +564,11 @@ def main():
     parser.add_argument("-d", "--details", type=int, default=0,
                         help="Le nombre de niveaux de profondeurs pour lesquels on veut afficher"
                              "le détail du calcul. Par défaut : 0 (le résultat final uniquement)")
+    parser.add_argument('-v', '--verbeux', action='store_true', default=False)
     args = parser.parse_args()
+
+    if args.verbeux:
+        logging.basicConfig(level=logging.DEBUG)
 
     login = args.login if args.login else raw_input("Identifiant : ")
     password = args.password if args.password else getpass("Mot de passe : ")
