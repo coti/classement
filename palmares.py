@@ -288,7 +288,7 @@ def getPalmaRecursif(annee, joueur, opener, profondeurMax):
     # File des joueurs dont le palmarès reste à récupérer
     q = Queue()
 
-    # Identifiants des joueurs dont les palmarès ont été récupérés
+    # Identifiants des joueurs dont les palmarès ont été récupérés ou sont en cours de récupération
     id_palmares = set()
 
     # Map ID -> joueur pour n'avoir qu'un objet Joueur par joueur réel
@@ -323,7 +323,7 @@ def getPalmaRecursif(annee, joueur, opener, profondeurMax):
         t.start()
 
     # Attente de la fin de tous les threads
-    # q.join() empêche toute interruption par l'utilisateur, on vérifie donc
+    # q.join() empêche toute interruption par l'utilisateur, on vérifie donc plutôt
     # périodiquement si q est vide
     c = 0
     while not q.empty():
@@ -332,11 +332,19 @@ def getPalmaRecursif(annee, joueur, opener, profondeurMax):
             print('{} palmarès restants à récupérer'.format(q.qsize()))
         time.sleep(1)
 
-    # Même une fois q vide, il faut attendre que les derniers palmarès soient récupérés
-    print('Attente des derniers palmarès')
-    q.join()
+    # Même une fois q vide, il faut attendre que les derniers palmarès terminent d'être récupérés
+    max_time = time.time() + 120
+    while q.unfinished_tasks and time.time() < max_time:
+        c += 1
+        if c % 5 == 0:
+            print('Attente des derniers palmarès ({})'.format(q.unfinished_tasks))
+        time.sleep(1)
 
-    print('Palmarès récupérés pour {} joueurs'.format(len(id_palmares)))
+    if q.unfinished_tasks:
+        print('{} palmarès n\'ont pas pu être récupérés'.format(q.unfinished_tasks))
+
+    joueurs_avec_palmares = len(set(j.identifiant for j in joueurs.itervalues() if j.victoires or j.defaites))
+    print('Palmarès récupérés pour {} joueurs'.format(joueurs_avec_palmares))
     print()
 
 
