@@ -18,11 +18,10 @@
 from __future__ import print_function, unicode_literals
 
 import argparse
+import importlib
+import subprocess
 import urllib
-import urllib2
-import cookielib
 import re
-import socket
 import HTMLParser
 import logging
 import sys
@@ -33,14 +32,10 @@ import os
 import platform
 import json
 
-from _ssl import SSLError
 from getpass import getpass
 from threading import Thread
 from Queue import Queue
 from decimal import Decimal
-
-from gaecookie import GAECookieProcessor
-from urlgrabber import keepalive
 
 from classement import calculClassement, penaliteWO, nbWO
 
@@ -82,104 +77,47 @@ class Joueur(object):
         return "{} - {}".format(self.identifiant, self.nom)
 
 
-# Construit l'opener, l'objet urllib2 qui gere les comm http, et le cookiejar
-def buildOpener():
-    headers = {  "Connection" : "Keep-alive",
-                 #'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36',
-                 'User-Agent' : 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/4.0.3 Safari/531.9',
-                'Cache-Control' : 'max-age=0',
-                'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Origin' : server,
-                'Content-Type' : 'application/x-www-form-urlencoded',
-                'Referer' : server + 'espaceclic/connection.do',
-                'Accept-Encoding' : 'gzip,deflate,sdch',
-                'Accept-Language' : 'fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4'
-                }
+def requete(session, url, data=None, timeout=20, retries=4):
+    from requests.exceptions import HTTPError, Timeout, ConnectionError
 
-    policy = cookielib.DefaultCookiePolicy( rfc2965=True )
-    cj = cookielib.CookieJar( policy )
-    keepalive_handler = keepalive.HTTPSHandler( )
-    try:
-        opener = urllib2.build_opener( keepalive_handler, GAECookieProcessor( cj )  )
-    except urllib2.URLError as e:
-        print("URL error")
-        if hasattr(e, 'reason'):
-            print('Serveur inaccessible.')
-            print('Raison : ', e.reason)
-        if hasattr(e, 'code'):
-            print('Le serveur n\'a pas pu répondre à la requete.')
-            print('Code d\'erreur : ', e.code)
-            if e.code == 403:
-                print('Le serveur vous a refusé l\'accès')
-            if e.code == 404:
-                print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
-        exit_pause(1)
-    except urllib2.HTTPError as e:
-        print("HTTP error code ", e.code, " : ", e.reason)
-        exit_pause(1, "Vérifiez votre connexion, ou l\'état du serveur de la FFT")
-    except:
-        print("Build opener : Autre exception : ", sys.exc_type, sys.exc_value)
-        exit_pause(1)
-
-    t_headers = []
-    for k, v in headers.items():
-        t_headers.append( ( k, v ) )
-    opener.addheaders = t_headers 
-
-    return cj, opener
-
-def requete( opener, url, data, timeout=60 ):
-    if data is not None:
-        data = urllib.urlencode(data)
-
-    # Le timeout donné à opener.open n'est pas respecté. Il faut définir le default socket timeout
-    # qui par défaut est infini
-    socket.setdefaulttimeout(timeout)
-
-    retries = 5
     while retries > 0:
-        retries -= 1
+        logging.debug('requete: {}, data:{}, timeout: {}, retries:{}'.format(url, data, timeout, retries))
         try:
-            logging.debug('requete: {}, data:{}, timeout: {}, retries:{}'.format(url, data, timeout, retries))
-            rep = opener.open( url, data, timeout )
-            return rep.read().decode('utf-8')
-        except urllib2.URLError as e:
-            print("Verifiez votre connexion, ou l\'état du serveur de la FFT")
-            if hasattr(e, 'reason'):
-                print('Serveur inaccessible.')
-                print('Raison : ', e.reason)
-            if hasattr(e, 'code'):
-                print('Le serveur n\'a pas pu répondre à la requete.')
-                print('Code d\'erreur : ', e.code)
-                if e.code == 403:
-                    print('Le serveur vous a refusé l\'accès')
-                if e.code == 404:
-                    print('La page demandée n\'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?')
-        except socket.timeout as e:
-            print("Timeout -- connexion impossible au serveur de la FFT")
-        except SSLError as e:
-            if e.message == 'The read operation timed out':
-                # On reçoit cette exception en cas de timeout, pas la peine de la montrer
-                # à l'utilisateur
-                logging.debug("{} {}".format(sys.exc_type.__name__, e.message))
+            if data is not None:
+                reponse = session.post(url, data=data, timeout=timeout)
             else:
-                print("Autre exception : {} - {}".format(type(e).__name__, e.message))
+                reponse = session.get(url, timeout=timeout)
+            reponse.raise_for_status()  # Lève une HTTPError si le statut n'est pas OK
+            return reponse.text
+
+        except HTTPError as e:
+            print("Le serveur a répondu avec un code d'erreur:", e.message)
+            if e.response.status_code == 403:
+               print("Le serveur vous a refusé l'accès")
+            elif e.response.status_code == 404:
+               print("La page demandée n'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?")
+        except ConnectionError as e:
+            print("Erreur de connection au serveur:", e.message)
+            print("Verifiez votre connexion, ou l'état du serveur de la FFT")
+        except Timeout:
+            print("Timeout -- connexion impossible au serveur de la FFT")
         except KeyboardInterrupt:
             thread.interrupt_main()
         except Exception as e:
             print("Autre exception : {} - {}".format(type(e).__name__, e.message))
 
+        retries -= 1
+
 
 # S'authentifie aupres du serveur
-def authentification( login, password, opener, cj ):
+def authentification(login, password, session):
     print('Connexion au site de la FFT')
 
     page      = "/ajax_register/login/ajax"
     payload   = { 'form_id': 'user_login', 'name': login, 'pass': password }
-    timeout   = 20
 
     # On ouvre la page d'authentification
-    rep = requete( opener, server + page, payload, timeout )
+    rep = requete(session, server + page, data=payload, retries=2)
     if not rep:
         exit_pause(1, "Echec de chargement de la page d'authentification")
 
@@ -189,28 +127,16 @@ def authentification( login, password, opener, cj ):
     if rep_json[1]['title'] != 'Connexion réussie':
         exit_pause(1, "Echec de connexion")
 
-    # On recupere alors les cookies, donc on les insere dans l'en-tete http
-    cookietab = []
-    for c in cj:
-        cookietab.append( c.name + '=' + c.value )
-    myCookie = '; '.join( cookietab )
-
-    opener.addheaders.append( ( "Cache-Control", "no-cache=\"set-cookie, set-cookie2\"" ) )
-    opener.addheaders.append( ( "Cookie", myCookie ) )
-    
-    return
-
 
 # Retourne l'identifiant interne d'un licencie
-def getIdentifiant( opener, numLicence ):
+def getIdentifiant(session, numLicence):
     print('Récupération de l\'identifiant')
 
     page      = "/recherche-licencies"
     payload   = { 'numeroLicence' : numLicence }
     data      = urllib.urlencode( payload )
-    timeout   = 20
 
-    rep = requete( opener, server+page+'?'+data, None, timeout )
+    rep = requete(session, server + page + '?' + data, retries=2)
     if rep is None:
         exit_pause(1, "Erreur à la récupération de l'identifiant")
 
@@ -252,7 +178,7 @@ def getIdentifiant( opener, numLicence ):
 
 
 # Obtenir le palma d'un joueur d'identifiant donne
-def getPalma(annee, joueur, joueurs, opener):
+def getPalma(annee, joueur, joueurs, session):
     """
     :type joueur: Joueur
     :type joueurs: dict[str, Joueur]
@@ -265,7 +191,7 @@ def getPalma(annee, joueur, joueurs, opener):
 
     logging.debug('getPalma ' + joueur.nom)
     start_time = time.time()
-    rep = requete( opener, server+page+'?'+data, None, timeout )
+    rep = requete(session, server + page + '?' + data, timeout=timeout)
     logging.debug('getPalma {} OK ({:.0f} ms)'.format(joueur.nom, (time.time() - start_time) * 1000))
 
     r_ligne = r"<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
@@ -286,7 +212,7 @@ def getPalma(annee, joueur, joueurs, opener):
             joueur.defaites.append(r)
 
 
-def getPalmaRecursif(annee, joueur, opener, profondeurMax):
+def getPalmaRecursif(annee, joueur, session, profondeurMax):
     """
     :type joueur: Joueur
     """
@@ -302,7 +228,7 @@ def getPalmaRecursif(annee, joueur, opener, profondeurMax):
 
     def getAndEnqueue(joueur, profondeur):
         id_palmares.add(joueur.identifiant)
-        getPalma(annee, joueur, joueurs, opener)
+        getPalma(annee, joueur, joueurs, session)
         if profondeur < profondeurMax:
             for resultat in itertools.chain(joueur.victoires, joueur.defaites):
                 logging.debug('enqueue {} (P={})'.format(resultat.joueur.nom, profondeur + 1))
@@ -514,11 +440,13 @@ def recupClassement( login, password, LICENCE, profondeur, details_profondeur=0 
     :return:
     """
 
-    # On s'identifie et on obtient ses prores infos
-    cj, op = buildOpener()
-    authentification( login, password, op, cj )
+    import requests
+    session = requests.session()
 
-    nom, id, cl, sexe = getIdentifiant( op, LICENCE )
+    # On s'identifie et on obtient ses prores infos
+    authentification(login, password, session)
+
+    nom, id, cl, sexe = getIdentifiant(session, LICENCE )
 
     if id == '':
         exit_pause(1, "Impossible de récupérer l'identifiant")
@@ -531,7 +459,7 @@ def recupClassement( login, password, LICENCE, profondeur, details_profondeur=0 
     joueur = Joueur(nom, id, cl)
 
     # recuperation de son propre palma, et recursivement de celui des autres
-    getPalmaRecursif(millesime, joueur, op, profondeur)
+    getPalmaRecursif(millesime, joueur, session, profondeur)
 
     # calcul du nouveau classement
     new_cl, harm, s = classementJoueur(joueur, sexe, profondeur,
@@ -627,9 +555,32 @@ def exit_pause(status=0, error_message=""):
     sys.exit(status)
 
 
+def has_dependency(name):
+    try:
+        importlib.import_module(name)
+        return True
+    except ImportError:
+        return False
+
+
+def install_package(name):
+    print("Installation du package {}".format(name))
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', name])
+        print("Installation du package {} OK".format(name))
+    except subprocess.CalledProcessError:
+        print("Echec de l'installation du package {}".format(name))
+        exit_pause(1)
+
+
 if __name__ == "__main__" :
     if sys.version_info[0] != 2:
         exit_pause(1, "Erreur -- Fonctionne avec Python 2.x")
+
+    dependencies = ('requests',)
+    for package in dependencies:
+        if not has_dependency(package):
+            install_package(package)
 
     try:
         main()
