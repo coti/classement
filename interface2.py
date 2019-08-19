@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #coding: utf8
 
 """ Outil de recuperation du classement: interface graphique.
@@ -11,11 +11,15 @@
  " Version très très très alpha.
 """
 
-
 import sys
+
+if sys.version_info[0] != 3:
+    print("Erreur -- Fonctionne avec Python 3.x")
+    exit(1)
+
 import threading
-import Tkinter as tk
-import Queue
+import tkinter as tk
+import queue
 import signal
 import platform
 import palmares
@@ -129,8 +133,8 @@ def stopThread():
 def sighandler( signum, frame ):
     print( "Caught signal" )
     #    sys.exit()
-    import thread
-    thread.exit()
+    import _thread
+    _thread.exit()
     #raise ExitThreadNow
 
 class ExitThreadNow( Exception ):
@@ -169,7 +173,7 @@ class Std_redirector():
 class ThreadSafeText( tk.Text ):
     def __init__(self, master, **options):
         tk.Text.__init__(self, master, **options)
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.update_me()
 
     def write(self, line):
@@ -273,9 +277,6 @@ def main():
     
 
 if __name__ == "__main__" :
-    if sys.version_info[0] != 2:
-        exit_pause(1, "Erreur -- Fonctionne avec Python 2.x")
-
     try:
         main()
     except KeyboardInterrupt:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """ Outil de recuperation du classement.
@@ -14,22 +14,25 @@
  " Meilleure gestion des erreurs
 """
 
+import sys
 
-from __future__ import print_function, unicode_literals
+if sys.version_info[0] != 3:
+    print("Erreur -- Fonctionne avec Python 3.x")
+    exit(1)
 
 import argparse
 import urllib
 import re
-import HTMLParser
+import html
 import logging
 import itertools
 import time
-import thread
+import _thread
 import json
 
 from getpass import getpass
 from threading import Thread
-from Queue import Queue
+from queue import Queue
 from decimal import Decimal
 
 from classement import calculClassement
@@ -98,7 +101,7 @@ def requete(session, url, data=None, timeout=20, retries=4):
         except Timeout:
             print("Timeout -- connexion impossible au serveur de la FFT")
         except KeyboardInterrupt:
-            thread.interrupt_main()
+            _thread.interrupt_main()
         except Exception as e:
             print("Autre exception : {} - {}".format(type(e).__name__, e.message))
 
@@ -130,7 +133,7 @@ def getIdentifiant(session, numLicence):
 
     page      = "/recherche-licencies"
     payload   = { 'numeroLicence' : numLicence }
-    data      = urllib.urlencode( payload )
+    data      = urllib.parse.urlencode(payload)
 
     rep = requete(session, server + page + '?' + data, retries=2)
     if rep is None:
@@ -182,7 +185,7 @@ def getPalma(annee, joueur, joueurs, session):
 
     page      = "/simulation-classement/" + joueur.identifiant
     payload   = { 'millesime': annee }
-    data      = urllib.urlencode( payload )
+    data      = urllib.parse.urlencode(payload)
     timeout   = 8
 
     logging.debug('getPalma ' + joueur.nom)
@@ -271,7 +274,7 @@ def getPalmaRecursif(annee, joueur, session, profondeurMax):
     if q.unfinished_tasks:
         print('{} palmarès n\'ont pas pu être récupérés'.format(q.unfinished_tasks))
 
-    joueurs_avec_palmares = len(set(j.identifiant for j in joueurs.itervalues() if j.victoires or j.defaites))
+    joueurs_avec_palmares = len(set(j.identifiant for j in joueurs.values() if j.victoires or j.defaites))
     print('Palmarès récupérés pour {} joueurs'.format(joueurs_avec_palmares))
     print()
 
@@ -296,7 +299,7 @@ def extractInfo(ligne, joueurs):
         return None
 
     # Il peut y avoir des caractères spéciaux à décoder dans le nom
-    nom = HTMLParser.HTMLParser().unescape(cell_matches[0]).strip() or '(anonyme)'
+    nom = html.unescape(cell_matches[0]).strip() or '(anonyme)'
 
     # classement du joueur
     clmt = cell_matches[1]
@@ -372,7 +375,7 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     :type joueur: Joueur
     """
 
-    if joueur.calcul_fait >= profondeur:
+    if joueur.calcul_fait and joueur.calcul_fait >= profondeur:
         logging.debug("Calcul déjà fait pour {} en profondeur {} ou plus ({})".format(joueur.nom, profondeur, joueur.calcul_fait))
         nc, harm = joueur.classement_calcul
         return nc, harm, None
@@ -406,8 +409,7 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     impression = profondeur >= details_profondeur
 
     if impression:
-        print("Calcul du classement de {} (profondeur {})".format(joueur.nom, profondeur)
-              .encode(sys.stdout.encoding, errors='replace'))
+        print("Calcul du classement de {} (profondeur {})".format(joueur.nom, profondeur))
 
     # nb de victoires en championnat indiv
     champ = nbVictoiresChamp(joueur.victoires)
@@ -420,7 +422,7 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     if impression:
         # sorties
         s = strClassement(joueur, cl, harm)
-        print(s.encode(sys.stdout.encoding, errors='replace'))
+        print(s)
     else:
         s = None
 
@@ -464,9 +466,9 @@ def recupClassement( login, password, LICENCE, profondeur, details_profondeur=0 
     print("Nouveau classement: ", harm, " (après harmonisation) - ", new_cl, " (calculé)")
 
     # on crache la sortie du joueur dans un fichier
-    fn = str( LICENCE ) + "_" + str( nom ) + "_p" + str( profondeur ) + ".txt"
+    fn = "{}_{}_p{}.txt".format(LICENCE, nom, profondeur)
     fd = open( fn, "w" )
-    fd.write( s.encode('utf-8') )
+    fd.write(s)
     fd.close()
 
     return
@@ -499,16 +501,16 @@ def main():
     if args.verbeux:
         logging.basicConfig(level=logging.DEBUG)
 
-    login = args.login if args.login else raw_input("Identifiant : ")
-    password = args.password if args.password else getpass(b"Mot de passe : ")
+    login = args.login if args.login else input("Identifiant : ")
+    password = args.password if args.password else getpass("Mot de passe : ")
 
-    licence = trimNumLicence(args.licence if args.licence else raw_input("Numero de licence : "))
+    licence = trimNumLicence(args.licence if args.licence else input("Numero de licence : "))
     if licence is None:
         print("Erreur de saisie du numéro de licence")
         return -1
 
     try:
-        profondeur = args.profondeur if args.profondeur is not None else int(raw_input("Profondeur : "))
+        profondeur = args.profondeur if args.profondeur is not None else int(input("Profondeur : "))
     except:
         print('Erreur de saisie de la profondeur')
         return -1
@@ -516,8 +518,7 @@ def main():
     if profondeur > 2 and not args.force:
         print("Vous avez choisi une profondeur importante ({}).\n"
               "Cela va générer un très grand nombre de requêtes au site de la FFT.\n"
-              "Êtes-vous sûr de vouloir continuer ?".format(profondeur)
-              .encode(sys.stdout.encoding, errors='replace'))
+              "Êtes-vous sûr de vouloir continuer ?".format(profondeur))
         if not confirmation():
             return -1
 
@@ -526,9 +527,6 @@ def main():
 
 
 if __name__ == "__main__" :
-    if sys.version_info[0] != 2:
-        exit_pause(1, "Erreur -- Fonctionne avec Python 2.x")
-
     check_dependencies()
 
     try:

@@ -1,7 +1,5 @@
 # coding=utf-8
 
-from __future__ import print_function, unicode_literals
-
 import importlib
 import os
 import platform
@@ -12,7 +10,7 @@ import subprocess
 def confirmation():
     oui = {"oui", "o", ""}
     non = {"non", "n"}
-    choix = raw_input("(oui/non) ").lower()
+    choix = input("(oui/non) ").lower()
     if choix in oui:
         return True
     elif choix in non:
@@ -30,7 +28,7 @@ def exit_pause(status=0, error_message=""):
         # Si le script a été lancé en dehors de cmd (en double-cliquant), on pause l'exécution
         # pour laisser la possibilité de lire la sortie.
         # La variable PROMPT n'est présente qu'avec cmd (https://stackoverflow.com/q/558776/119323)
-        raw_input("Appuyez sur une touche pour terminer")
+        input("Appuyez sur une touche pour terminer")
 
     sys.exit(status)
 

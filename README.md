@@ -15,7 +15,7 @@ L'outil proposé ici permet d'aller récupérer récursivement les palmarès de vos a
 
 ## Prérequis
 
-Il suffit de disposer d'un interpréteur Python. Les bibliothèques utilisées sont incluses dans la distribution standard Python 2.7 ou installées automatiquement au lancement du script. On suppose ici que l'interpréteur est situé dans /usr/bin/python.
+Il suffit de disposer d'un interpréteur Python. Les bibliothèques utilisées sont incluses dans la distribution standard Python 3 ou installées automatiquement au lancement du script. On suppose ici que l'interpréteur est situé dans /usr/bin/python.
 
 ## Utilisation
 
@@ -29,15 +29,15 @@ Dans un terminal, taper :
 
 ### Sous Windows
 
-Python 2.7 peut être téléchargé ici : https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi
+Python 3 peut être téléchargé ici : https://www.python.org/downloads/windows/
 
 * lancer l'invite de commandes
 * remonter dans le dossier C: grâce à la ligne de commande cd ".."
 * aller dans le dossier d'installation python, par exemple
  ``` 
-cd "Python27" 
+cd "Python37"
 ```
-si Python est installé dans C://Python27)
+si Python est installé dans C://Python37)
 * entrer la ligne de commande 
 ```
 python.exe palmares.py
