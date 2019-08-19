@@ -18,18 +18,13 @@
 from __future__ import print_function, unicode_literals
 
 import argparse
-import importlib
-import subprocess
 import urllib
 import re
 import HTMLParser
 import logging
-import sys
 import itertools
 import time
 import thread
-import os
-import platform
 import json
 
 from getpass import getpass
@@ -37,7 +32,8 @@ from threading import Thread
 from Queue import Queue
 from decimal import Decimal
 
-from classement import calculClassement, penaliteWO, nbWO
+from classement import calculClassement
+from util import *
 
 millesime = 2019
 server    = "https://tenup.fft.fr"
@@ -529,58 +525,11 @@ def main():
     return
 
 
-def confirmation():
-    oui = {"oui", "o", ""}
-    non = {"non", "n"}
-    choix = raw_input("(oui/non) ").lower()
-    if choix in oui:
-        return True
-    elif choix in non:
-        return False
-    else:
-        print("Choix invalide. Entrez oui ou non.")
-        return confirmation()
-
-
-def exit_pause(status=0, error_message=""):
-    if error_message:
-        print(error_message)
-
-    if platform.system() == "Windows" and "PROMPT" not in os.environ:
-        # Si le script a été lancé en dehors de cmd (en double-cliquant), on pause l'exécution
-        # pour laisser la possibilité de lire la sortie.
-        # La variable PROMPT n'est présente qu'avec cmd (https://stackoverflow.com/q/558776/119323)
-        raw_input("Appuyez sur une touche pour terminer")
-
-    sys.exit(status)
-
-
-def has_dependency(name):
-    try:
-        importlib.import_module(name)
-        return True
-    except ImportError:
-        return False
-
-
-def install_package(name):
-    print("Installation du package {}".format(name))
-    try:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', name])
-        print("Installation du package {} OK".format(name))
-    except subprocess.CalledProcessError:
-        print("Echec de l'installation du package {}".format(name))
-        exit_pause(1)
-
-
 if __name__ == "__main__" :
     if sys.version_info[0] != 2:
         exit_pause(1, "Erreur -- Fonctionne avec Python 2.x")
 
-    dependencies = ('requests',)
-    for package in dependencies:
-        if not has_dependency(package):
-            install_package(package)
+    check_dependencies()
 
     try:
         main()
