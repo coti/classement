@@ -20,7 +20,7 @@ import signal
 import platform
 import palmares
 # import palmares_dummy as palmares
-from util import check_dependencies
+from util import check_dependencies, exit_pause
 
 # Global variables, uggly but avoids a wrapper or a functor
 # or a higher level function or whatever
@@ -271,19 +271,6 @@ def main():
 
     window.mainloop()
     
-
-def exit_pause(status=0, error_message=""):
-    if error_message:
-        print(error_message)
-
-    if platform.system() == "Windows" and "PROMPT" not in os.environ:
-        # Si le script a été lancé en dehors de cmd (en double-cliquant), on pause l'exécution
-        # pour laisser la possibilité de lire la sortie.
-        # La variable PROMPT n'est présente qu'avec cmd (https://stackoverflow.com/q/558776/119323)
-        raw_input("Appuyez sur une touche pour terminer")
-
-    sys.exit(status)
-
 
 if __name__ == "__main__" :
     if sys.version_info[0] != 2:
