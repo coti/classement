@@ -20,6 +20,7 @@ import signal
 import platform
 import palmares
 # import palmares_dummy as palmares
+from util import check_dependencies
 
 # Global variables, uggly but avoids a wrapper or a functor
 # or a higher level function or whatever
@@ -214,6 +215,7 @@ def main():
     global lic_entr
     global prof_entr
 
+    check_dependencies()
     displayWarning()
     
     signal.signal( signal.SIGUSR1, sighandler )
