@@ -193,7 +193,8 @@ def afficheClassement( origine, calcul, harmonise, impression=True ):
 
 
 def match_list_str(match_list):
-    g = (classement + (' ({})'.format(coeff) if coeff != 1 else '') for classement, _, coeff in match_list)
+    g = (classement + (' ({})'.format(coeff) if coeff != 1 else '') + (' (WO)' if wo else '')
+         for classement, wo, coeff in match_list)
     return ', '.join(g)
 
 
