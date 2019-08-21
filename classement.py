@@ -55,7 +55,8 @@ points = { -3 : 15,
             1 : 90,
             2 : 120 }
 
-maintienF = { "NC" : 0,
+maintienF = { "ND" : 0,
+              "NC" : 0,
               "40" : 0,
               "30/5" : 6,
               "30/4" : 70,
@@ -81,7 +82,8 @@ maintienF = { "NC" : 0,
               "Top 60/Top 100" : 860,
               "Top 40/Top 60" : 920}
 
-maintienH = { "NC" : 0,
+maintienH = { "ND" : 0,
+              "NC" : 0,
               "40" : 0,
               "30/5" : 6,
               "30/4" : 70,
@@ -107,7 +109,8 @@ maintienH = { "NC" : 0,
               "Top 60/Top 100" : 1010,
               "Top 40/Top 60" : 1110}
 
-victoiresF = { "NC" : 6,
+victoiresF = { "ND" : 6,
+               "NC" : 6,
                "40" : 6,
                "30/5" : 6,
                "30/4" : 6,
@@ -133,7 +136,8 @@ victoiresF = { "NC" : 6,
                "Top 60/Top 100" : 17,
                "Top 40/Top 60" : 19}
 
-victoiresH = { "NC" : 6,
+victoiresH = { "ND" : 6,
+               "NC" : 6,
                "40" : 6,
                "30/5" : 6,
                "30/4" : 6,
@@ -159,7 +163,8 @@ victoiresH = { "NC" : 6,
                "Top 60/Top 100" : 20,
                "Top 40/Top 60" : 22}
 
-serie = { "NC" : 4,
+serie = { "ND" : 4,
+          "NC" : 4,
           "40" : 4,
           "30/5" : 4,
           "30/4" : 4,
