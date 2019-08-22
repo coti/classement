@@ -18,6 +18,7 @@ class TestClassement(unittest.TestCase):
         self.assertEqual("Top 40/Top 60", normalisation("N51", "H"))
         self.assertEqual("Top 60/Top 100", normalisation("N51", "F"))
         self.assertEqual("Top 40/Top 60", normalisation("T40", "H"))
+        self.assertEqual("Top 40/Top 60", normalisation("Top 40/Top 60", "H"))
         self.assertEqual("NC", normalisation("NC (2014)", "H"))
 
     def test_normalisationTab(self):
