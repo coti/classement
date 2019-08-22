@@ -55,7 +55,8 @@ points = { -3 : 15,
             1 : 90,
             2 : 120 }
 
-maintienF = { "NC" : 0,
+maintienF = { "ND" : 0,
+              "NC" : 0,
               "40" : 0,
               "30/5" : 6,
               "30/4" : 70,
@@ -81,7 +82,8 @@ maintienF = { "NC" : 0,
               "Top 60/Top 100" : 860,
               "Top 40/Top 60" : 920}
 
-maintienH = { "NC" : 0,
+maintienH = { "ND" : 0,
+              "NC" : 0,
               "40" : 0,
               "30/5" : 6,
               "30/4" : 70,
@@ -107,7 +109,8 @@ maintienH = { "NC" : 0,
               "Top 60/Top 100" : 1010,
               "Top 40/Top 60" : 1110}
 
-victoiresF = { "NC" : 6,
+victoiresF = { "ND" : 6,
+               "NC" : 6,
                "40" : 6,
                "30/5" : 6,
                "30/4" : 6,
@@ -133,7 +136,8 @@ victoiresF = { "NC" : 6,
                "Top 60/Top 100" : 17,
                "Top 40/Top 60" : 19}
 
-victoiresH = { "NC" : 6,
+victoiresH = { "ND" : 6,
+               "NC" : 6,
                "40" : 6,
                "30/5" : 6,
                "30/4" : 6,
@@ -159,7 +163,8 @@ victoiresH = { "NC" : 6,
                "Top 60/Top 100" : 20,
                "Top 40/Top 60" : 22}
 
-serie = { "NC" : 4,
+serie = { "ND" : 4,
+          "NC" : 4,
           "40" : 4,
           "30/5" : 4,
           "30/4" : 4,
@@ -193,7 +198,8 @@ def afficheClassement( origine, calcul, harmonise, impression=True ):
 
 
 def match_list_str(match_list):
-    g = (classement + (' ({})'.format(coeff) if coeff != 1 else '') for classement, _, coeff in match_list)
+    g = (classement + (' ({})'.format(coeff) if coeff != 1 else '') + (' (WO)' if wo else '')
+         for classement, wo, coeff in match_list)
     return ', '.join(g)
 
 
@@ -460,30 +466,30 @@ def classementPropose1erTour( myVictoires, myClassement ):
         return myClassement
 
 # Normalise un classement
-def normalisation( cl, sexe ):
-    classement = cl[0]
+def normalisation(classement, sexe):
+    if classement in classementNumerique:
+        # Le classement est déjà normalisé : rien à faire
+        # Cela évite en particulier l'erreur de transformer un "Top 60/Top 100" en "Top"
+        return classement
+
     c = classement.split( ) # certains classements ont des precisions, e.g. 'NC (2014)' -> garder uniquement la 1ere partie
     if len( c ) > 1:
         classement = c[0]
-        cl = (c[0], cl[1], cl[2])
-    if len( classement ) < 2:
-        return cl
-    o = classement
     if estNumerote( classement ):
         # on est sur un numerote
         s = classement[1:]
         n = int( s )
         if 'H' == sexe:
             if n <= 60:
-                o = "Top 40/Top 60"
+                classement = "Top 40/Top 60"
             else:
-                o = "Top 60/Top 100"
+                classement = "Top 60/Top 100"
         else:
             if n <= 40:
-                o = "Top 40/Top 60"
+                classement = "Top 40/Top 60"
             else:
-                o = "Top 60/Top 100"
-    return o, cl[1], cl[2]
+                classement = "Top 60/Top 100"
+    return classement
 
 # determine si le joueur est numéroté
 def estNumerote( classement ):
@@ -492,9 +498,8 @@ def estNumerote( classement ):
 # Conversion des numerotes en "Top 40/Top 60" ou "Top 60/Top 100"
 def normalisationTab( tab, sexe ):
     tabSortie = []
-    for c in tab:
-        o = normalisation( c, sexe )
-        tabSortie.append( o )
+    for classement, wo, coeff in tab:
+        tabSortie.append((normalisation(classement, sexe), wo, coeff))
     return tabSortie
 
 # Compter le nombre de wo
