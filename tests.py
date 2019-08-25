@@ -24,6 +24,12 @@ class TestClassement(unittest.TestCase):
     def test_normalisationTab(self):
         self.assertEqual([("Top 40/Top 60", False, 1)], normalisationTab([("N51", False, 1)], "H"))
 
+    def test_nbWO(self):
+        self.assertEqual(0, nbWO([]))
+        self.assertEqual(0, nbWO([("NC", False, 1)]))
+        self.assertEqual(1, nbWO([("NC", True, 1)]))
+        self.assertEqual(1, nbWO([("NC", False, 1), ("NC", True, 1)]))
+
 
 if __name__ == '__main__':
     unittest.main()

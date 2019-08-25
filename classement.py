@@ -504,11 +504,7 @@ def normalisationTab( tab, sexe ):
 
 # Compter le nombre de wo
 def nbWO( tab ):
-    n = 0
-    for t in tab:
-        if t[1]:
-            n = n + 1
-    return n
+    return sum(1 for _, wo, _ in tab if wo)
 
 # Insertion de la penalite wo : a partir de 3, tout wo compte comme une defaite significative
 def penaliteWO( defaites, impression=True ):
