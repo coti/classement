@@ -90,20 +90,20 @@ def requete(session, url, data=None, timeout=20, retries=4):
             return reponse.text
 
         except HTTPError as e:
-            print("Le serveur a répondu avec un code d'erreur:", e.message)
+            print("Le serveur a répondu avec un code d'erreur:", e)
             if e.response.status_code == 403:
                print("Le serveur vous a refusé l'accès")
             elif e.response.status_code == 404:
                print("La page demandée n'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?")
         except ConnectionError as e:
-            print("Erreur de connection au serveur:", e.message)
+            print("Erreur de connection au serveur:", e)
             print("Verifiez votre connexion, ou l'état du serveur de la FFT")
         except Timeout:
             print("Timeout -- connexion impossible au serveur de la FFT")
         except KeyboardInterrupt:
             _thread.interrupt_main()
         except Exception as e:
-            print("Autre exception : {} - {}".format(type(e).__name__, e.message))
+            print("Autre exception : {} - {}".format(type(e).__name__, e))
 
         retries -= 1
 
