@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -14,9 +14,6 @@
  " - Prise en compte des formats courts
  " - Joli formattage de sortie
   """
-
-
-from __future__ import print_function, unicode_literals
 
 import re
 
@@ -435,9 +432,9 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
     if grosse == "Top 60/Top 100" or grosse == "Top 40/Top 60":
         return "Top 40/Top 60"
     else:
-        for( k, v ) in classementNumerique.iteritems():
+        for k, v  in classementNumerique.items():
             if( k == grosse ):
-                for( k_, v_ ) in classementNumerique.iteritems():
+                for k_, v_  in classementNumerique.items():
                     if( v_ == v + E ):
                         return k_
 
@@ -448,7 +445,7 @@ def echelonInferieur( myClassement ):
     if( v == 0 ):
         return 0
     
-    for( k_, v_ ) in classementNumerique.iteritems():
+    for k_, v_ in classementNumerique.items():
         if( v_ == v - 1 ):
             return k_
 
@@ -643,7 +640,7 @@ def test():
         fd_d = open( file_def, 'r' )
     except:
         import sys
-        print("Erreur ouverture", sys.exc_type, sys.exc_value)
+        print("Erreur ouverture", sys.exc_info()[0], sys.exc_info()[1])
 
 
     try:
@@ -689,7 +686,7 @@ def test():
     except:    
 
         import sys
-        print("Erreur lecture", sys.exc_type, sys.exc_value)
+        print("Erreur lecture", sys.exc_info()[0], sys.exc_info()[1])
             
         fd_v.close()
         fd_d.close()
@@ -755,7 +752,7 @@ def main():
 
 if __name__ == "__main__":
     import sys
-    if sys.version_info[0] != 2:
-        print("Erreur -- Fonctionne avec Python 2.x")
+    if sys.version_info[0] != 3:
+        print("Erreur -- Fonctionne avec Python 3.x")
         exit( -1 )
     main()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #coding: utf8
 
 """ Outil de recuperation du classement: interface graphique.
@@ -11,15 +11,20 @@
  " Version très très très alpha.
 """
 
-
 import sys
+
+if sys.version_info[0] != 3:
+    print("Erreur -- Fonctionne avec Python 3.x")
+    exit(1)
+
 import threading
-import Tkinter as tk
-import Queue
+import tkinter as tk
+import queue
 import signal
 import platform
 import palmares
 # import palmares_dummy as palmares
+from util import check_dependencies, exit_pause
 
 # Global variables, uggly but avoids a wrapper or a functor
 # or a higher level function or whatever
@@ -128,8 +133,8 @@ def stopThread():
 def sighandler( signum, frame ):
     print( "Caught signal" )
     #    sys.exit()
-    import thread
-    thread.exit()
+    import _thread
+    _thread.exit()
     #raise ExitThreadNow
 
 class ExitThreadNow( Exception ):
@@ -168,7 +173,7 @@ class Std_redirector():
 class ThreadSafeText( tk.Text ):
     def __init__(self, master, **options):
         tk.Text.__init__(self, master, **options)
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.update_me()
 
     def write(self, line):
@@ -214,6 +219,7 @@ def main():
     global lic_entr
     global prof_entr
 
+    check_dependencies()
     displayWarning()
     
     signal.signal( signal.SIGUSR1, sighandler )
@@ -270,23 +276,7 @@ def main():
     window.mainloop()
     
 
-def exit_pause(status=0, error_message=""):
-    if error_message:
-        print(error_message)
-
-    if platform.system() == "Windows" and "PROMPT" not in os.environ:
-        # Si le script a été lancé en dehors de cmd (en double-cliquant), on pause l'exécution
-        # pour laisser la possibilité de lire la sortie.
-        # La variable PROMPT n'est présente qu'avec cmd (https://stackoverflow.com/q/558776/119323)
-        raw_input("Appuyez sur une touche pour terminer")
-
-    sys.exit(status)
-
-
 if __name__ == "__main__" :
-    if sys.version_info[0] != 2:
-        exit_pause(1, "Erreur -- Fonctionne avec Python 2.x")
-
     try:
         main()
     except KeyboardInterrupt:
