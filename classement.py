@@ -15,6 +15,7 @@
  " - Joli formattage de sortie
   """
 
+import math
 import re
 
 classementNumerique = { "S"  : -1,
@@ -200,6 +201,17 @@ def match_list_str(match_list):
     return ', '.join(g)
 
 
+def arrondi(num):
+    """Implémentation de l'arrondi particulier pour le V-E-2I-5G.
+
+    0.5 doit être arrondi à 1 et non 0.
+    -1.5 à -1 et non -2
+    """
+    if abs(math.modf(num)[0]) == 0.5:
+        return int(math.ceil(num))
+    return int(round(num))
+
+
 # calcule le V - E - 2I - 5G
 def VE2I5G(classement, victoires, defaites, impression=False):
     def sum_coeff(match_list):
@@ -222,7 +234,7 @@ def VE2I5G(classement, victoires, defaites, impression=False):
         print("I = ", i, "(Nb de défaites à échelon -1) :", match_list_str(lstI))
         print("G = ", g, "(Nb de défaites à échelons <= -2 et par w.o à partir du 3e) :", match_list_str(lstG))
 
-    return int(round(v - e - 2 * i - 5 * g))
+    return arrondi(v - e - 2 * i - 5 * g)
 
 
 # Calcule le nb de defaites E echelons en-dessous

@@ -50,6 +50,70 @@ class TestClassement(unittest.TestCase):
         self.assertFalse(absenceDef([("4/6", False, 1), ("15", False, 1)], "15"))  # 2 défaites dont une à classement égal
         self.assertTrue(absenceDef([("30/5", True, 1)], "15"))  # Les défaites par WO ne comptent pas
 
+    def test_lstInf(self):
+        d_15 = ("15", False, 1)
+        d_15_1 = ("15/1", False, 1)
+        d_4_6 = ("4/6", False, 1)
+        d_wo = ("30", True, 1)
+        d_wo_3 = ("S", True, 1)
+
+        self.assertEqual([], lstInf("15", [], 0))  # Aucune défaite
+
+        # Calcul des défaites à échelon égal
+        self.assertEqual([], lstInf("15", [d_15_1], 0))  # Défaite à échelon -1 : ne compte pas
+        self.assertEqual([d_15], lstInf("15", [d_15], 0))  # Défaite à échelon égal
+        self.assertEqual([], lstInf("15", [d_4_6], 0))  # Défaite à échelon supérieur : ne compte pas
+        self.assertEqual([], lstInf("15", [d_wo], 0))  # Défaite par WO : ne compte pas
+
+        # Calcul des défaites à échelon -1
+        self.assertEqual([d_15_1], lstInf("15", [d_15_1], 1))  # Défaite à échelon -1
+        self.assertEqual([], lstInf("15", [d_15], 1))  # Défaite à échelon égal : ne compte pas
+        self.assertEqual([], lstInf("15", [d_4_6], 1))  # Défaite à échelon supérieur : ne compte pas
+        self.assertEqual([], lstInf("15", [d_wo], 1))  # Défaite par WO : ne compte pas
+
+        # Calcul des défaites à échelon -2 ou moins
+        self.assertEqual([d_15_1], lstInf("5/6", [d_15_1], -1))  # Défaite à échelon -2
+        self.assertEqual([], lstInf("5/6", [d_15], -1))  # Défaite à échelon -1 : ne compte pas
+        self.assertEqual([], lstInf("5/6", [d_4_6], -1))  # Défaite à échelon supérieur : ne compte pas
+        self.assertEqual([], lstInf("5/6", [d_wo], -1))  # Défaite par WO : ne compte pas
+
+        # Les WO à partir du 3ème (classement "S") comptent comme une défaite à -2
+        self.assertEqual([], lstInf("15", [d_wo_3], 0))
+        self.assertEqual([], lstInf("15", [d_wo_3], 1))
+        self.assertEqual([d_wo_3], lstInf("15", [d_wo_3], -1))
+
+    def test_arrondi(self):
+        self.assertEqual(0, arrondi(0))
+        self.assertEqual(1, arrondi(1))
+        self.assertEqual(0, arrondi(0.4))
+        self.assertEqual(1, arrondi(0.5))
+        self.assertEqual(1, arrondi(0.6))
+        self.assertEqual(0, arrondi(-0.5))
+        self.assertEqual(-1, arrondi(-0.6))
+        self.assertEqual(-1, arrondi(-0.9))
+        self.assertEqual(-1, arrondi(-1))
+        self.assertEqual(-1, arrondi(-1.5))
+        self.assertEqual(-2, arrondi(-1.6))
+
+    def test_VE2I5G(self):
+        victoires = [("15", False, 1)]
+
+        # Défaites à coefficients entiers
+        defaites = [("15", False, 1), ("15/1", False, 1), ("15/2", False, 1)]
+        self.assertEqual(-7, VE2I5G("15", victoires, defaites))
+        self.assertEqual(-2, VE2I5G("15/1", victoires, defaites))
+        self.assertEqual(0, VE2I5G("15/2", victoires, defaites))
+
+        # Défaites à coefficients non entiers
+        defaites_coeff = [("15", False, 0.7), ("15/1", False, 0.6), ("15/2", False, 0.5)]
+        self.assertEqual(-3, VE2I5G("15", victoires, defaites_coeff))    # -3.4 -> -3
+        self.assertEqual(-1, VE2I5G("15/1", victoires, defaites_coeff))  # -0.6 -> -1
+        self.assertEqual(1, VE2I5G("15/2", victoires, defaites_coeff))   # 0.5 -> 1
+
+        # Un WO compte pour les victoires mais pas pour les défaites
+        self.assertEqual(1, VE2I5G("15", [("15", True, 1)], []))  # Victoire WO
+        self.assertEqual(0, VE2I5G("15", [], [("15", True, 1)]))  # Défaite WO
+
 
 if __name__ == '__main__':
     unittest.main()
