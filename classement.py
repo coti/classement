@@ -18,7 +18,7 @@
 import re
 
 classementNumerique = { "S"  : -1,
-                        "ND" : 0,
+                        "ND" : -1,
                         "NC" : 0,
                         "40" : 1,
                         "30/5" : 2,
@@ -442,12 +442,10 @@ def plusGrosseVictoirePlusN( myVictoires, E ):
 def echelonInferieur( myClassement ):
     v = classementNumerique[ myClassement ]
 
-    if( v == 0 ):
-        return 0
-    
-    for k_, v_ in classementNumerique.items():
-        if( v_ == v - 1 ):
-            return k_
+    if v <= 0:
+        return "NC"
+
+    return next(classement for classement, valeur in classementNumerique.items() if valeur == v - 1)
 
 # Classement propose au premier tour
 def classementPropose1erTour( myVictoires, myClassement ):

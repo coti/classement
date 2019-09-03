@@ -30,6 +30,16 @@ class TestClassement(unittest.TestCase):
         self.assertEqual(1, nbWO([("NC", True, 1)]))
         self.assertEqual(1, nbWO([("NC", False, 1), ("NC", True, 1)]))
 
+    def test_echelonInferieur(self):
+        self.assertEqual("NC", echelonInferieur("NC"))
+        self.assertEqual("NC", echelonInferieur("ND"))
+        self.assertEqual("NC", echelonInferieur("40"))
+        self.assertEqual("40", echelonInferieur("30/5"))
+        self.assertEqual("30/5", echelonInferieur("30/4"))
+        self.assertEqual("-15", echelonInferieur("Top 60/Top 100"))
+        self.assertEqual("Top 60/Top 100", echelonInferieur("Top 40/Top 60"))
+        self.assertRaises(KeyError, lambda: echelonInferieur("toto"))
+
 
 if __name__ == '__main__':
     unittest.main()
