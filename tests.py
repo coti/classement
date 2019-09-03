@@ -40,6 +40,14 @@ class TestClassement(unittest.TestCase):
         self.assertEqual("Top 60/Top 100", echelonInferieur("Top 40/Top 60"))
         self.assertRaises(KeyError, lambda: echelonInferieur("toto"))
 
+    def test_absenceDef(self):
+        self.assertTrue(absenceDef([], "15"))  # Aucune défaite
+        self.assertTrue(absenceDef([("4/6", False, 1)], "15"))  # Défaite à classement supérieur
+        self.assertFalse(absenceDef([("15", False, 1)], "15"))  # Défaite à classement égal
+        self.assertFalse(absenceDef([("15/1", False, 1)], "15"))  # Défaite à classement inférieur
+        self.assertFalse(absenceDef([("4/6", False, 1), ("15", False, 1)], "15"))  # 2 défaites dont une à classement égal
+        self.assertTrue(absenceDef([("30/5", True, 1)], "15"))  # Les défaites par WO ne comptent pas
+
 
 if __name__ == '__main__':
     unittest.main()

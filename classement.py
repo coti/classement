@@ -523,12 +523,7 @@ def penaliteWO( defaites, impression=True ):
 
 # Absence de defaite significative ?
 def absenceDef( defaites, classement ):
-    for d in defaites:
-#        if 'S' != d: # on exclu les wo
-        if d[1] == False:
-            if( classementNumerique[ d[0] ] <= ( classementNumerique[ classement ] ) ):
-                return False
-    return True
+    return not any(classementNumerique[cl_d] <= classementNumerique[classement] for cl_d, wo, _ in defaites if not wo)
 
 # Victoires comptant : on supprime les wo
 def victoiresQuiComptent( vic, nb ):
