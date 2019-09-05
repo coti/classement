@@ -131,6 +131,9 @@ class TestClassement(unittest.TestCase):
         self.assertEqual(11, nbVictoiresComptant("1/6", "M", -1))
         self.assertEqual(17, nbVictoiresComptant("1/6", "M", 41))
 
+        self.assertEqual(12, nbVictoiresComptant("0", "M", -1))
+        self.assertEqual(9, nbVictoiresComptant("0", "M", -81))
+
         self.assertEqual(19, nbVictoiresComptant("-15", "M", -100))  # Cas de sanction géré distinctement
         self.assertEqual(14, nbVictoiresComptant("-15", "M", -81))
         self.assertEqual(19, nbVictoiresComptant("-15", "M", -1))
