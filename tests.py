@@ -114,6 +114,33 @@ class TestClassement(unittest.TestCase):
         self.assertEqual(1, VE2I5G("15", [("15", True, 1)], []))  # Victoire WO
         self.assertEqual(0, VE2I5G("15", [], [("15", True, 1)]))  # Défaite WO
 
+    def test_nbVictoiresComptant(self):
+        self.assertEqual(6, nbVictoiresComptant("30/1", "M", -1))
+        self.assertEqual(7, nbVictoiresComptant("30/1", "M", 0))
+        self.assertEqual(8, nbVictoiresComptant("30/1", "M", 5))
+        self.assertEqual(12, nbVictoiresComptant("30/1", "M", 25))
+
+        self.assertEqual(8, nbVictoiresComptant("15/1", "M", -1))
+        self.assertEqual(9, nbVictoiresComptant("15/1", "M", 0))
+        self.assertEqual(10, nbVictoiresComptant("15/1", "M", 8))
+
+        self.assertEqual(11, nbVictoiresComptant("1/6", "M", -100))  # Cas de sanction géré distinctement
+        self.assertEqual(8, nbVictoiresComptant("1/6", "M", -41))
+        self.assertEqual(9, nbVictoiresComptant("1/6", "M", -40))
+        self.assertEqual(10, nbVictoiresComptant("1/6", "M", -25))
+        self.assertEqual(11, nbVictoiresComptant("1/6", "M", -1))
+        self.assertEqual(17, nbVictoiresComptant("1/6", "M", 41))
+
+        self.assertEqual(19, nbVictoiresComptant("-15", "M", -100))  # Cas de sanction géré distinctement
+        self.assertEqual(14, nbVictoiresComptant("-15", "M", -81))
+        self.assertEqual(19, nbVictoiresComptant("-15", "M", -1))
+        self.assertEqual(26, nbVictoiresComptant("-15", "M", 45))
+
+        self.assertEqual(17, nbVictoiresComptant("-15", "F", -100))  # Cas de sanction géré distinctement
+        self.assertEqual(12, nbVictoiresComptant("-15", "F", -81))
+        self.assertEqual(17, nbVictoiresComptant("-15", "F", -1))
+        self.assertEqual(24, nbVictoiresComptant("-15", "F", 45))
+
 
 if __name__ == '__main__':
     unittest.main()

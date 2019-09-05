@@ -228,13 +228,16 @@ def VE2I5G(classement, victoires, defaites, impression=False):
     lstG = lstInf(classement, defaites, -1)
     g = sum_coeff(lstG)
 
+    result = arrondi(v - e - 2 * i - 5 * g)
+
     if impression:
         print("V = ", v, "(Nombre de victoires) : ", match_list_str(victoires))
         print("E = ", e, "(Nb de défaites à échelon égal) :", match_list_str(lstE))
         print("I = ", i, "(Nb de défaites à échelon -1) :", match_list_str(lstI))
         print("G = ", g, "(Nb de défaites à échelons <= -2 et par w.o à partir du 3e) :", match_list_str(lstG))
+        print("V - E - 2I - 5G :", result)
 
-    return arrondi(v - e - 2 * i - 5 * g)
+    return result
 
 
 # Calcule le nb de defaites E echelons en-dessous
@@ -263,105 +266,73 @@ def pointsVictoire( myClassement, classementBattu ):
         return points[ diff ]
 
 # Retourne le nombre de victoires prises en compte
-def nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites, impression=True ):
+def nbVictoiresComptant(myClassement, sexe, ve2i5g):
     if( "M" == sexe ):
         victoires = victoiresH
     else:
         victoires = victoiresF
 
     nb = victoires[ myClassement ]
-    v = VE2I5G( myClassement, myVictoires, myDefaites, impression )
 
-    if impression:
-        print("V - E - 2I - 5G :", v)
-    
-    add = 0
-    if( 4 == serie[ myClassement ] ): 
-        if( v < 0 ) :
-            add = 0
-        elif( v >= 0 and v <= 4 ):
-            add = 1
-        elif( v >= 5 and v <= 9 ):
-            add = 2
-        elif( v >= 10 and v <= 14 ):
-            add = 3
-        elif( v >= 15 and v <= 19 ):
-            add = 4
-        elif( v >= 20 and v <= 24 ):
-            add = 5
-        elif( v >= 25 ):
-            add = 6
-    elif( 3 == serie[ myClassement ] ): 
-        if( v < 0 ) :
-            add = 0
-        elif( v >= 0 and v <= 7 ):
-            add = 1
-        elif( v >= 8 and v <= 14 ):
-            add = 2
-        elif( v >= 15 and v <= 22 ):
-            add = 3
-        elif( v >= 23 and v <= 29 ):
-            add = 4
-        elif( v >= 30 and v <= 39 ):
-            add = 5
-        elif( v >= 40 ):
-            add = 6
-    elif( 2 == serie[ myClassement ] ): 
-        if( v < -41 ) :
-            add = -3
-        elif( v >= -40 and v <= -31 ):
-            add = -2
-        elif( v >= -30 and v <= -21 ):
-            add = -1
-        elif( v >= -1 and v <= -20 ):
-            add = 0
-        elif( v >= 0 and v <= 7 ):
-            add = 1
-        elif( v >= 8 and v <= 14 ):
-            add = 2
-        elif( v >= 15 and v <= 22 ):
-            add = 3
-        elif( v >= 23 and v <= 29 ):
-            add = 4
-        elif( v >= 30 and v <= 39 ):
-            add = 5
-        elif( v >= 40 ):
-            add = 6
-    elif( -2 == serie[ myClassement ] ): 
-        if( v < -81 ) :
-            add = -4
-        elif( v >= -80 and v <= -61 ):
-            add = -4
-        elif( v >= -60 and v <= -41 ):
-            add = -3
-        elif( v >= -31 and v <= -40 ):
-            add = -2
-        elif( v >= -21 and v <= -30 ):
-            add = -1
-        elif( v >= -1 and v <= -20 ):
-            add = 0
-        elif( v >= 0 and v <= 9 ):
-            add = 1
-        elif( v >= 10 and v <= 19 ):
-            add = 2
-        elif( v >= 20 and v <= 24 ):
-            add = 3
-        elif( v >= 25 and v <= 29 ):
-            add = 4
-        elif( v >= 30 and v <= 34 ):
-            add = 5
-        elif( v >= 35 and v <= 44 ):
-            add = 6
-        elif( v >= 45 ):
-            add = 7
-    else:
-        add = 0
+    # Pour chaque série, la clé est le seuil de V-E-2I-5G et la valeur est le nombre correspondant
+    # de victoires à ajouter.
+    victoires_supp = {
+        4: {
+            # < 0 : aucune victoire supplémentaire ou en moins
+            0: 1,  # de 0 à 4 : +1
+            5: 2,  # de 5 à 9 : +2
+            10: 3,
+            15: 4,
+            20: 5,
+            25: 6
+        },
+        3: {
+            # < 0 : aucune victoire supplémentaire ou en moins
+            0: 1,
+            8: 2,
+            15: 3,
+            23: 4,
+            30: 5,
+            40: 6
+        },
+        2: {
+            -99: -3,  # de -99 à -41 : -3
+            -40: -2,  # de -40 à -31 : -2
+            -30: -1,
+            -20: 0,
+            0: 1,
+            8: 2,
+            15: 3,
+            23: 4,
+            30: 5,
+            40: 6
+        },
+        -2: {
+            -99: -5,
+            -80: -4,
+            -60: -3,
+            -40: -2,
+            -30: -1,
+            -20: 0,
+            0: 1,
+            10: 2,
+            20: 3,
+            25: 4,
+            30: 5,
+            35: 6,
+            45: 7
+        }
+    }
+
+    seuils = victoires_supp[serie[myClassement]]
+    add = ([0] + [seuils[s] for s in seuils.keys() if s <= ve2i5g])[-1]
     return nb + add
 
 
 # Calcule les points a un classement donne
 def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv, impression=True ):
-    nbV = nbVictoiresComptant( myClassement, sexe, myVictoires, myDefaites, impression )
+    ve2i5g = VE2I5G( myClassement, myVictoires, myDefaites, impression )
+    nbV = nbVictoiresComptant(myClassement, sexe, ve2i5g)
     sortedVictoires = sortVictoires( myVictoires )
     victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
 
