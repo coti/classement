@@ -144,6 +144,18 @@ class TestClassement(unittest.TestCase):
         self.assertEqual(17, nbVictoiresComptant("-15", "F", -1))
         self.assertEqual(24, nbVictoiresComptant("-15", "F", 45))
 
+    def test_sortVictoires(self):
+        self.assertEqual([], sortVictoires([]))
+        self.assertEqual([], sortVictoires(None))
+
+        v_30 = ("30", False, 1)
+        v_30_2 = ("30/2", False, 1)
+        self.assertEqual([v_30, v_30_2], sortVictoires([v_30_2, v_30]))
+
+        # Les matchs à coefficients < 1 sont triés après ceux à coefficient 1
+        v_30_c08 = ("30", False, 0.8)
+        self.assertEqual([v_30, v_30_c08, v_30_2], sortVictoires([v_30_c08, v_30_2, v_30]))
+
 
 if __name__ == '__main__':
     unittest.main()
