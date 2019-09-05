@@ -156,6 +156,38 @@ class TestClassement(unittest.TestCase):
         v_30_c08 = ("30", False, 0.8)
         self.assertEqual([v_30, v_30_c08, v_30_2], sortVictoires([v_30_c08, v_30_2, v_30]))
 
+    def test_bonus_absence_defaite(self):
+        def verif_bonus(classement, bonus_attendu):
+            victoires = [(classement, False, 1)] * 5
+            # Avec une défaite à classement égal : pas de bonus
+            self.assertEqual(300, calculPoints(classement, "M", victoires, [(classement, False, 1)], 0, False))
+            # Sans défaite
+            self.assertEqual(300 + bonus_attendu, calculPoints(classement, "M", victoires, [], 0, False))
+
+        # 4ème série : 50 points à partir de 30/2
+        verif_bonus("30/1", 50)
+        verif_bonus("30/2", 50)
+        verif_bonus("30/3", 0)  # Pas de bonus en dessous de 30/2
+
+        # 3ème série : 100 points
+        verif_bonus("15/3", 100)
+
+        # 2ème série : 150 points
+        verif_bonus("3/6", 150)
+        verif_bonus("0", 150)
+        verif_bonus("-4/6", 150)
+        verif_bonus("Top 40/Top 60", 150)
+
+        # Avec seulement une défaite à classement supérieur : Bonus
+        self.assertEqual(400, calculPoints("30", "M", [("30", False, 1)] * 5, [("15/5", False, 1)], 0, False))
+
+        # Pas de bonus avec seulement 4 victoires
+        self.assertEqual(240, calculPoints("30", "M", [("30", False, 1)] * 4, [], 0, False))
+
+        # Pas de bonus avec 5 victoires dont une par WO
+        victoires = [("30", False, 1)] * 4 + [("30", True, 1)]
+        self.assertEqual(240, calculPoints("30", "M", victoires, [], 0, False))
+
 
 if __name__ == '__main__':
     unittest.main()

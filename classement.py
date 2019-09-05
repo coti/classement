@@ -352,7 +352,7 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv, 
     bonif = 0
 
     if True == bonifAbsenceDefaitesPossible:
-        if serie[ myClassement ] == 2:
+        if serie[myClassement] in (2, -2):
             if True == absenceDef( myDefaites, myClassement ):
                 bonif =150
         if serie[ myClassement ] == 3:
