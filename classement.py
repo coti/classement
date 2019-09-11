@@ -333,16 +333,21 @@ def nbVictoiresComptant(myClassement, sexe, ve2i5g):
 def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv, impression=True ):
     ve2i5g = VE2I5G( myClassement, myVictoires, myDefaites, impression )
     nbV = nbVictoiresComptant(myClassement, sexe, ve2i5g)
-    sortedVictoires = sortVictoires( myVictoires )
-    victoiresComptant = victoiresQuiComptent( sortedVictoires, nbV )
+    sortedVictoires = sortVictoires(victoiresQuiComptent(myVictoires))
+
+    nbPoints = 0
+    sommeCoeffs = 0
+    victoiresComptant = []
+
+    for classement, wo, coeff in sortedVictoires:
+        if sommeCoeffs < nbV:
+            coeff = min(coeff, nbV - sommeCoeffs)  # On compte une victoire partielle si nécessaire pour arriver à nbV
+            nbPoints += pointsVictoire(myClassement, classement) * coeff
+            sommeCoeffs += coeff
+            victoiresComptant.append((classement, wo, coeff))
 
     if impression:
         print("Victoires prises en compte ({}) : {}".format(nbV, match_list_str(victoiresComptant)))
-
-    nbPoints = 0
-
-    for classement, _, coeff in victoiresComptant:
-        nbPoints += pointsVictoire( myClassement, classement ) * coeff
 
     # Bonifs
 
@@ -509,8 +514,8 @@ def absenceDef( defaites, classement ):
     return not any(classementNumerique[cl_d] <= classementNumerique[classement] for cl_d, wo, _ in defaites if not wo)
 
 # Victoires comptant : on supprime les wo
-def victoiresQuiComptent( vic, nb ):
-    return [v for v in vic if not v[1]][:nb]
+def victoiresQuiComptent(vic):
+    return [v for v in vic if not v[1]]
 
 # Calcul du classement
 def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv, impression ):
@@ -523,7 +528,7 @@ def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampI
             afficheClassement( myClassement, myClassement, myClassement )
         return ( myClassement, myClassement )
 
-    if 0 == len( victoiresQuiComptent( myVictoires, len( myVictoires ) ) ):
+    if 0 == len(victoiresQuiComptent(myVictoires)):
 
         if( 'NC' == myClassement ):
             if 0 != len( myDefaites ):

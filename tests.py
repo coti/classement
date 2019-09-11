@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import unittest
 from classement import *
 
@@ -187,6 +185,23 @@ class TestClassement(unittest.TestCase):
         # Pas de bonus avec 5 victoires dont une par WO
         victoires = [("30", False, 1)] * 4 + [("30", True, 1)]
         self.assertEqual(240, calculPoints("30", "M", victoires, [], 0, False))
+
+    def test_calculPoints(self):
+        self.assertEqual(0, calculPoints("30", "F", [], [], 0, False))
+        self.assertEqual(30, calculPoints("30", "F", [("30/1", False, 1)], [], 0, False))
+
+        # Un WO ne doit pas compter dans les points
+        self.assertEqual(30, calculPoints("30", "F", [("30/1", False, 1), ("30/1", True, 1)], [], 0, False))
+
+        # Cas des victoires prises en compte partiellement quand il y a des coefficients.
+        # 8 victoires prises en compte. Avec les coefficients 10 matchs gagnés entrent dans le calcul et une des
+        # victoires à 15/2 ne compte que pour 0.4. Le total arrive à 480 points au lieu de 444 en prenant 8 résultats.
+        # Exemple basé sur le cas réel suivant :
+        # https://forums.tennis-classim.net/topic/47594-votre-classement-20192020/?do=findComment&comment=1857655
+        victoires = [("5/6", False, 0.8)] + [("15", False, 0.8)] * 2 + [("15/1", False, 0.8)] * 3 + \
+                    [("15/2", False, 1)] * 2 + [("15/2", False, 0.8)] * 5
+        defaites = [("15/1", False, 1)] * 5 + [("15/2", False, 1)] * 5
+        self.assertEqual(480, calculPoints("15/1", "M", victoires, defaites, 0, False))
 
 
 if __name__ == '__main__':
