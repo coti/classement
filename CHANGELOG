@@ -1,0 +1,9 @@
+2019-09-11 Correction du nombre de résultats pris en compte dans le cas de matchs avec coefficient.
+2019-09-05 Correction du bonus absence de défaite significative pour les classement 2ème série négative.
+2019-09-03 Correction de l'arrondi quand le delta V-E-2I-5G a une partie décimale de 0,5.
+2019-09-03 Passage à Python 3.
+2019-08-22 Correction de la normalisation erronée des classements Top 40/60/100.
+2019-08-17 Correction de la détection d'une erreur d'identifiants.
+2019-08-04 Prise en compte des coefficients des matchs dans le calcul du V-E-2I-5G.
+2019-07-04 Bonus championnat individuel : exclusion des victoires par WO.
+2019-07-02 Compatibilité avec Ten'Up et millésime 2019.
