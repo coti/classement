@@ -18,180 +18,195 @@
 import math
 import re
 
-classementNumerique = { "S"  : -1,
-                        "ND" : -1,
-                        "NC" : 0,
-                        "40" : 1,
-                        "30/5" : 2,
-                        "30/4" : 3,
-                        "30/3" : 4,
-                        "30/2" : 5,
-                        "30/1" : 6,
-                        "30" : 7,
-                        "15/5" : 8,
-                        "15/4" : 9,
-                        "15/3" : 10,
-                        "15/2" : 11,
-                        "15/1" : 12,
-                        "15" : 13,
-                        "5/6" : 14,
-                        "4/6" : 15,
-                        "3/6" : 16,
-                        "2/6" : 17,
-                        "1/6" : 18,
-                        "0" : 19,
-                        "-2/6" : 20,
-                        "-4/6" : 21,
-                        "-15" : 22,
-                        "Top 60/Top 100" : 23,
-                        "Top 40/Top 60" : 24}
+classementNumerique = {
+    "S": -1,
+    "ND": -1,
+    "NC": 0,
+    "40": 1,
+    "30/5": 2,
+    "30/4": 3,
+    "30/3": 4,
+    "30/2": 5,
+    "30/1": 6,
+    "30": 7,
+    "15/5": 8,
+    "15/4": 9,
+    "15/3": 10,
+    "15/2": 11,
+    "15/1": 12,
+    "15": 13,
+    "5/6": 14,
+    "4/6": 15,
+    "3/6": 16,
+    "2/6": 17,
+    "1/6": 18,
+    "0": 19,
+    "-2/6": 20,
+    "-4/6": 21,
+    "-15": 22,
+    "Top 60/Top 100": 23,
+    "Top 40/Top 60": 24
+}
 
-points = { -3 : 15,
-           -2 : 20,
-           -1 : 30,
-            0 : 60,
-            1 : 90,
-            2 : 120 }
+points = {
+    -3: 15,
+    -2: 20,
+    -1: 30,
+    0: 60,
+    1: 90,
+    2: 120
+}
 
-maintienF = { "ND" : 0,
-              "NC" : 0,
-              "40" : 0,
-              "30/5" : 6,
-              "30/4" : 70,
-              "30/3" : 120,
-              "30/2" : 170,
-              "30/1" : 210,
-              "30" : 265,
-              "15/5" : 295,
-              "15/4" : 305,
-              "15/3" : 310,
-              "15/2" : 330,
-              "15/1" : 350,
-              "15" : 395,
-              "5/6" : 405,
-              "4/6" : 435,
-              "3/6" : 500,
-              "2/6" : 560,
-              "1/6" : 610,
-              "0" : 630,
-              "-2/6" : 760,
-              "-4/6" : 760,
-              "-15" : 810,
-              "Top 60/Top 100" : 860,
-              "Top 40/Top 60" : 920}
+maintienF = {
+    "ND": 0,
+    "NC": 0,
+    "40": 0,
+    "30/5": 6,
+    "30/4": 70,
+    "30/3": 120,
+    "30/2": 170,
+    "30/1": 210,
+    "30": 265,
+    "15/5": 295,
+    "15/4": 305,
+    "15/3": 310,
+    "15/2": 330,
+    "15/1": 350,
+    "15": 395,
+    "5/6": 405,
+    "4/6": 435,
+    "3/6": 500,
+    "2/6": 560,
+    "1/6": 610,
+    "0": 630,
+    "-2/6": 760,
+    "-4/6": 760,
+    "-15": 810,
+    "Top 60/Top 100": 860,
+    "Top 40/Top 60": 920
+}
 
-maintienH = { "ND" : 0,
-              "NC" : 0,
-              "40" : 0,
-              "30/5" : 6,
-              "30/4" : 70,
-              "30/3" : 120,
-              "30/2" : 170,
-              "30/1" : 210,
-              "30" : 285,
-              "15/5" : 305,
-              "15/4" : 315,
-              "15/3" : 325,
-              "15/2" : 340,
-              "15/1" : 370,
-              "15" : 430,
-              "5/6" : 435,
-              "4/6" : 435,
-              "3/6" : 465,
-              "2/6" : 495,
-              "1/6" : 555,
-              "0" : 605,
-              "-2/6" : 760,
-              "-4/6" : 860,
-              "-15" : 960,
-              "Top 60/Top 100" : 1010,
-              "Top 40/Top 60" : 1110}
+maintienH = {
+    "ND": 0,
+    "NC": 0,
+    "40": 0,
+    "30/5": 6,
+    "30/4": 70,
+    "30/3": 120,
+    "30/2": 170,
+    "30/1": 210,
+    "30": 285,
+    "15/5": 305,
+    "15/4": 315,
+    "15/3": 325,
+    "15/2": 340,
+    "15/1": 370,
+    "15": 430,
+    "5/6": 435,
+    "4/6": 435,
+    "3/6": 465,
+    "2/6": 495,
+    "1/6": 555,
+    "0": 605,
+    "-2/6": 760,
+    "-4/6": 860,
+    "-15": 960,
+    "Top 60/Top 100": 1010,
+    "Top 40/Top 60": 1110
+}
 
-victoiresF = { "ND" : 6,
-               "NC" : 6,
-               "40" : 6,
-               "30/5" : 6,
-               "30/4" : 6,
-               "30/3" : 6,
-               "30/2" : 6,
-               "30/1" : 6,
-               "30" : 8,
-               "15/5" : 8,
-               "15/4" : 8,
-               "15/3" : 8,
-               "15/2" : 8,
-               "15/1" : 8,
-               "15" : 9,
-               "5/6" : 9,
-               "4/6" : 9,
-               "3/6" : 10,
-               "2/6" : 11,
-               "1/6" : 12,
-               "0" : 14,
-               "-2/6" : 15,
-               "-4/6" : 16,
-               "-15" : 17,
-               "Top 60/Top 100" : 17,
-               "Top 40/Top 60" : 19}
+victoiresF = {
+    "ND": 6,
+    "NC": 6,
+    "40": 6,
+    "30/5": 6,
+    "30/4": 6,
+    "30/3": 6,
+    "30/2": 6,
+    "30/1": 6,
+    "30": 8,
+    "15/5": 8,
+    "15/4": 8,
+    "15/3": 8,
+    "15/2": 8,
+    "15/1": 8,
+    "15": 9,
+    "5/6": 9,
+    "4/6": 9,
+    "3/6": 10,
+    "2/6": 11,
+    "1/6": 12,
+    "0": 14,
+    "-2/6": 15,
+    "-4/6": 16,
+    "-15": 17,
+    "Top 60/Top 100": 17,
+    "Top 40/Top 60": 19
+}
 
-victoiresH = { "ND" : 6,
-               "NC" : 6,
-               "40" : 6,
-               "30/5" : 6,
-               "30/4" : 6,
-               "30/3" : 6,
-               "30/2" : 6,
-               "30/1" : 6,
-               "30" : 8,
-               "15/5" : 8,
-               "15/4" : 8,
-               "15/3" : 8,
-               "15/2" : 8,
-               "15/1" : 8,
-               "15" : 9,
-               "5/6" : 9,
-               "4/6" : 9,
-               "3/6" : 10,
-               "2/6" : 10,
-               "1/6" : 11,
-               "0" : 12,
-               "-2/6" : 15,
-               "-4/6" : 17,
-               "-15" : 19,
-               "Top 60/Top 100" : 20,
-               "Top 40/Top 60" : 22}
+victoiresH = {
+    "ND": 6,
+    "NC": 6,
+    "40": 6,
+    "30/5": 6,
+    "30/4": 6,
+    "30/3": 6,
+    "30/2": 6,
+    "30/1": 6,
+    "30": 8,
+    "15/5": 8,
+    "15/4": 8,
+    "15/3": 8,
+    "15/2": 8,
+    "15/1": 8,
+    "15": 9,
+    "5/6": 9,
+    "4/6": 9,
+    "3/6": 10,
+    "2/6": 10,
+    "1/6": 11,
+    "0": 12,
+    "-2/6": 15,
+    "-4/6": 17,
+    "-15": 19,
+    "Top 60/Top 100": 20,
+    "Top 40/Top 60": 22
+}
 
-serie = { "ND" : 4,
-          "NC" : 4,
-          "40" : 4,
-          "30/5" : 4,
-          "30/4" : 4,
-          "30/3" : 4,
-          "30/2" : 4,
-          "30/1" : 4,
-          "30" : 3,
-          "15/5" : 3,
-          "15/4" : 3,
-          "15/3" : 3,
-          "15/2" : 3,
-          "15/1" : 3,
-          "15" : 2,
-          "5/6" : 2,
-          "4/6" : 2,
-          "3/6" : 2,
-          "2/6" : 2,
-          "1/6" : 2,
-          "0" : 2,
-          "-2/6" : -2,
-          "-4/6" : -2,
-          "-15" : -2,
-          "Top 60/Top 100" : -2,
-          "Top 40/Top 60" : -2}
+serie = {
+    "ND": 4,
+    "NC": 4,
+    "40": 4,
+    "30/5": 4,
+    "30/4": 4,
+    "30/3": 4,
+    "30/2": 4,
+    "30/1": 4,
+    "30": 3,
+    "15/5": 3,
+    "15/4": 3,
+    "15/3": 3,
+    "15/2": 3,
+    "15/1": 3,
+    "15": 2,
+    "5/6": 2,
+    "4/6": 2,
+    "3/6": 2,
+    "2/6": 2,
+    "1/6": 2,
+    "0": 2,
+    "-2/6": -2,
+    "-4/6": -2,
+    "-15": -2,
+    "Top 60/Top 100": -2,
+    "Top 40/Top 60": -2
+}
+
 
 # affiche le classement calculé d'un joueur
-def afficheClassement( origine, calcul, harmonise, impression=True ):
+def afficheClassement(origine, calcul, harmonise, impression=True):
     if impression:
-        print(" ==> Classement de sortie :", calcul, "- Harmonisé :" , harmonise, "-  classement d\'origine :", origine)
+        print(" ==> Classement de sortie :", calcul, "- Harmonisé :", harmonise, "-  classement d\'origine :", origine)
     return
 
 
@@ -255,24 +270,26 @@ def lstInf(myClassement, defaites, E):
 
     return lst
 
+
 # Retourne le nombre de points apportes par une victoire
-def pointsVictoire( myClassement, classementBattu ):
-    diff = classementNumerique[ classementBattu ] - classementNumerique[ myClassement ]
-    if( diff  < -3 ):
+def pointsVictoire(myClassement, classementBattu):
+    diff = classementNumerique[classementBattu] - classementNumerique[myClassement]
+    if diff < -3:
         return 0
     else:
-        if( diff > 2 ):
+        if diff > 2:
             diff = 2
-        return points[ diff ]
+        return points[diff]
+
 
 # Retourne le nombre de victoires prises en compte
 def nbVictoiresComptant(myClassement, sexe, ve2i5g):
-    if( "M" == sexe ):
+    if sexe == "M":
         victoires = victoiresH
     else:
         victoires = victoiresF
 
-    nb = victoires[ myClassement ]
+    nb = victoires[myClassement]
 
     # Pour chaque série, la clé est le seuil de V-E-2I-5G et la valeur est le nombre correspondant
     # de victoires à ajouter.
@@ -330,8 +347,8 @@ def nbVictoiresComptant(myClassement, sexe, ve2i5g):
 
 
 # Calcule les points a un classement donne
-def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv, impression=True ):
-    ve2i5g = VE2I5G( myClassement, myVictoires, myDefaites, impression )
+def calculPoints(myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv, impression=True):
+    ve2i5g = VE2I5G(myClassement, myVictoires, myDefaites, impression)
     nbV = nbVictoiresComptant(myClassement, sexe, ve2i5g)
     sortedVictoires = sortVictoires(victoiresQuiComptent(myVictoires))
 
@@ -351,20 +368,20 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv, 
 
     # Bonifs
 
-    nb = nbWO( myVictoires )
-    bonifAbsenceDefaitesPossible = ( ( len( myVictoires ) - nb ) >= 5 )
+    nb = nbWO(myVictoires)
+    bonifAbsenceDefaitesPossible = ((len(myVictoires) - nb) >= 5)
 
     bonif = 0
 
-    if True == bonifAbsenceDefaitesPossible:
+    if bonifAbsenceDefaitesPossible:
         if serie[myClassement] in (2, -2):
-            if True == absenceDef( myDefaites, myClassement ):
-                bonif =150
-        if serie[ myClassement ] == 3:
-            if True == absenceDef( myDefaites, myClassement ):
+            if absenceDef(myDefaites, myClassement):
+                bonif = 150
+        if serie[myClassement] == 3:
+            if absenceDef(myDefaites, myClassement):
                 bonif = 100
-        if myClassement == '30/2' or myClassement == '30/1' :
-            if True == absenceDef( myDefaites, myClassement ):
+        if myClassement == '30/2' or myClassement == '30/1':
+            if absenceDef(myDefaites, myClassement):
                 bonif = 50
     if bonif != 0 and impression:
         print("Bonif absence de defaite significative:", bonif)
@@ -381,72 +398,75 @@ def calculPoints( myClassement, sexe, myVictoires, myDefaites, nbVicChampIndiv, 
 
     return int(nbPoints)
 
+
 # Trie les victoires par ordre decroissant
-def sortVictoires( myVictoires ):
+def sortVictoires(myVictoires):
     if not myVictoires:
         return []
-
     return sorted(myVictoires, key=lambda v: (classementNumerique[v[0]], v[2]), reverse=True)
 
 
 # Teste si les points de maintien sont atteints pour le classement
-def maintienOK( myClassement, mySexe, myPoints, impression=True ):
+def maintienOK(myClassement, mySexe, myPoints, impression=True):
     if 'M' == mySexe:
         maintien = maintienH
     else:
         maintien = maintienF
 
     if impression:
-        print("Points acquis :", myPoints, "- points nécessaires pour le maintien à", myClassement, ":", maintien[ myClassement ])
+        print("Points acquis :", myPoints, "- points nécessaires pour le maintien à", myClassement, ":",
+              maintien[myClassement])
 
     return myPoints >= maintien[myClassement]
 
 
 # Plus gros classement battu
-def plusGrosseVictoire( myVictoires ):
-    if 0 == len( myVictoires ):
+def plusGrosseVictoire(myVictoires):
+    if 0 == len(myVictoires):
         return None
-    sorted = sortVictoires( myVictoires )
+    sorted = sortVictoires(myVictoires)
     for v in sorted:
-        if v[1] != True:
+        if not v[1]:
             return v[0]
 
+
 # Plus gros classement battu + E echelons
-def plusGrosseVictoirePlusN( myVictoires, E ):
-    if 0 == len( myVictoires ):
+def plusGrosseVictoirePlusN(myVictoires, E):
+    if len(myVictoires) == 0:
         return None
 
-    grosse = plusGrosseVictoire( myVictoires )
+    grosse = plusGrosseVictoire(myVictoires)
     if grosse == "Top 60/Top 100" or grosse == "Top 40/Top 60":
         return "Top 40/Top 60"
     else:
-        for k, v  in classementNumerique.items():
-            if( k == grosse ):
-                for k_, v_  in classementNumerique.items():
-                    if( v_ == v + E ):
+        for k, v in classementNumerique.items():
+            if k == grosse:
+                for k_, v_ in classementNumerique.items():
+                    if v_ == v + E:
                         return k_
 
-# Echelon inferieur au classement d'entree
-def echelonInferieur( myClassement ):
-    v = classementNumerique[ myClassement ]
 
+# Echelon inferieur au classement d'entree
+def echelonInferieur(myClassement):
+    v = classementNumerique[myClassement]
     if v <= 0:
         return "NC"
-
     return next(classement for classement, valeur in classementNumerique.items() if valeur == v - 1)
 
-# Classement propose au premier tour
-def classementPropose1erTour( myVictoires, myClassement ):
-    grosse = plusGrosseVictoire( myVictoires )
-    if( 4 == serie[ grosse ] ): 
-        plus = plusGrosseVictoirePlusN( myVictoires, 2 )
-    else:
-        plus = plusGrosseVictoirePlusN( myVictoires, 1 )
 
-    if classementNumerique[ plus ] >  classementNumerique[ myClassement ]:
+# Classement propose au premier tour
+def classementPropose1erTour(myVictoires, myClassement):
+    grosse = plusGrosseVictoire(myVictoires)
+    if serie[grosse] == 4:
+        plus = plusGrosseVictoirePlusN(myVictoires, 2)
+    else:
+        plus = plusGrosseVictoirePlusN(myVictoires, 1)
+
+    if classementNumerique[plus] > classementNumerique[myClassement]:
         return plus
     else:
         return myClassement
+
 
 # Normalise un classement
 def normalisation(classement, sexe):
@@ -455,14 +475,14 @@ def normalisation(classement, sexe):
         # Cela évite en particulier l'erreur de transformer un "Top 60/Top 100" en "Top"
         return classement
 
-    c = classement.split( ) # certains classements ont des precisions, e.g. 'NC (2014)' -> garder uniquement la 1ere partie
-    if len( c ) > 1:
+    c = classement.split()  # certains classements ont des precisions, e.g. 'NC (2014)' -> garder uniquement la 1ere partie
+    if len(c) > 1:
         classement = c[0]
-    if estNumerote( classement ):
+    if estNumerote(classement):
         # on est sur un numerote
         s = classement[1:]
-        n = int( s )
-        if 'H' == sexe:
+        n = int(s)
+        if sexe == 'H':
             if n <= 60:
                 classement = "Top 40/Top 60"
             else:
@@ -474,30 +494,34 @@ def normalisation(classement, sexe):
                 classement = "Top 60/Top 100"
     return classement
 
+
 # determine si le joueur est numéroté
-def estNumerote( classement ):
+def estNumerote(classement):
     return re.match(r'[NT]\d+', classement) is not None
 
+
 # Conversion des numerotes en "Top 40/Top 60" ou "Top 60/Top 100"
-def normalisationTab( tab, sexe ):
+def normalisationTab(tab, sexe):
     tabSortie = []
     for classement, wo, coeff in tab:
         tabSortie.append((normalisation(classement, sexe), wo, coeff))
     return tabSortie
 
+
 # Compter le nombre de wo
-def nbWO( tab ):
+def nbWO(tab):
     return sum(1 for _, wo, _ in tab if wo)
 
+
 # Insertion de la penalite wo : a partir de 3, tout wo compte comme une defaite significative
-def penaliteWO( defaites, impression=True ):
+def penaliteWO(defaites, impression=True):
     _def = []
     w = 0
     for d in defaites:
-        if d[1] == True:
+        if d[1]:
             w = w + 1
             if w >= 3:
-                o = ( 'S', d[1] )
+                o = ('S', d[1])
                 # on insere une defaite qu'on appelle S pour que ca compte comme une def significative
                 if impression:
                     print("Defaite significative ajoutée (wo)")
@@ -505,102 +529,105 @@ def penaliteWO( defaites, impression=True ):
                 o = d
         else:
             o = d
-        _def.append( o )
+        _def.append(o)
 
     return defaites
 
+
 # Absence de defaite significative ?
-def absenceDef( defaites, classement ):
+def absenceDef(defaites, classement):
     return not any(classementNumerique[cl_d] <= classementNumerique[classement] for cl_d, wo, _ in defaites if not wo)
+
 
 # Victoires comptant : on supprime les wo
 def victoiresQuiComptent(vic):
     return [v for v in vic if not v[1]]
 
-# Calcul du classement
-def calculClassement( myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv, impression ):
 
+# Calcul du classement
+def calculClassement(myVictoires, myDefaites, mySexe, myClassement, nbVicChampIndiv, impression):
     ok = False
 
-    if estNumerote( myClassement ):
+    if estNumerote(myClassement):
         if impression:
             print("Cas particulier : le joueur est numéroté. On le calcule au meme classement.")
-            afficheClassement( myClassement, myClassement, myClassement )
-        return ( myClassement, myClassement )
+            afficheClassement(myClassement, myClassement, myClassement)
+        return (myClassement, myClassement)
 
-    if 0 == len(victoiresQuiComptent(myVictoires)):
+    if len(victoiresQuiComptent(myVictoires)) == 0:
 
-        if( 'NC' == myClassement ):
-            if 0 != len( myDefaites ):
-                afficheClassement( myClassement, '40', '40', impression )
-                return ( '40', '40' )
+        if myClassement == 'NC':
+            if len(myDefaites) != 0:
+                afficheClassement(myClassement, '40', '40', impression)
+                return '40', '40'
             else:
-                afficheClassement( myClassement, '40', '40', impression )
-                return ( 'NC', 'NC' )
+                afficheClassement(myClassement, '40', '40', impression)
+                return 'NC', 'NC'
         else:
-            cl = echelonInferieur( myClassement )
-            if 'NC' == cl:
-                if 0 != len( myDefaites ):
-                    afficheClassement( myClassement, '40', '40', impression )
-                    return ( '40', '40' )
+            cl = echelonInferieur(myClassement)
+            if cl == 'NC':
+                if len(myDefaites) != 0:
+                    afficheClassement(myClassement, '40', '40', impression)
+                    return '40', '40'
                 else:
-                    afficheClassement( myClassement, '40', '40', impression )
-                    return ( 'NC', 'NC' )
+                    afficheClassement(myClassement, '40', '40', impression)
+                    return 'NC', 'NC'
             else:
-                afficheClassement( myClassement, cl, cl, impression )
-                return ( cl, cl )
-                
-    myVictoires = normalisationTab( myVictoires, mySexe )
-    myDefaites = normalisationTab( myDefaites, mySexe )
-    
+                afficheClassement(myClassement, cl, cl, impression)
+                return cl, cl
+
+    myVictoires = normalisationTab(myVictoires, mySexe)
+    myDefaites = normalisationTab(myDefaites, mySexe)
+
     # Insertion de la penalite wo
-    if nbWO( myDefaites ) >= 3:
-        myDefaites = penaliteWO( myDefaites, impression )
+    if nbWO(myDefaites) >= 3:
+        myDefaites = penaliteWO(myDefaites, impression)
 
-    myClassement = normalisation( myClassement, mySexe )
+    myClassement = normalisation(myClassement, mySexe)
 
-    classementPropose = classementPropose1erTour( myVictoires, myClassement )
-    borneInf = echelonInferieur( myClassement ) # on ne peut pas descendre plus d'un echelon en-dessous
+    classementPropose = classementPropose1erTour(myVictoires, myClassement)
+    borneInf = echelonInferieur(myClassement)  # on ne peut pas descendre plus d'un echelon en-dessous
 
-    while( ( False == ok ) and ( "NC" != classementPropose ) and not ( classementPropose is borneInf ) ):
+    while (not ok) and ("NC" != classementPropose) and not (classementPropose is borneInf):
 
         if impression:
             print(" ==> Classement proposé :", classementPropose)
 
-        pt = calculPoints( classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv, impression )
-        ok = maintienOK( classementPropose, mySexe, pt, impression )
-        if( True != ok ):
-            classementPropose = echelonInferieur( classementPropose )
+        pt = calculPoints(classementPropose, mySexe, myVictoires, myDefaites, nbVicChampIndiv, impression)
+        ok = maintienOK(classementPropose, mySexe, pt, impression)
+        if not ok:
+            classementPropose = echelonInferieur(classementPropose)
 
     # harmonisation du classement
     classementHarmonise = classementPropose
 
-    # penalite WO ?
-    if nbWO( myDefaites ) >= 5:
+    # penalite WO
+    if nbWO(myDefaites) >= 5:
         if impression:
-            print("Penalite car trop de WO (", nbWO( myDefaites ), "> 5)")
-        classementHarmonise = echelonInferieur( classementPropose )
+            print("Penalite car trop de WO (", nbWO(myDefaites), "> 5)")
+        classementHarmonise = echelonInferieur(classementPropose)
 
     # penalite mauvais V - E - 2I - 5G ?
-    if 2 == serie[ classementHarmonise ]:
-        v = VE2I5G( classementHarmonise, myVictoires, myDefaites, impression=False )
+    if serie[classementHarmonise] == 2:
+        v = VE2I5G(classementHarmonise, myVictoires, myDefaites, impression=False)
         if v <= -100:
             if impression:
-                print("Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 (" + str( v ) + ") : pénalité et descente d'un classement")
-            classementHarmonise = echelonInferieur( classementHarmonise )
+                print("Joueur en 2eme serie, V-E-2I-5G inférieur ou égal à 100 ({}) : "
+                      "pénalité et descente d'un classement".format(v))
+            classementHarmonise = echelonInferieur(classementHarmonise)
 
-    if 'NC' == classementPropose:
-        if 0 != ( len( myDefaites ) + len( myVictoires ) ):
+    if classementPropose == 'NC':
+        if (len(myDefaites) + len(myVictoires)) != 0:
             classementPropose = classementHarmonise = '40'
         else:
             classementPropose = classementHarmonise = 'NC'
 
-    afficheClassement( myClassement, classementPropose, classementHarmonise, impression )
+    afficheClassement(myClassement, classementPropose, classementHarmonise, impression)
 
-    return ( classementPropose, classementHarmonise )
+    return classementPropose, classementHarmonise
+
 
 def test():
-
     """
     testDef = [ "30/2", "30/1", "NC", "15/2", "30/3", "30/4", "30/5", "30/3" ]
     testVic = [ "30", "30", "NC", "15/5", "15/4", "30/1", "30/3", "30/5", "N2", "N42", "N3" ]
@@ -617,58 +644,57 @@ def test():
     testDef_n = []
 
     try:
-        fd_v = open( file_vic, 'r' )
-        fd_d = open( file_def, 'r' )
+        fd_v = open(file_vic, 'r')
+        fd_d = open(file_def, 'r')
     except:
         import sys
         print("Erreur ouverture", sys.exc_info()[0], sys.exc_info()[1])
 
-
     try:
-        lines = fd_v.readlines( )
+        lines = fd_v.readlines()
         for l in lines:
-            if l != "\n" : # si la ligne n'est pas vide
-                s = l.split( '\t' )
+            if l != "\n":  # si la ligne n'est pas vide
+                s = l.split('\t')
                 if 3 == len(s):
                     wo = False
                 else:
                     wo = True
 
-                n = [] # retirer les \n
+                n = []  # retirer les \n
                 for st in s[1], s[2]:
                     if "\n" == st[-1:]:
-                        st =  st[:-1]
-                    n.append( st )
-                    
-                testVic.append( [ n[0], wo ] )
-                testVic_n.append( [ n[1], wo ] )
-            
+                        st = st[:-1]
+                    n.append(st)
+
+                testVic.append([n[0], wo])
+                testVic_n.append([n[1], wo])
+
         fd_v.close()
 
-        lines = fd_d.readlines( )
+        lines = fd_d.readlines()
         for l in lines:
-            if l != "\n" : # si la ligne n'est pas vide
-                s = l.split( '\t' )
+            if l != "\n":  # si la ligne n'est pas vide
+                s = l.split('\t')
                 if 3 == len(s):
                     wo = False
                 else:
                     wo = True
-                    
-                n = [] # retirer les \n
+
+                n = []  # retirer les \n
                 for st in s[1], s[2]:
                     if "\n" == st[-1:]:
-                        st =  st[:-1]
-                    n.append( st )
+                        st = st[:-1]
+                    n.append(st)
 
-                testDef.append( [ n[0], wo ] )
-                testDef_n.append( [ n[1], wo ] )
+                testDef.append([n[0], wo])
+                testDef_n.append([n[1], wo])
         fd_d.close()
-                
-    except:    
+
+    except:
 
         import sys
         print("Erreur lecture", sys.exc_info()[0], sys.exc_info()[1])
-            
+
         fd_v.close()
         fd_d.close()
 
@@ -721,19 +747,17 @@ def test():
 
     """
 
-    calculClassement( testVic_n, testDef_n, testSexe, classement, champ, True )
-
-
+    calculClassement(testVic_n, testDef_n, testSexe, classement, champ, True)
 
 
 def main():
     test()
 
 
-
 if __name__ == "__main__":
     import sys
+
     if sys.version_info[0] != 3:
         print("Erreur -- Fonctionne avec Python 3.x")
-        exit( -1 )
+        exit(-1)
     main()

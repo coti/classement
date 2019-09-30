@@ -39,7 +39,7 @@ from classement import calculClassement
 from util import *
 
 millesime = 2019
-server    = "https://tenup.fft.fr"
+server = "https://tenup.fft.fr"
 
 
 class Resultat(object):
@@ -92,9 +92,9 @@ def requete(session, url, data=None, timeout=20, retries=4):
         except HTTPError as e:
             print("Le serveur a répondu avec un code d'erreur:", e)
             if e.response.status_code == 403:
-               print("Le serveur vous a refusé l'accès")
+                print("Le serveur vous a refusé l'accès")
             elif e.response.status_code == 404:
-               print("La page demandée n'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?")
+                print("La page demandée n'existe pas. Peut-être la FFT a-t-elle changé ses adresses ?")
         except ConnectionError as e:
             print("Erreur de connection au serveur:", e)
             print("Verifiez votre connexion, ou l'état du serveur de la FFT")
@@ -112,8 +112,8 @@ def requete(session, url, data=None, timeout=20, retries=4):
 def authentification(login, password, session):
     print('Connexion au site de la FFT')
 
-    page      = "/ajax_register/login/ajax"
-    payload   = { 'form_id': 'user_login', 'name': login, 'pass': password }
+    page = "/ajax_register/login/ajax"
+    payload = {'form_id': 'user_login', 'name': login, 'pass': password}
 
     # On ouvre la page d'authentification
     rep = requete(session, server + page, data=payload, retries=2)
@@ -131,9 +131,9 @@ def authentification(login, password, session):
 def getIdentifiant(session, numLicence):
     print('Récupération de l\'identifiant')
 
-    page      = "/recherche-licencies"
-    payload   = { 'numeroLicence' : numLicence }
-    data      = urllib.parse.urlencode(payload)
+    page = "/recherche-licencies"
+    payload = {'numeroLicence': numLicence}
+    data = urllib.parse.urlencode(payload)
 
     rep = requete(session, server + page + '?' + data, retries=2)
     if rep is None:
@@ -142,14 +142,14 @@ def getIdentifiant(session, numLicence):
     vide = ('', '', '', '')
 
     r_tableau = r'<tbody>.*</tbody>'
-    match = re.search( r_tableau, rep, re.DOTALL )
+    match = re.search(r_tableau, rep, re.DOTALL)
     if match:
         tableau = match.group()
     else:
         return vide
 
     r_cellule = r'<td>(.*?)</td>'
-    matches = re.findall( r_cellule, tableau, re.DOTALL )
+    matches = re.findall(r_cellule, tableau, re.DOTALL)
     if matches:
         sexe = matches[0]
         nom = matches[1]
@@ -157,7 +157,7 @@ def getIdentifiant(session, numLicence):
 
         # id interne
         r_idu = r'<a href="/palmares/(\d+)">.+</a>'
-        match = re.match( r_idu, matches[8] )
+        match = re.match(r_idu, matches[8])
         if match:
             idu = match.group(1)
         else:
@@ -165,7 +165,7 @@ def getIdentifiant(session, numLicence):
 
         # classement
         r_class = r'<a href="/classement/\d+">(.+)</a>'
-        match = re.match( r_class, matches[4] )
+        match = re.match(r_class, matches[4])
         if match:
             cl = match.group(1)
         else:
@@ -183,10 +183,10 @@ def getPalma(annee, joueur, joueurs, session):
     :type joueurs: dict[str, Joueur]
     """
 
-    page      = "/simulation-classement/" + joueur.identifiant
-    payload   = { 'millesime': annee }
-    data      = urllib.parse.urlencode(payload)
-    timeout   = 8
+    page = "/simulation-classement/" + joueur.identifiant
+    payload = {'millesime': annee}
+    data = urllib.parse.urlencode(payload)
+    timeout = 8
 
     logging.debug('getPalma ' + joueur.nom)
     start_time = time.time()
@@ -194,9 +194,9 @@ def getPalma(annee, joueur, joueurs, session):
     logging.debug('getPalma {} OK ({:.0f} ms)'.format(joueur.nom, (time.time() - start_time) * 1000))
 
     r_ligne = r"<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
-    lignes = re.findall( r_ligne, rep, re.DOTALL )
+    lignes = re.findall(r_ligne, rep, re.DOTALL)
 
-    for p in lignes:	    
+    for p in lignes:
         r = extractInfo(p, joueurs)
         if r is None:
             continue
@@ -294,7 +294,7 @@ def extractInfo(ligne, joueurs):
         return None
 
     r_cellule = r'<td.*?>(.*?)</td>'
-    cell_matches = re.findall( r_cellule, ligne, re.DOTALL | re.MULTILINE )
+    cell_matches = re.findall(r_cellule, ligne, re.DOTALL | re.MULTILINE)
     if not cell_matches:
         return None
 
@@ -324,7 +324,7 @@ def extractInfo(ligne, joueurs):
 
 
 # Retourne le nombre de victoires en championnat individuel
-def nbVictoiresChamp( tab ):
+def nbVictoiresChamp(tab):
     nb = 0
     for t in tab:
         if t.championnat and not t.wo:
@@ -376,7 +376,8 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     """
 
     if joueur.calcul_fait and joueur.calcul_fait >= profondeur:
-        logging.debug("Calcul déjà fait pour {} en profondeur {} ou plus ({})".format(joueur.nom, profondeur, joueur.calcul_fait))
+        logging.debug(
+            "Calcul déjà fait pour {} en profondeur {} ou plus ({})".format(joueur.nom, profondeur, joueur.calcul_fait))
         nc, harm = joueur.classement_calcul
         return nc, harm, None
 
@@ -430,7 +431,7 @@ def classementJoueur(joueur, sexe, profondeur, details_profondeur):
     return cl, harm, s
 
 
-def recupClassement( login, password, LICENCE, profondeur, details_profondeur=0 ):
+def recupClassement(login, password, LICENCE, profondeur, details_profondeur=0):
     """
     :param profondeur: Le niveau de profondeur maximum du calcul
     :param details_profondeur: Le nombre de niveaux de profondeur pour lesquels on veut afficher les détails
@@ -444,7 +445,7 @@ def recupClassement( login, password, LICENCE, profondeur, details_profondeur=0 
     # On s'identifie et on obtient ses prores infos
     authentification(login, password, session)
 
-    nom, id, cl, sexe = getIdentifiant(session, LICENCE )
+    nom, id, cl, sexe = getIdentifiant(session, LICENCE)
 
     if id == '':
         exit_pause(1, "Impossible de récupérer l'identifiant")
@@ -467,7 +468,7 @@ def recupClassement( login, password, LICENCE, profondeur, details_profondeur=0 
 
     # on crache la sortie du joueur dans un fichier
     fn = "{}_{}_p{}.txt".format(LICENCE, nom, profondeur)
-    fd = open( fn, "w" )
+    fd = open(fn, "w")
     fd.write(s)
     fd.close()
 
@@ -526,7 +527,7 @@ def main():
     return
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     check_dependencies()
 
     try:
