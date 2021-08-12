@@ -28,7 +28,6 @@ import logging
 import itertools
 import time
 import _thread
-import json
 
 from getpass import getpass
 from threading import Thread
@@ -112,19 +111,22 @@ def requete(session, url, data=None, timeout=20, retries=4):
 def authentification(login, password, session):
     print('Connexion au site de la FFT')
 
-    page = "/ajax_register/login/ajax"
-    payload = {'form_id': 'user_login', 'name': login, 'pass': password}
-
-    # On ouvre la page d'authentification
-    rep = requete(session, server + page, data=payload, retries=2)
+    page = '/user-auth/login'
+    rep = requete(session, server + page)
     if not rep:
         exit_pause(1, "Echec de chargement de la page d'authentification")
 
-    rep_json = json.loads(rep)
-    if "nom d'utilisateur ou mot de passe non reconnu" in rep_json[1]['output']:
-        exit_pause(1, "L'identifiant ou le mot de passe n'est pas correct")
-    if rep_json[1]['title'] != 'Connexion réussie':
-        exit_pause(1, "Echec de connexion")
+    r_form = r'<form id="kc-form" .* action="(.*?)" method="post">'
+    r_error = r'<div class="error-message">(.*?)</div>'
+    form_match = re.search(r_form, rep, re.DOTALL)
+    if form_match:
+        login_url = html.unescape(form_match.group(1))
+        rep = requete(session, login_url, data={'username': login, 'password': password})
+        if not rep:
+            exit_pause(1, "Echec de validation du formulaire d'authentification")
+        error_match = re.search(r_error, rep, re.DOTALL)
+        if error_match:
+            exit_pause(1, f"Erreur d'authentification : {error_match.group(1)}")
 
 
 # Retourne l'identifiant interne d'un licencie
