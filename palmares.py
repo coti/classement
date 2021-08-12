@@ -37,7 +37,6 @@ from decimal import Decimal
 from classement import calculClassement
 from util import *
 
-millesime = 2019
 server = "https://tenup.fft.fr"
 
 
@@ -179,20 +178,18 @@ def getIdentifiant(session, numLicence):
 
 
 # Obtenir le palma d'un joueur d'identifiant donne
-def getPalma(annee, joueur, joueurs, session):
+def getPalma(joueur, joueurs, session):
     """
     :type joueur: Joueur
     :type joueurs: dict[str, Joueur]
     """
 
     page = "/simulation-classement/" + joueur.identifiant
-    payload = {'millesime': annee}
-    data = urllib.parse.urlencode(payload)
     timeout = 8
 
     logging.debug('getPalma ' + joueur.nom)
     start_time = time.time()
-    rep = requete(session, server + page + '?' + data, timeout=timeout)
+    rep = requete(session, server + page, timeout=timeout)
     logging.debug('getPalma {} OK ({:.0f} ms)'.format(joueur.nom, (time.time() - start_time) * 1000))
 
     r_ligne = r"<input type=\"hidden\" name=\"(?:victories|defeats)_part\[(?:victories|defeats)_idadversaire.*?</tr>"
@@ -213,7 +210,7 @@ def getPalma(annee, joueur, joueurs, session):
             joueur.defaites.append(r)
 
 
-def getPalmaRecursif(annee, joueur, session, profondeurMax):
+def getPalmaRecursif(joueur, session, profondeurMax):
     """
     :type joueur: Joueur
     """
@@ -229,7 +226,7 @@ def getPalmaRecursif(annee, joueur, session, profondeurMax):
 
     def getAndEnqueue(joueur, profondeur):
         id_palmares.add(joueur.identifiant)
-        getPalma(annee, joueur, joueurs, session)
+        getPalma(joueur, joueurs, session)
         if profondeur < profondeurMax:
             for resultat in itertools.chain(joueur.victoires, joueur.defaites):
                 logging.debug('enqueue {} (P={})'.format(resultat.joueur.nom, profondeur + 1))
@@ -460,7 +457,7 @@ def recupClassement(login, password, LICENCE, profondeur, details_profondeur=0):
     joueur = Joueur(nom, id, cl)
 
     # recuperation de son propre palma, et recursivement de celui des autres
-    getPalmaRecursif(millesime, joueur, session, profondeur)
+    getPalmaRecursif(joueur, session, profondeur)
 
     # calcul du nouveau classement
     new_cl, harm, s = classementJoueur(joueur, sexe, profondeur,
